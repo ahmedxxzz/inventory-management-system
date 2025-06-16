@@ -10,6 +10,7 @@ class Factory_frame(ctk.CTkFrame):
         self.Frames = []
         
         self.create_options_buttons()
+        self.switching_options_frames('شراء')
         
     
     def create_options_buttons(self):
@@ -21,14 +22,14 @@ class Factory_frame(ctk.CTkFrame):
             button = ctk.CTkButton(header_frame, text=option,  font=("Arial", 16, "bold"), width=200, height=40)
             button.pack(side= 'left',padx=10)
             self.buttons.append(button)
-        self.buttons[0].configure(fg_color='green', state='disabled', cursor="arrow")
+        self.buttons[0].configure(fg_color='yellow', state='disabled', cursor="arrow")
         for button in self.buttons:
             button.configure(command= lambda button=button: self.options_button_click(button))
     
     def options_button_click(self, button):
         for btn in self.buttons:
             btn.configure(fg_color='#206ca4', state='normal', cursor="hand2")
-        button.configure(fg_color='green', state='disabled', cursor="arrow")
+        button.configure(fg_color='yellow', state='disabled', cursor="arrow")
         
         self.switching_options_frames(button.cget('text'))
     

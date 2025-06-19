@@ -1,0 +1,69 @@
+from view.main_view import MainView
+from model.main_model import MainModel
+from controller.dashboard_controller import DashboardController
+from controller.factory_controller import FactoryController
+from controller.customer_controller import CustomerController
+from controller.statics_controller import StaticsController
+
+class MainController:
+    def __init__(self, root_window):
+        # self.model = model
+        self.root = root_window
+        self.view = MainView(self.root)
+        self.model = MainModel()
+        self._bind_events()
+        
+        
+
+
+    def _bind_events(self):
+        for index, btn in enumerate(self.view.buttons):
+            btn.configure(command= lambda i=index, button=btn: self._menu_buttons_switching(i, button))
+        self._menu_buttons_switching(0,self.view.buttons[0])
+    
+    
+    def _menu_buttons_switching(self, index, btn):
+        '''
+        # change the color and disable the button and enable the other
+        # destroy the frames
+        add the frame of clicked button
+        append the frame to the self.view.frames
+        '''
+        for button in self.view.buttons:
+            button.configure(fg_color='black', state='normal', cursor="hand2")
+        btn.configure(fg_color='green', state='disabled', cursor="arrow")
+        
+        for frame in self.view.Frames:
+            frame.destroy()
+        self.view.Frames = []
+        
+        if index == 0:
+            self.open_dashboard()
+        elif index == 1:
+            self.open_factory()
+        elif index == 2:
+            self.open_customer()
+        elif index == 3:
+            self.open_statistics()
+        elif index == 4:
+            self.root.destroy()
+            exit()
+        
+        
+        
+        
+    def open_dashboard(self):
+        dashboard = DashboardController(self.root)
+        self.view.Frames.append(dashboard.view)
+    
+    
+    def open_factory(self):
+        factory = FactoryController(self.root)
+        self.view.Frames.append(factory.view)
+    
+    def open_customer(self):
+        customer = CustomerController(self.root)
+        self.view.Frames.append(customer.view)
+    def open_statistics(self):
+        statics = StaticsController(self.root)
+        self.view.Frames.append(statics.view)

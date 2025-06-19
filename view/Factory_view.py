@@ -2,7 +2,7 @@
 import customtkinter as ctk
 from .Factory_compnents_view.buy_view import Buy_frame
 from .Factory_compnents_view.pay_view import Pay_frame
-class Factory_frame(ctk.CTkFrame):
+class FactoryView(ctk.CTkFrame):
     def __init__(self, root):
         super().__init__(root)
         self.pack(fill='both', expand=True)

@@ -7,7 +7,6 @@ from controller.statics_controller import StaticsController
 
 class MainController:
     def __init__(self, root_window):
-        # self.model = model
         self.root = root_window
         self.view = MainView(self.root)
         self.model = MainModel()
@@ -19,15 +18,15 @@ class MainController:
     def _bind_events(self):
         for index, btn in enumerate(self.view.buttons):
             btn.configure(command= lambda i=index, button=btn: self._menu_buttons_switching(i, button))
-        self._menu_buttons_switching(0,self.view.buttons[0])
+        self._menu_buttons_switching(1,self.view.buttons[1])
     
-    
+
     def _menu_buttons_switching(self, index, btn):
         '''
         # change the color and disable the button and enable the other
         # destroy the frames
-        add the frame of clicked button
-        append the frame to the self.view.frames
+        # add the frame of clicked button
+        # append the frame to the self.view.frames
         '''
         for button in self.view.buttons:
             button.configure(fg_color='black', state='normal', cursor="hand2")
@@ -56,7 +55,6 @@ class MainController:
         dashboard = DashboardController(self.root)
         self.view.Frames.append(dashboard.view)
     
-    
     def open_factory(self):
         factory = FactoryController(self.root)
         self.view.Frames.append(factory.view)
@@ -64,6 +62,7 @@ class MainController:
     def open_customer(self):
         customer = CustomerController(self.root)
         self.view.Frames.append(customer.view)
+
     def open_statistics(self):
         statics = StaticsController(self.root)
         self.view.Frames.append(statics.view)

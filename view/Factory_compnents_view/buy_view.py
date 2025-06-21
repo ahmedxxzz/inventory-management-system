@@ -30,6 +30,7 @@ class BuyView(ctk.CTkFrame):
 
 
     def create_upper_frame(self):
+        
         upper_frame = ctk.CTkFrame(self, corner_radius=5,border_width=5,border_color='yellow')
         upper_frame.pack(side='top', padx=10, fill='x')
 

@@ -90,7 +90,7 @@ class BuyController:
         self.view.recommended_frame.configure(border_width=5, fg_color= 'gray20', border_color='#21130d', scrollbar_button_color='#696969', scrollbar_button_hover_color='red', scrollbar_fg_color='#333333')
         
         self.recommendation_type = ''
-        if ent == self.view.Entries[0]:# facs names
+        if ent == self.view.Entries[0]:
             # [("جلوبال تك للتصنيع",500), ("حلول الروبوتات الدقيقة",4000)]
             self.view.recommendations = self.model.get_factory_names_and_money()
             self.recommendation_type = 'fac_names with money'

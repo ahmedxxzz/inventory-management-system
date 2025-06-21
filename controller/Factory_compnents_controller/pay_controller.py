@@ -77,7 +77,7 @@ class PayController:
         self.clear_recommendation_frames()
         self.view.recommendations = []
             ## hide the recommendation frame
-        self.view.recommended_frame.configure(border_width=0,  fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
+        self.view.recommended_frame.configure(border_width=5,  fg_color='transparent', border_color='#333333',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
 
 
     def clear_recommendation_frames(self):

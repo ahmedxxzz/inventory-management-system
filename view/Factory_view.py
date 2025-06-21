@@ -4,14 +4,13 @@ import customtkinter as ctk
 
 class FactoryView(ctk.CTkFrame):
     def __init__(self, root):
-        super().__init__(root)
-        self.pack(fill='both', expand=True)
+        super().__init__(root,)
+        self.pack(fill='x')
         self.buttons = []
         self.Frames = []
         
         self.create_options_buttons()
         
-    
     def create_options_buttons(self):
         header_frame = ctk.CTkFrame(self, width=200, corner_radius=5,height=30)
         header_frame.pack(side='top', padx=10)

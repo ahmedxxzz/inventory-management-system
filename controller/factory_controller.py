@@ -10,8 +10,6 @@ class FactoryController:
         self.view = FactoryView(self.root)
         self._bind_events()
         
-        
-        
 
     def _bind_events(self):
         for index, btn in enumerate(self.view.buttons):
@@ -32,6 +30,8 @@ class FactoryController:
         for frame in self.view.Frames:
             frame.destroy()
         self.view.Frames = []
+        
+        
         
         if index == 0:
             self.open_buy()

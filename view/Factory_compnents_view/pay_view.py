@@ -4,7 +4,7 @@ from tkinter import StringVar, ttk , messagebox
 class PayView(ctk.CTkFrame):
     def __init__(self, root):
         super().__init__(root, )
-        self.pack(fill='both', expand=True)
+        self.pack(fill='both', padx=10,expand=True)
         self.fac_name = StringVar()
         self.safe_type = StringVar()
         self.safe_type.set('cash')
@@ -20,19 +20,19 @@ class PayView(ctk.CTkFrame):
 
 
     def create_upper_frame(self):
-        upper_frame = ctk.CTkFrame(self, corner_radius=5,border_width=5,border_color='yellow')
-        upper_frame.pack(side='top', padx=10, fill='x')
+        upper_frame = ctk.CTkFrame(self, corner_radius=5,border_width=5,border_color='yellow',height=450)
+        upper_frame.pack(side='top', fill='x')
         
-        sub_upper_frame = ctk.CTkFrame(upper_frame, border_width=2, bg_color='#333333', fg_color='#333333')
-        sub_upper_frame.pack(side='top', padx=10,pady=10,)
+        sub_upper_frame = ctk.CTkFrame(upper_frame, bg_color='#333333', fg_color='#333333',width=560, height=400)
+        sub_upper_frame.pack(side='top',pady=10,)
         
-        inputs_frame = ctk.CTkFrame(sub_upper_frame, border_width=2)
+        inputs_frame = ctk.CTkFrame(sub_upper_frame, fg_color='#333333')
         inputs_frame.pack(side='left', padx=10,pady=10,)
         
         upper_input_frame = ctk.CTkFrame(inputs_frame, border_width=2)
         upper_input_frame.pack(side='top', padx=10,pady=10,)
         
-        inputs_lbls_frame = ctk.CTkFrame(upper_input_frame)
+        inputs_lbls_frame = ctk.CTkFrame(upper_input_frame,  fg_color='#333333')
         inputs_lbls_frame.pack(side='left', fill='y')
         lbls_names = ['اسم المصنع', 'نوع الخزنة', 'مبلغ الدفع']
 
@@ -40,7 +40,7 @@ class PayView(ctk.CTkFrame):
             lbl = ctk.CTkLabel(inputs_lbls_frame, text=lbl, font=("Arial", 14, "bold"), text_color='white',width=200, height=40)
             lbl.pack(side='top', padx=10, pady=10)
         
-        inputs_entries_frame = ctk.CTkFrame(upper_input_frame)
+        inputs_entries_frame = ctk.CTkFrame(upper_input_frame, fg_color='#333333')
         inputs_entries_frame.pack(side='right', fill='y')
         
         entry_variables = [self.fac_name, self.money_amount]
@@ -55,15 +55,15 @@ class PayView(ctk.CTkFrame):
                 fac_entry.configure(validate="key", validatecommand = (fac_entry.register(self.validate_Entry), '%P', 'float'))
         
         
-        frame_pay_button = ctk.CTkFrame(inputs_frame, border_width=2)
+        frame_pay_button = ctk.CTkFrame(inputs_frame, fg_color='#333333')
         frame_pay_button.pack(side='top', padx=10,pady=10,)
         
         self.button = ctk.CTkButton(frame_pay_button, text='دفع', font=("Arial", 16, "bold"), width=200, height=40)
-        self.button.pack(side='top', padx=10, pady=10)
+        self.button.pack(side='top', pady=10)
         
         
         ######## recommendation frame 
-        self.recommended_frame = ctk.CTkScrollableFrame(sub_upper_frame, width=200,height=300 ,corner_radius=5, border_width=0, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
+        self.recommended_frame = ctk.CTkScrollableFrame(sub_upper_frame, width=200,height=250,border_width=5, border_color='#333333' ,corner_radius=5, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
         self.recommended_frame.pack(side='left', padx=10,pady=30)
 
 

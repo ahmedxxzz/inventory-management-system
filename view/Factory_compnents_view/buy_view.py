@@ -7,7 +7,7 @@ class BuyView(ctk.CTkFrame):
         super().__init__(root)
         self.pack(fill='both', expand=True)
         self.Entries = []
-        self.recommendation_buttons = []
+        self.recommendation_frames = []
         self.recommendations = []
         
         self.temp_operations = []
@@ -69,7 +69,7 @@ class BuyView(ctk.CTkFrame):
         self.cache_buy_button.pack(side='top', padx=10, pady=10)
         
         ###### Recommendation frame
-        self.recommended_frame = ctk.CTkScrollableFrame(upper_frame, width=170,height=300 ,corner_radius=5, border_width=0, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
+        self.recommended_frame = ctk.CTkScrollableFrame(upper_frame, width=200,height=300 ,corner_radius=5, border_width=0, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
         self.recommended_frame.pack(side='left', padx=10,pady=30)
         
         ##### Temp Operations Frame
@@ -98,7 +98,8 @@ class BuyView(ctk.CTkFrame):
 
         # --- Create Treeview Widget ---
         self.tree_columns = ('factory_name', 'date', 'piece_type', 'price', 'quantity', 'discount', 'total_price')
-        self.tree_headers = ['اسم المصنع', 'التاريخ', 'نوع القطعة', 'السعر', 'الكمية', 'الخصم', 'السعر الكلي']
+        # self.tree_headers = ['اسم المصنع', 'التاريخ', 'نوع القطعة', 'السعر', 'الكمية', 'الخصم', 'السعر الكلي']
+        self.tree_headers = ['السعر الكلي', 'الخصم', 'الكمية', 'السعر', 'نوع القطعة', 'التاريخ', 'اسم المصنع']
 
         self.tree = ttk.Treeview(bottom_frame, columns=self.tree_columns, show='headings', selectmode="extended")
         
@@ -110,9 +111,9 @@ class BuyView(ctk.CTkFrame):
         # Define column widths (adjust as needed)
         self.tree.column('factory_name', width=60, anchor='center')
         self.tree.column('date', width=170, anchor='center')
-        self.tree.column('piece_type', width=150, anchor='w')
-        self.tree.column('price', width=100, anchor='center')
-        self.tree.column('quantity', width=80, anchor='center')
+        self.tree.column('piece_type', width=120, anchor='w')
+        self.tree.column('price', width=150, anchor='center')
+        self.tree.column('quantity', width=60, anchor='center')
         self.tree.column('discount', width=80, anchor='center')
         self.tree.column('total_price', width=100, anchor='center')
 
@@ -170,7 +171,7 @@ class BuyView(ctk.CTkFrame):
             return float(str(value).replace(',', ''))
         except (ValueError, TypeError):
             return str(value).lower()
-            
+
 
     def message(self,info_text, text):
         messagebox.showinfo(info_text, text)
@@ -226,17 +227,30 @@ class BuyView(ctk.CTkFrame):
             return True
 
 
-    def recommendation_focusIn(self, var):
-            for btn_text in self.recommendations:
-                button = ctk.CTkButton(self.recommended_frame, text=btn_text,width=200, height=40, command=lambda btn_text=btn_text: var.set(btn_text))
-                button.pack(side='top', padx=10, pady=10)
-                self.recommendation_buttons.append(button)
+    def recommendation_focusIn(self, var, recommendation_type):
+            for btn_text, amount_money in self.recommendations:
+                frame = ctk.CTkFrame(self.recommended_frame, fg_color='transparent', border_width=0, width=200, height=40)
+                frame.pack(side='top', padx=10, pady=10)
+                button = ctk.CTkButton(frame,text=btn_text,width=100,  height=35,fg_color="#4CAF50", hover_color="#45a049",text_color="yellow",border_width=2,border_color="#388E3C", corner_radius=10,command=lambda btn_text=btn_text: var.set(btn_text))
+                button.pack(side='left', padx=(0, 5))
+
+                if recommendation_type == 'fac_names with money':
+                    money_lbl = ctk.CTkLabel(frame,text=amount_money,width=80,height=35,font=("Arial", 14, "bold"),text_color='white',fg_color="#007BFF", corner_radius=5)
+                    money_lbl.pack(side='right', padx=(5, 0))
+                
+                self.recommendation_frames.append(frame)
 
   
-    def recommendation_KeyRelease(self, var, matching_items):
-        for btn_text in matching_items:
-                    button = ctk.CTkButton(self.recommended_frame, text=btn_text,width=200, height=40, command=lambda btn_text=btn_text: var.set(btn_text))
-                    button.pack(side='top', padx=10, pady=10)
-                    self.recommendation_buttons.append(button)
+    def recommendation_KeyRelease(self, var, matching_items, recommendation_type):
+        for fac, amount_money in matching_items:
+            frame = ctk.CTkFrame(self.recommended_frame, fg_color='transparent', border_width=0, width=200, height=40)
+            frame.pack(side='top', padx=10, pady=10)
+            button = ctk.CTkButton(frame,text=fac,width=100,  height=35,fg_color="#4CAF50", hover_color="#45a049",text_color="yellow",border_width=2,border_color="#388E3C", corner_radius=10,command=lambda btn_text=fac: var.set(btn_text))
+            button.pack(side='left', padx=(0, 5))
+            if recommendation_type == 'fac_names with money':                
+                money_lbl = ctk.CTkLabel(frame,text=amount_money,width=80,height=35,font=("Arial", 14, "bold"),text_color='white',fg_color="#007BFF", corner_radius=5)
+                money_lbl.pack(side='right', padx=(5, 0))
+            
+            self.recommendation_frames.append(frame)
 
 

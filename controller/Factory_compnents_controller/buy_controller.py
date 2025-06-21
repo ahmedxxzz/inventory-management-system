@@ -7,7 +7,7 @@ class BuyController:
         self.root = root
         self.view = BuyView(self.root)
         self.model = BuyModel()
-        
+        self.recommendation_type = ''
         
         self._bind_events()
         self.view.populate_treeview(self.model.get_buys_from_db())
@@ -15,15 +15,10 @@ class BuyController:
 
 
     def _bind_events(self):
-        '''
-        # bind the entries like fac name with recommentation focusin and release 
-        # bind saving buttons
-        
-        
-        '''
+
         for ent in [self.view.Entries[0], self.view.Entries[1]]:
             ent.bind('<FocusIn>', lambda event,var = ent.cget("textvariable"), ent = ent: self.recommendation_focusIn(ent, var))
-            ent.bind('<KeyRelease>', lambda event,var = ent.cget("textvariable"), ent = ent: self.recommendation_KeyRelease(ent, var))
+            ent.bind('<KeyRelease>', lambda event,var = ent.cget("textvariable"), ent = ent, recommendation_type = self.recommendation_type: self.recommendation_KeyRelease(ent, var, recommendation_type))
             ent.bind('<FocusOut>', lambda event,var = ent.cget("textvariable"), ent = ent: self.recommendation_focusOut())
     
         self.view.save_buys_button.configure(command=self.save_buys)
@@ -91,52 +86,59 @@ class BuyController:
 
 
     def recommendation_focusIn(self, ent, var):
-        self.clear_recommendation_buttons()
+        self.clear_recommendation_frames()
         self.view.recommended_frame.configure(border_width=5, fg_color= 'gray20', border_color='#21130d', scrollbar_button_color='#696969', scrollbar_button_hover_color='red', scrollbar_fg_color='#333333')
         
+        self.recommendation_type = ''
         if ent == self.view.Entries[0]:# facs names
-            self.view.recommendations = self.model.get_factory_names()
+            # [("جلوبال تك للتصنيع",500), ("حلول الروبوتات الدقيقة",4000)]
+            self.view.recommendations = self.model.get_factory_names_and_money()
+            self.recommendation_type = 'fac_names with money'
             
         elif ent == self.view.Entries[1]:# products id
-            self.view.recommendations = self.model.get_products_ids()
+            # [1001, 1002, 1003,]
+            self.view.recommendations = self.model.get_products_codes()
+
+                
+            self.recommendation_type = 'product codes'
         
         
         if var.get()=='':
             if self.view.recommendations :
-                self.view.recommendation_focusIn(var)
+                self.view.recommendation_focusIn(var, self.recommendation_type)
         
         else: 
-            self.recommendation_KeyRelease(ent, var)
+            self.recommendation_KeyRelease(ent, var,self.recommendation_type)
 
 
-    def recommendation_KeyRelease(self, ent, var):
+    def recommendation_KeyRelease(self, ent, var, recommendation_type):
         var_text = var.get().strip() 
         if  var_text !='':
-            self.clear_recommendation_buttons()
+            self.clear_recommendation_frames()
             
             matching_items =[]
-            for item in self.view.recommendations:
-                if var_text in str(item):
-                    matching_items.append(str(item))
+            for fac, money in self.view.recommendations:
+                if var_text in str(fac):
+                    matching_items.append((str(fac), money))
             
             if matching_items :
-                self.view.recommendation_KeyRelease(var, matching_items)
+                self.view.recommendation_KeyRelease(var, matching_items, self.recommendation_type)
 
         else:
             self.recommendation_focusIn(ent, var)
 
 
     def recommendation_focusOut(self):
-        self.clear_recommendation_buttons()
+        self.clear_recommendation_frames()
         self.view.recommendations = []
             ## hide the recommendation frame
         self.view.recommended_frame.configure(border_width=0,  fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
 
 
-    def clear_recommendation_buttons(self):
-        for btn in self.view.recommendation_buttons:
-            btn.destroy()
+    def clear_recommendation_frames(self):
+        for frame in self.view.recommendation_frames:
+            frame.destroy()
 
-        self.view.recommendation_buttons = []
+        self.view.recommendation_frames = []
         self.view.recommended_frame._scrollbar.set(0.0, 0.0)
         self.view.recommended_frame._parent_canvas.yview_moveto(0.0)

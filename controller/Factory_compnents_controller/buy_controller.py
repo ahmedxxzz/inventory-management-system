@@ -1,6 +1,5 @@
 from view.Factory_compnents_view.buy_view import BuyView
 from model.Factory_compnents_model.buy_model import BuyModel
-from datetime import datetime
 
 class BuyController:
     def __init__(self, root):
@@ -11,7 +10,7 @@ class BuyController:
         
         self._bind_events()
         self.view.populate_treeview(self.model.get_buys_from_db())
-        
+
 
 
     def _bind_events(self):
@@ -26,21 +25,14 @@ class BuyController:
     
 
 
-
-
-
     def save_buys(self):
         if  not self.view.temp_operations:
             self.view.message("عملية فاشلة", "لا توجد عمليات لحفظها")
             return
-            
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        for opt in self.view.temp_operations:
-            opt.insert(1, current_time)
-            ## facname, current_time, productcode, price, quantity, discount, supplier
+        
         
         if self.model.insert_buys_to_db(self.view.temp_operations):
-        
+
             for btn in self.view.temp_operations_buttons:
                 btn.destroy()
                 btn = None
@@ -50,12 +42,14 @@ class BuyController:
             self.view.populate_treeview(self.model.get_buys_from_db())
             
             self.view.message("عملية ناجحة", "تم حفظ الفاتورة بنجاح")
+        else:
+            self.view.message("عملية فاشلة", "لم يتم حفظ الفاتورة")
 
 
     def cache_buy(self):
-        if self.view.check_inputs_before_caching(): # validation input 
-            data = [ # facname, productcode, price, quantity, discount, supplier 
-                self.view.fac_name.get(), self.view.product_code.get(), self.view.price.get(), self.view.quantity.get(), self.view.discount.get(), self.view.supplier.get() 
+        if self.view.check_inputs_before_caching(factory_names = self.model.get_factory_names_and_money(),products_codes = self.model.get_products_codes()): # validation input 
+            data = [ # facname, productcode, price, quantity, discount, supplier , cash or not
+                self.view.fac_name.get(), self.view.product_code.get(), self.view.price.get(), self.view.quantity.get(), self.view.discount.get(), self.view.supplier.get(), self.view.checkbox_var.get()
                 ]
             self.view.temp_operations.append(data)
             
@@ -67,6 +61,9 @@ class BuyController:
                 if ent == self.view.supplier:
                     ent.set('snow white')
                     continue
+                if ent == self.view.checkbox_var:
+                    ent.set('لا')
+                    continue
                 ent.set('')
 
 
@@ -77,6 +74,7 @@ class BuyController:
         self.view.quantity.set(data[3])
         self.view.discount.set(data[4])
         self.view.supplier.set(data[5])
+        self.view.checkbox_var.set(data[6])
         self.view.temp_operations_buttons.remove(btn)
         self.view.temp_operations.remove(data)
         btn.destroy()

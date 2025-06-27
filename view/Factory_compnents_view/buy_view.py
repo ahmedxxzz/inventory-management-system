@@ -9,7 +9,7 @@ class BuyView(ctk.CTkFrame):
         self.Entries = []
         self.recommendation_frames = []
         self.recommendations = []
-        
+        # temp operation will be like that: [ [fac_name, product_code, price, quantity, discount, supplier, paid or not],]
         self.temp_operations = []
         self.temp_operations_buttons = []
         
@@ -21,7 +21,7 @@ class BuyView(ctk.CTkFrame):
         self.discount = StringVar()
         self.supplier = StringVar()
         self.supplier.set('snow white')
-        
+        self.checkbox_var = StringVar(value="لا")
         
 
         
@@ -41,7 +41,7 @@ class BuyView(ctk.CTkFrame):
          
         inputs_lbls_frame = ctk.CTkFrame(entry_frame)
         inputs_lbls_frame.pack(side='left', fill='y')
-        lbls_names = ['اسم المصنع', 'كود القطعة', 'سعر القطعة', 'عدد القطع', 'الخصم', 'الموزع']
+        lbls_names = ['اسم المصنع', 'كود القطعة', 'سعر القطعة', 'عدد القطع', 'الخصم', 'الموزع', 'تم الدفع']
         
         for lbl in lbls_names:
             lbl = ctk.CTkLabel(inputs_lbls_frame, text=lbl, font=("Arial", 14, "bold"), text_color='white',width=200, height=40)
@@ -66,6 +66,8 @@ class BuyView(ctk.CTkFrame):
         self.save_buys_button = ctk.CTkButton(inputs_lbls_frame, text='حفظ الفاتورة', font=("Arial", 18, "bold"),width=200, height=40,)
         self.save_buys_button.pack(side='top', padx=10, pady=10)
         
+        self.checkbox= ctk.CTkCheckBox( inputs_entries_frame, text='',  variable=self.checkbox_var, onvalue="نعم", offvalue="لا" )
+        self.checkbox.pack(side='top', padx=10, pady=17)
         self.cache_buy_button = ctk.CTkButton(inputs_entries_frame, text='اضافة الى الفاتورة', font=("Arial", 18, "bold"),width=200, height=40,)
         self.cache_buy_button.pack(side='top', padx=10, pady=10)
         
@@ -98,9 +100,9 @@ class BuyView(ctk.CTkFrame):
         style.map("Treeview.Heading",background=[('active', '#3484F0')])
 
         # --- Create Treeview Widget ---
-        self.tree_columns = ('factory_name', 'date', 'piece_type', 'price', 'quantity', 'discount', 'total_price')
+        self.tree_columns = ('factory_name', 'date', 'piece_type', 'price', 'quantity', 'discount', 'total_price', 'paid')
         # self.tree_headers = ['اسم المصنع', 'التاريخ', 'نوع القطعة', 'السعر', 'الكمية', 'الخصم', 'السعر الكلي']
-        self.tree_headers = ['السعر الكلي', 'الخصم', 'الكمية', 'السعر', 'نوع القطعة', 'التاريخ', 'اسم المصنع']
+        self.tree_headers = ['مدفوعة','السعر الكلي', 'الخصم', 'الكمية', 'السعر', 'نوع القطعة', 'التاريخ', 'اسم المصنع']
 
         self.tree = ttk.Treeview(bottom_frame, columns=self.tree_columns, show='headings', selectmode="extended")
         
@@ -117,6 +119,8 @@ class BuyView(ctk.CTkFrame):
         self.tree.column('quantity', width=60, anchor='center')
         self.tree.column('discount', width=80, anchor='center')
         self.tree.column('total_price', width=100, anchor='center')
+        self.tree.column('paid', width=60, anchor='center')
+        
 
         # --- Add Scrollbars ---
         v_scrollbar = ttk.Scrollbar(bottom_frame, orient="vertical", command=self.tree.yview)
@@ -178,24 +182,35 @@ class BuyView(ctk.CTkFrame):
         messagebox.showinfo(info_text, text)
     
 
-    def check_inputs_before_caching(self):
-        for  ent in [self.fac_name, self.product_code, self.price, self.quantity, self.discount, self.supplier]:
-            if ent !=self.discount:
-                if ent.get() == '':
-                    messagebox.showerror("خطأ", "لا يمكن ترك الحقول فارغة")
-                    return
+    def check_inputs_before_caching(self, factory_names, products_codes):
+        ''' 
+        factory_names = [ ('حماده طلبة', 50000.0), ('عمرو هلال', 75000.0), ('علاء احمد', 30000.0), ]
+        products_codes = [ ('1001', 0), ('1002', 0), ('1003', 0), ]
+        '''
+        for  ent in [self.fac_name, self.product_code, self.price, self.quantity, self.supplier]:
+            if ent.get() == '':
+                messagebox.showerror("خطأ", "لا يمكن ترك الحقول فارغة")
+                return False
+        
         if self.discount.get() != '':
             if float(self.price.get())<= float(self.discount.get()):
                 messagebox.showerror("خطأ", "لا يمكن ان يكون الخصم اكبر من السعر")
-                return
+                return False
         
         if float(self.price.get())<= 0:
             messagebox.showerror("خطأ", "لا يمكن ان يكون السعر اقل من او يساوى صفر")
-            return
+            return False
         
         if int(self.quantity.get())< 1:
             messagebox.showerror("خطأ", "لا يمكن ان يكون الكمية اقل من 1")
-            return
+            return False
+        if not any(code[0] == self.product_code.get() for code in products_codes):
+            self.message("خطأ", "المنتج غير موجود")
+            return False
+        
+        if not any(fac[0] == self.fac_name.get() for fac in factory_names):
+            self.message("خطأ", "المصنع غير موجود")
+            return False
         return True
 
 

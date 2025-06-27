@@ -1,58 +1,186 @@
 import sqlite3
 from sqlite3 import Error
+from datetime import datetime
 
 
 class BuyModel:
     def __init__(self):
         self.conn = sqlite3.connect('IMS.db')
         self.cursor = self.conn.cursor()
-    
-        self.data = [
-            # [facname, time, productcode, price, quantity, discount, total price]
-            ['عمر خالد', '2025-04-21 20:54:29', '1003', 500, 50, 1, 24750.0],
-            ['علاء احمد', '2025-04-21 21:54:29', '1001', 500, 210, 1, 103950.0],
-            ['علاء احمد', '2025-04-21 22:54:29', '1005', 500, 20, 1, 9900.0],
-            ['علاء احمد', '2025-04-21 19:54:29', '1003', 500, 200, 1, 99000.0],
-            ['علاء احمد', '2025-04-21 20:52:29', '1003', 500, 40, 1, 19800.0],
-            ['علاء احمد', '2025-04-21 20:54:29', '1003', 500, 50, 1, 24750.0],
-            ['حمادة عمير', '2025-04-21 21:54:29', '1001', 500, 210, 1, 103950.0],
-            ['علاء احمد', '2025-04-21 22:54:29', '1005', 500, 20, 1, 9900.0],
-            ['علاء احمد', '2025-04-21 19:54:29', '1003', 500, 200, 1, 99000.0],
-            ['علاء احمد', '2025-04-21 20:52:29', '1003', 500, 40, 1, 19800.0],
-            ['علاء احمد', '2025-04-21 20:54:29', '1003', 500, 50, 1, 24750.0],
-            ['علاء احمد', '2025-04-21 21:54:29', '1001', 500, 210, 1, 103950.0],
-            ['علاء احمد', '2025-04-21 22:54:29', '1005', 500, 20, 1, 9900.0],
-            ['علاء احمد', '2025-04-21 19:54:29', '1003', 500, 200, 1, 99000.0],
-            ['علاء احمد', '2025-04-21 20:52:29', '1003', 500, 40, 1, 19800.0]
-        ]
-    
+
+
+
     def get_factory_names_and_money(self):
-        '''return [('حماده طلبة', 50000.0),('عمرو هلال', 75000.0),('علاء احمد', 30000.0),]'''        
+        '''
+        return_data = [ ('حماده طلبة', 50000.0), ('عمرو هلال', 75000.0), ('علاء احمد', 30000.0), ]
+        '''        
         self.cursor.execute("SELECT name, amount_money FROM Factories")
-        
-        # return self.cursor.fetchall()
-        return [('حماده طلبة', 50000.0),('عمرو هلال', 75000.0),('علاء احمد', 30000.0),]
+        return self.cursor.fetchall()
+
 
     def get_products_codes(self):
-        self.cursor.execute("SELECT type FROM Products")
-        # [1001, 1002, 1003,]
-        
-        # return [(row[0],0) for row in self.cursor.fetchall()]
-    
-        return [(row,0) for row in range(1001, 1020)]
-
-    def insert_buys_to_db(self, buys):
-        for buy in buys:
-            self.data.append(buy)
-        print(f"this is buys added: \n{buys}")
-        return True
+        self.cursor.execute("SELECT type, 0 FROM Products")
+        '''
+        returned data = [ ('1001', 0), ('1002', 0), ('1003', 0), ]
+        '''
+        return self.cursor.fetchall()
 
 
     def get_buys_from_db(self ):
-        # print(self.data[-1])
-        self.data[-1][-1] = (float(self.data[-1][3]) - float(self.data[-1][5] )) * int(self.data[-1][4])
-        # print(self.data[-1])
+
+        '''
+        data returned example :
+        [ [facname, time, productcode, price, quantity, discount, total price, paid or not], ]
+        
+        '''
+        self.cursor.execute(
+            '''
+            SELECT
+            F.name,
+            FP.purchas_date,
+            P.type,
+            FPI.price_per_piece ,
+            FPI.quantity,
+            FPI.discount_per_piece,
+            (FPI.price_per_piece - FPI.discount_per_piece) * FPI.quantity AS total_price,
+            CASE
+                WHEN FPI.paid = 1 THEN 'نعم'
+                ELSE 'لا'
+                END AS paid_status
+            FROM Factories AS F
+            JOIN Fac_Purchases AS FP
+            ON F.factory_id = FP.factory_id
+            JOIN Fac_PurchaseItems AS FPI
+            ON FP.purchase_id = FPI.purchase_id
+            JOIN Products AS P
+            ON FPI.product_id = P.product_id;
+            '''
+        )
+        
+        return self.cursor.fetchall()
+
+
+    def get_fac_id_from_name(self, name):
+        self.cursor.execute("SELECT factory_id FROM Factories WHERE name = ?", (name,))
+        return self.cursor.fetchone()[0]
+
+
+    def get_product_id_from_code(self, code):
+        self.cursor.execute("SELECT product_id FROM Products WHERE type = ?", (code,))
+        return self.cursor.fetchone()[0]
+
+
+    def get_fac_money_by_id(self, id):
+        self.cursor.execute("SELECT amount_money FROM Factories WHERE factory_id = ?", (id,))
+        return self.cursor.fetchone()[0]
+    
+
+    def insert_buys_to_db(self, buys):
+        '''
+        buys = [
+            [facname, productcode, price, quantity, discount, supplier, paid or not],
+            [facname, productcode, price, quantity, discount, supplier, paid or not],
+        ]
+        '''
         
         
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        for buy in buys:
+            buy[0] = self.get_fac_id_from_name(buy[0])
+            buy[1] = self.get_product_id_from_code(buy[1])
+            buy[6] = 0 if buy[6] == 'لا' else 1
+        buys.sort(key=lambda x: x[0])
         
-        return self.data
+        
+        def group_by_factory(buys):
+            fac_grouped_lists = []
+            current_group = [buys[0]] 
+            for i in range(1, len(buys)):
+                if buys[i][0] == current_group[0][0]:
+                    current_group.append(buys[i])
+                else:
+                    
+                    fac_grouped_lists.append(current_group)
+                    current_group = [buys[i]]
+            fac_grouped_lists.append(current_group) 
+            return fac_grouped_lists
+        
+        buys = group_by_factory(buys)
+        '''
+        now buys = [
+            # [ list of buys of the same factory ]
+             [[fac id, productcode id, price, quantity, discount, supplier, paid or not],[facname, productcode, price, quantity, discount, supplier, paid or not],],
+             [[fac id, productcode id, price, quantity, discount, supplier, paid or not],[facname, productcode, price, quantity, discount, supplier, paid or not],]
+             ]
+        '''
+        try :
+            for buy in buys:
+                self.cursor.execute('''
+                    INSERT INTO Fac_Purchases (
+                        factory_id,
+                        purchas_date,
+                        fac_money_before
+                        )
+                        VALUES (?, ?, ?);
+                    ''',
+                    (buy[0][0], date, self.get_fac_money_by_id(buy[0][0]))
+                )
+                purchase_id = self.cursor.lastrowid
+                
+                
+                total_price = 0
+                total_quantity = 0
+                for purchase in buy:
+                    purchase = tuple(purchase)
+                    self.cursor.execute(
+                        '''
+                        INSERT INTO Fac_PurchaseItems (
+                                purchase_id,
+                                product_id,
+                                quantity,
+                                price_per_piece,
+                                discount_per_piece,
+                                resource_name,
+                                paid
+                                )
+                                VALUES (?, ?, ?, ?, ?, ?, ?);
+                        ''', (purchase_id, purchase[1], purchase[2], purchase[3], purchase[4], purchase[5], purchase[6])
+                    )
+                    
+                    
+                    self.cursor.execute(
+                        '''
+                        UPDATE Products
+                        SET current_quantity = current_quantity + ?,
+                        fac_price_per_piece = ?,
+                        resource_name = ?
+                        WHERE product_id = ?;
+                        '''
+                        , (purchase[3], purchase[2], purchase[5], purchase[1])
+                    )
+                    
+                    
+                    if purchase[6] == 0:
+                        total_price+= (float(purchase[2])-float(purchase[4])) * int(purchase[3])
+                    total_quantity += int(purchase[3])
+                    
+                self.cursor.execute(
+                    '''
+                    UPDATE Factories
+                    SET amount_money = amount_money + ?, current_quantity = current_quantity + ?
+                    WHERE factory_id = ?;
+                    ''', (total_price,total_quantity, buy[0][0])
+                )
+                
+                
+
+
+
+            self.conn.commit()
+            print(f"this is buys added: \n{buys}")
+            return True
+        except Exception as e:
+            print(f"there is an error in insert_buys_to_db: {e}")
+            return False
+
+

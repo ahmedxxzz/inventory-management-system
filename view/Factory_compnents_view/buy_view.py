@@ -247,7 +247,7 @@ class BuyView(ctk.CTkFrame):
             for btn_text, amount_money in self.recommendations:
                 frame = ctk.CTkFrame(self.recommended_frame, fg_color='transparent', border_width=0, width=200, height=40)
                 frame.pack(side='top', padx=10, pady=10)
-                button = ctk.CTkButton(frame,text=btn_text,width=100,  height=35,fg_color="#4CAF50", hover_color="#45a049",text_color="yellow",border_width=2,border_color="#388E3C", corner_radius=10,command=lambda btn_text=btn_text: var.set(btn_text))
+                button = ctk.CTkButton(frame,text=btn_text,width=100,  height=35,fg_color="#4CAF50", hover_color="#45a049",text_color="yellow",border_width=2,border_color="#388E3C", font=("Arial", 14), corner_radius=10,command=lambda btn_text=btn_text: var.set(btn_text))
                 button.pack(side='left', padx=(0, 5))
 
                 if recommendation_type == 'fac_names with money':

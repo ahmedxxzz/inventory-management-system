@@ -22,23 +22,36 @@ class PayController:
 
 
     def save_pay(self):
-        
+
+        if self.check_inputs():
+            if self.model.save_pay_to_db(self.view.fac_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()):
+                self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الدفع بنجاح')
+                self.view.clear_inputs()
+
+
+    def check_inputs(self):
         if self.view.fac_name.get().strip() == '' or self.view.money_amount.get().strip() == '':
-            return self.view.message('showinfo', ' خطأ', 'يرجى عدم ترك الحقول فارغة')
+            self.view.message('showinfo', ' خطأ', 'يرجى عدم ترك الحقول فارغة')
+            return False
         
         if float(self.view.money_amount.get()) <= 0.0:
-            return self.view.message('showinfo', 'عملية فاشلة', 'مبلغ الدفع يجب ان يكون اكبر من 0')
+            self.view.message('showinfo', 'عملية فاشلة', 'مبلغ الدفع يجب ان يكون اكبر من 0')
+            return False
         
         if not self.model.check_factory_name_exist(self.view.fac_name.get().strip()):
-            return self.view.message('showinfo', 'عملية فاشلة', 'اسم المصنع غير موجود')
+            self.view.message('showinfo', 'عملية فاشلة', 'اسم المصنع غير موجود')
+            return False
+        
         
         if self.model.check_factory_money(self.view.fac_name.get().strip()) < float(self.view.money_amount.get()):
-            return self.view.message('showinfo', 'عملية فاشلة', 'المبلغ المدفوع اكبر من المبلغ المستحق')
+            self.view.message('showinfo', 'عملية فاشلة', 'المبلغ المدفوع اكبر من المبلغ المستحق')
+            return False
         
-        if self.model.save_pay_to_db(self.view.fac_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()):
-            self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الدفع بنجاح')
-            self.view.clear_inputs()
-
+        if float(self.view.money_amount.get()) > float(self.model.check_safe_money(self.view.safe_type.get().strip())):
+            self.view.message('showinfo', 'عملية فاشلة', 'المبلغ المدفوع اكبر من المبلغ الموجود في الخزنة')
+            return False
+        
+        return True
 
     def recommendation_focusIn(self, ent, var):
         self.clear_recommendation_frames()

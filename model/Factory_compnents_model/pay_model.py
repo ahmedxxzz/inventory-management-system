@@ -1,26 +1,18 @@
 import sqlite3
 from sqlite3 import Error
+from datetime import datetime
 
 class PayModel:
     def __init__(self):
         self.conn = sqlite3.connect('IMS.db')
         self.cursor = self.conn.cursor()
-        self.data = [
-            # [facname, time, productcode, price, quantity, discount, total price]
-            ['عمر خالد', '2025-04-21 20:54:29', '5000', 20000, 15000],
-            ['علاء احمد', '2025-04-21 21:54:29', '400', 50000, 49600,],
-            ['علاء احمد', '2025-04-21 22:54:29', '250', 60000, 20,],
-            ['علاء احمد', '2025-04-21 19:54:29', '1000', 25000, 200,],
-            ['علاء احمد', '2025-04-21 20:52:29', '4000', 62000, 61600,],
-        ]
     
     
     def get_factory_names_and_money(self):
         '''return [('حماده طلبة', 50000.0),('عمرو هلال', 75000.0),('علاء احمد', 30000.0),]'''        
         self.cursor.execute("SELECT name, amount_money FROM Factories")
         
-        # return self.cursor.fetchall()
-        return [('حماده طلبة', 50000.0),('عمرو هلال', 75000.0),('علاء احمد', 30000.0),]
+        return self.cursor.fetchall()
     
     
     def get_all_pays(self):
@@ -28,35 +20,58 @@ class PayModel:
         return self.cursor.fetchall()
 
 
+    def get_factory_name_byid(self, id):
+        self.cursor.execute("SELECT name FROM Factories WHERE factory_id = ?", (id,))
+        return self.cursor.fetchone()[0]
+
+
     def get_pays_from_db(self ):
-        # print(self.data[-1])
-        # self.data[-1][-1] = (float(self.data[-1][3]) - float(self.data[-1][5] )) * int(self.data[-1][4])
-        # print(self.data[-1])
+        date = datetime.now().strftime("%Y-%m-%d")
+        self.cursor.execute("SELECT * FROM Fac_Pays")
+        pays_data = self.cursor.fetchall() # [(pay_id, date, amount_money, factory_id, fac_money_before, safe_id), ...]
         
+        final_data = []
+        for row in pays_data:
+            final_data.append([ self.get_factory_name_byid(row[3]), date, float(row[2]), float(row[4]), float(row[4] - float(row[2]))])
         
+        '''
+        returned data = [ [factory_name, date, amount_money, fac_money_before, fac_money_after] ]
+        '''
         
-        return self.data
+        return final_data
+
     
     def check_factory_name_exist(self, name):
         self.cursor.execute("SELECT * FROM Factories WHERE name = ?", (name,))
-        # return self.cursor.fetchone()
+        fac = self.cursor.fetchone()
+        if fac == None:
+            return False
         return True
+
 
     def check_factory_money(self, name):
         self.cursor.execute("SELECT amount_money FROM Factories WHERE name = ?", (name,))
-        # return self.cursor.fetchone()
-        return 5000
+        return self.cursor.fetchone()[0]
 
 
+    def check_safe_money(self, safe_type):
+        self.cursor.execute("SELECT amount_money FROM Safe WHERE type = ?", (safe_type,))
+        return self.cursor.fetchone()[0]
 
 
-    def get_safe_money(self, safe_type):
-        if safe_type == 'cash':
-            return 100000
-        elif safe_type == 'vodafone cash':
-            return 1000
-    
-    
-    def save_pay_to_db(self, fac_name, money_amount, safe_type):
+    def save_pay_to_db(self, factory_name, amount_money, safe_type):
+        try :
+            safe_id = self.cursor.execute("SELECT safe_id FROM Safe WHERE type = ?", (safe_type,)).fetchone()[0]
+            fac_id , fac_money_before = self.cursor.execute("SELECT factory_id, amount_money FROM Factories WHERE name = ?", (factory_name,)).fetchone()
+            date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            self.cursor.execute("INSERT INTO Fac_Pays (factory_id, fac_money_before, date, amount_money, safe_id) VALUES (?, ?, ?, ?, ?)", (fac_id, fac_money_before, date, amount_money, safe_id))        
+
+            self.cursor.execute("UPDATE Factories SET amount_money = amount_money - ? WHERE factory_id = ?", (amount_money, fac_id))
+            self.cursor.execute("UPDATE Safe SET amount_money = amount_money - ? WHERE safe_id = ?", (amount_money, safe_id))
+            self.conn.commit()
         
+        except Exception as e:
+            print(f"there is a problem in save_pay_to_db : {e}")
+            return False
         return True

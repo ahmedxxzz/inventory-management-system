@@ -177,7 +177,6 @@ class BuyModel:
 
 
             self.conn.commit()
-            print(f"this is buys added: \n{buys}")
             return True
         except Exception as e:
             print(f"there is an error in insert_buys_to_db: {e}")

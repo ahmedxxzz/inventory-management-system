@@ -49,6 +49,13 @@ class ReturnController:
             self.view.message('showinfo', 'عملية فاشلة', 'كود المنتج غير موجود')
             return
         
+        if  self.model.check_product_code_exist(self.view.product_code.get()):
+            if int(self.model.check_product_quantity(self.view.product_code.get())) < int(self.view.quantity.get()):
+                self.view.message('showinfo', 'عملية فاشلة', 'لا يوجد كمية كافية للمنتج')
+                return
+        
+        
+        
 
         
         if self.model.save_return_to_db(data):
@@ -71,7 +78,8 @@ class ReturnController:
             # [("جلوبال تك للتصنيع",500), ("حلول الروبوتات الدقيقة",4000)]
             self.view.recommendations = self.model.get_factory_names_and_money()
             self.recommendation_type = 'fac_names with money'
-            
+
+
         elif ent == self.view.Entries[1]:# products id
             # [1001, 1002, 1003,]
             self.view.recommendations = self.model.get_products_codes()

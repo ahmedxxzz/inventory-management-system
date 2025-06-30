@@ -100,6 +100,7 @@ class MainModel:
                             quantity INTEGER NOT NULL CHECK (quantity >= 0), 
                             price_per_piece REAL NOT NULL CHECK (price_per_piece >= 0),
                             factory_id INTEGER NOT NULL,
+                            reason TEXT ,
                             FOREIGN KEY (factory_id) REFERENCES Factories(factory_id) ,
                             FOREIGN KEY (product_id) REFERENCES Products(product_id)
                         );
@@ -258,21 +259,20 @@ class MainModel:
             (fac_pays_dates[9], 1000, 2, 10000, 1),  # Pay احمد جمعه from cash
         ]
 
-        # --- Fac_Returned_Items (10 records) ---
         # Simulates returning items to factories.
         fac_returned_dates = generate_dates('2023-10-20 11:00:00', num_records)
         fac_returned_items_data = [
-            # (date, product_id, quantity, price_per_piece, factory_id)
-            (fac_returned_dates[0], 1, 5, 170, 3),     # Return '1001' to سعد المجرد
-            (fac_returned_dates[1], 2, 10, 28, 2),     # Return '0001' to احمد جمعه
-            (fac_returned_dates[2], 5, 15, 19, 1),     # Return '1004' to حمادة طلبة
-            (fac_returned_dates[3], 4, 8, 40, 4),      # Return '0005' to هوبا سيد
-            (fac_returned_dates[4], 7, 2, 85, 3),      # Return '1008' to سعد المجرد
-            (fac_returned_dates[5], 6, 20, 63, 2),     # Return '0050' to احمد جمعه
-            (fac_returned_dates[6], 9, 30, 4.5, 1),    # Return '1007' to حمادة طلبة
-            (fac_returned_dates[7], 8, 50, 200, 4),    # Return '0006' to هوبا سيد
-            (fac_returned_dates[8], 11, 4, 115, 3),    # Return '1010' to سعد المجرد
-            (fac_returned_dates[9], 10, 7, 25, 2),     # Return '0010' to احمد جمعه
+            # (date, product_id, quantity, price_per_piece, factory_id, reason)
+            (fac_returned_dates[0], 1, 5, 170, 3, 'علشان عبيط'),     # Return '1001' to سعد المجرد
+            (fac_returned_dates[1], 2, 10, 28, 2, 'علشان عبيط'),     # Return '0001' to احمد جمعه
+            (fac_returned_dates[2], 5, 15, 19, 1, 'علشان عبيط'),     # Return '1004' to حمادة طلبة
+            (fac_returned_dates[3], 4, 8, 40, 4, 'علشان عبيط'),      # Return '0005' to هوبا سيد
+            (fac_returned_dates[4], 7, 2, 85, 3, 'علشان عبيط'),      # Return '1008' to سعد المجرد
+            (fac_returned_dates[5], 6, 20, 63, 2, 'علشان عبيط'),     # Return '0050' to احمد جمعه
+            (fac_returned_dates[6], 9, 30, 4.5, 1, 'علشان عبيط'),    # Return '1007' to حمادة طلبة
+            (fac_returned_dates[7], 8, 50, 200, 4, 'علشان عبيط'),    # Return '0006' to هوبا سيد
+            (fac_returned_dates[8], 11, 4, 115, 3, 'علشان عبيط'),    # Return '1010' to سعد المجرد
+            (fac_returned_dates[9], 10, 7, 25, 2, 'علشان عبيط'),     # Return '0010' to احمد جمعه
         ]
 
 
@@ -338,19 +338,19 @@ class MainModel:
         cus_pays_dates = generate_dates('2023-11-20 18:00:00', num_records)
         cus_pays_data = [
             # (date, amount, customer_id, resource_name, safe_money_before, safe_id, cus_money_before, cus_money_after)
-            (cus_pays_dates[0], 2000, 1, 'golden rose', 100000, 1, 7500, 5500),   # أحمد حسن pays from cash
-            (cus_pays_dates[1], 1500, 2, 'snow white', 50000, 2, 4800, 3300),    # فاطمة علي pays from v.cash
-            (cus_pays_dates[2], 1000, 3, 'golden rose', 100000, 1, 2100, 1100),   # محمد السيد pays from cash
-            (cus_pays_dates[3], 3000, 4, 'snow white', 50000, 2, 5500, 2500),    # نورهان إبراهيم pays from v.cash
-            (cus_pays_dates[4], 1200, 5, 'golden rose', 100000, 1, 2900, 1700),   # خالد محمود pays from cash
-            (cus_pays_dates[5], 2000, 6, 'snow white', 50000, 2, 4100, 2100),    # سارة طارق pays from v.cash
-            (cus_pays_dates[6], 1500, 7, 'golden rose', 100000, 1, 2700, 1200),   # يوسف جمال pays from cash
-            (cus_pays_dates[7], 4000, 8, 'snow white', 50000, 2, 6000, 2000),    # هنا عادل pays from v.cash
-            (cus_pays_dates[8], 1800, 9, 'golden rose', 100000, 1, 3400, 1600),   # عمر مصطفى pays from cash
-            (cus_pays_dates[9], 2500, 10, 'snow white', 50000, 2, 4500, 2000),   # ليلى فؤاد pays from v.cash
+            (cus_pays_dates[0], 2000, 1, 'golden rose', 100000, 1, 7500, 5500),  
+            (cus_pays_dates[1], 1500, 2, 'snow white', 50000, 2, 4800, 3300),    
+            (cus_pays_dates[2], 1000, 3, 'golden rose', 100000, 1, 2100, 1100),  
+            (cus_pays_dates[3], 3000, 4, 'snow white', 50000, 2, 5500, 2500),    
+            (cus_pays_dates[4], 1200, 5, 'golden rose', 100000, 1, 2900, 1700),  
+            (cus_pays_dates[5], 2000, 6, 'snow white', 50000, 2, 4100, 2100),    
+            (cus_pays_dates[6], 1500, 7, 'golden rose', 100000, 1, 2700, 1200),  
+            (cus_pays_dates[7], 4000, 8, 'snow white', 50000, 2, 6000, 2000),    
+            (cus_pays_dates[8], 1800, 9, 'golden rose', 100000, 1, 3400, 1600),  
+            (cus_pays_dates[9], 2500, 10, 'snow white', 50000, 2, 4500, 2000),   
         ]
-        
-    
+
+
         data_dict = {
             'Factories' : [('حمادة طلبة', 5000, 50),('احمد جمعه', 10000, 100),('سعد المجرد', 64000, 150),('هوبا سيد', 4400, 10)],
             'Products' : [('1001', 75, 250, 180, 'golden rose'),('0001', 120, 50, 30, 'snow white'),('1003', 30, 25, 15, 'golden rose'),('0005', 90, 70, 45, 'snow white'),('1004', 60, 35, 20, 'golden rose'),('0050', 40, 100, 70, 'snow white'),('1008', 55, 120, 85, 'golden rose'),('0006', 20, 300, 220, 'snow white'),('1007', 200, 10, 5, 'golden rose'),('0010', 80, 40, 25, 'snow white'),('1010', 25, 180, 130, 'golden rose'),('0100', 110, 60, 35, 'snow white'),('1011', 150, 20, 12, 'golden rose'),('0150', 15, 400, 300, 'snow white'),('1012', 70, 45, 28, 'golden rose'),('0200', 35, 90, 60, 'snow white'),('1013', 45, 150, 110, 'golden rose'),('0250', 10, 500, 380, 'snow white'),('1017', 95, 30, 18, 'golden rose'),('0300', 50, 200, 150, 'snow white')],
@@ -373,7 +373,7 @@ class MainModel:
         'Fac_Purchases': "INSERT INTO Fac_Purchases (purchas_date, fac_money_before, factory_id) VALUES (?, ?, ?);",
         'Fac_PurchaseItems': "INSERT INTO Fac_PurchaseItems (purchase_id, product_id, quantity, price_per_piece, discount_per_piece, resource_name) VALUES (?, ?, ?, ?, ?, ?);",
         'Fac_Pays': "INSERT INTO Fac_Pays (date, amount_money, factory_id, fac_money_before, safe_id) VALUES (?, ?, ?, ?, ?);",
-        'Fac_Returned_Items': "INSERT INTO Fac_Returned_Items (date, product_id, quantity, price_per_piece, factory_id) VALUES (?, ?, ?, ?, ?);",
+        'Fac_Returned_Items': "INSERT INTO Fac_Returned_Items (date, product_id, quantity, price_per_piece, factory_id, reason) VALUES (?, ?, ?, ?, ?, ?);",
         'Cus_Purchases': "INSERT INTO Cus_Purchases (purchase_date, discount_Total, resource_name, cus_money_before, customer_id) VALUES (?, ?, ?, ?, ?);",
         'Cus_PurchaseItems': "INSERT INTO Cus_PurchaseItems (purchase_id, product_id, quantity, price_per_piece, discount_per_piece) VALUES (?, ?, ?, ?, ?);",
         'Cus_Returned_Items': "INSERT INTO Cus_Returned_Items (date, product_id, quantity, price_per_piece, discount_per_piece, resource_name, customer_id) VALUES (?, ?, ?, ?, ?, ?, ?);",

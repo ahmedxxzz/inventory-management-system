@@ -2,13 +2,15 @@ from view.main_view import MainView
 from model.main_model import MainModel
 from controller.dashboard_controller import DashboardController
 from controller.factory_controller import FactoryController
+from controller.inventory_controller import InventoryController
 from controller.customer_controller import CustomerController
 from controller.statics_controller import StaticsController
 
+
 class MainController:
     def __init__(self, root_window):
-        self.root = root_window
-        self.view = MainView(self.root)
+        self.root = root_window # this is the window
+        self.view = MainView(self.root) # this is the left slide with its buttons
         self.model = MainModel()
         self._bind_events()
         
@@ -43,8 +45,10 @@ class MainController:
         elif index == 2:
             self.open_customer()
         elif index == 3:
-            self.open_statistics()
+            self.open_inventory()
         elif index == 4:
+            self.open_statistics()
+        else:
             self.root.destroy()
             exit()
         
@@ -62,6 +66,10 @@ class MainController:
     def open_customer(self):
         customer = CustomerController(self.root)
         self.view.Frames.append(customer.view)
+
+    def open_inventory(self):
+        inventory = InventoryController(self.root)
+        self.view.Frames.append(inventory.view)
 
     def open_statistics(self):
         statics = StaticsController(self.root)

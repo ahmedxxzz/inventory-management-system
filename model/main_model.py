@@ -1,6 +1,5 @@
 import sqlite3
 import os
-import time
 import datetime
 import random
 
@@ -15,12 +14,13 @@ class MainModel:
             print(f"Database {db_file} isn't exists. Setting up database.")
             self.create_tables(db_file)
             self.add_fake_data(db_file)
-        
+
     
 
 
     def create_tables(self, filename):
         try:
+
             # Connect to SQLite database
             conn = sqlite3.connect(filename)
             cursor = conn.cursor()
@@ -44,9 +44,9 @@ class MainModel:
                     product_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     type TEXT NOT NULL UNIQUE,
                     current_quantity INTEGER DEFAULT 0 CHECK (current_quantity >= 0),
-                    cus_price_per_piece REAL NOT NULL DEFAULT 0 CHECK (cus_price_per_piece >= 0),
-                    fac_price_per_piece REAL NOT NULL DEFAULT 0 CHECK (fac_price_per_piece >= 0),
-                    resource_name TEXT NOT NULL check (resource_name == 'golden rose' or resource_name == 'snow white')
+                    cus_price_per_piece REAL DEFAULT 0 CHECK (cus_price_per_piece >= 0),
+                    fac_price_per_piece REAL DEFAULT 0 CHECK (fac_price_per_piece >= 0),
+                    resource_name TEXT  check (resource_name == 'golden rose' or resource_name == 'snow white')
                 );
             ''')
 

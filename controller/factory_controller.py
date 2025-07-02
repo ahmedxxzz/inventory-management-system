@@ -6,8 +6,8 @@ from controller.Factory_compnents_controller.factory_account_controller import F
 
 class FactoryController:
     def __init__(self, root_window) -> None:
-        self.root = root_window
-        self.view = FactoryView(self.root)
+        self.root = root_window # the window
+        self.view = FactoryView(self.root) # now this is the content frame 
         self._bind_events()
         
 
@@ -47,17 +47,17 @@ class FactoryController:
         
         
     def open_buy(self):
-        buy = BuyController(self.root)
+        buy = BuyController(self.view)
         self.view.Frames.append(buy.view)
     
     def open_pay(self):
-        pay = PayController(self.root)
+        pay = PayController(self.view)
         self.view.Frames.append(pay.view)
 
     def open_return(self):
-        returns = ReturnController(self.root)
+        returns = ReturnController(self.view)
         self.view.Frames.append(returns.view)
 
     def open_account(self):
-        account = FactoryAccountController(self.root)
+        account = FactoryAccountController(self.view)
         self.view.Frames.append(account.view)

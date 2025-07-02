@@ -4,7 +4,7 @@ from controller.dashboard_controller import DashboardController
 from controller.factory_controller import FactoryController
 from controller.inventory_controller import InventoryController
 from controller.customer_controller import CustomerController
-from controller.statics_controller import StaticsController
+from controller.safe_controller import SafeController
 
 
 class MainController:
@@ -47,7 +47,7 @@ class MainController:
         elif index == 3:
             self.open_inventory()
         elif index == 4:
-            self.open_statistics()
+            self.open_safe()
         else:
             self.root.destroy()
             exit()
@@ -71,6 +71,6 @@ class MainController:
         inventory = InventoryController(self.root)
         self.view.Frames.append(inventory.view)
 
-    def open_statistics(self):
-        statics = StaticsController(self.root)
-        self.view.Frames.append(statics.view)
+    def open_safe(self):
+        safe = SafeController(self.root)
+        self.view.Frames.append(safe.view)

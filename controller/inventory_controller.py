@@ -1,5 +1,7 @@
 from view.inventory_view import InventoryView
 from controller.Inventory_components_controller.adding_type_controller import AddingTypeController
+from controller.Inventory_components_controller.snow_inv_controller import SnowInvController
+from controller.Inventory_components_controller.golden_inv_controller import GoldenInvController
 
 
 class InventoryController:
@@ -7,7 +9,7 @@ class InventoryController:
         self.root = root # this is the window (there is a left slide inside the window but i can't access it here)
         self.view = InventoryView(self.root)
         self._bind_events()
-        
+
 
     def _bind_events(self):
         for index, btn in enumerate(self.view.buttons):
@@ -18,8 +20,8 @@ class InventoryController:
         '''
         # change the color and disable the button and enable the other
         # destroy the frames
-        add the frame of clicked button
-        append the frame to the self.view.frames
+        # add the frame of clicked button
+        # append the frame to the self.view.frames
         '''
         for button in self.view.buttons:
             button.configure(fg_color='#206ca4', state='normal', cursor="hand2")
@@ -33,8 +35,11 @@ class InventoryController:
         
         if index == 0:
             self.open_adding_type()
-        # elif index == 1:
-        #     self.open_pay()
+        elif index == 1:
+            self.open_snow()
+        elif index == 2:
+            self.open_golden()
+        
 
         
         
@@ -42,8 +47,12 @@ class InventoryController:
     def open_adding_type(self):
         add_type = AddingTypeController(self.view)
         self.view.Frames.append(add_type.view)
-    
-    # def open_pay(self):
-    #     pay = PayController(self.view)
-    #     self.view.Frames.append(pay.view)
+
+    def open_snow(self):
+        snow = SnowInvController(self.view)
+        self.view.Frames.append(snow.view)
+
+    def open_golden(self):
+        golden = GoldenInvController(self.view)
+        self.view.Frames.append(golden.view)
 

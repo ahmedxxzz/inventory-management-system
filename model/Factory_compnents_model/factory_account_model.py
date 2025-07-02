@@ -5,7 +5,8 @@ class FactoryAccountModel:
     def __init__(self):
         self.conn = sqlite3.connect('IMS.db')
         self.cursor = self.conn.cursor()
-    
+
+
     def get_factories_data(self, name=None):
         '''
         returned data = [ ('حماده طلبة', 50000.0, 5), ('عمرو هلال', 75000.0, 20), ('علاء احمد', 30000.0, 0), ]
@@ -32,5 +33,4 @@ class FactoryAccountModel:
             if n[0] == name:
                 return True
         return False
-
 

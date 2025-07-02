@@ -137,6 +137,3 @@ class FactoryAccountView(ctk.CTkFrame):
             return messagebox.askyesno(info_text, text)
         elif mstype == "showinfo":
             messagebox.showinfo(info_text, text)
-
-
-#

@@ -120,7 +120,7 @@ class MainModel:
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS  Cus_Pays (
                     pay_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    date TEXT NOT NULL UNIQUE,
+                    date TEXT NOT NULL,
                     amount_money REAL NOT NULL,
                     customer_id INTEGER NOT NULL,
                     resource_name TEXT NOT NULL check (resource_name == 'golden rose' or resource_name == 'snow white'),
@@ -164,8 +164,8 @@ class MainModel:
                             product_id INTEGER NOT NULL,
                             quantity INTEGER NOT NULL CHECK (quantity >= 0), 
                             price_per_piece REAL NOT NULL CHECK (price_per_piece >= 0),
-                            discount_per_piece REAL DEFAULT 0 CHECK (discount_per_piece >= 0),
                             resource_name TEXT NOT NULL check (resource_name == 'golden rose' or resource_name == 'snow white'),
+                            reason TEXT ,
                             customer_id INTEGER NOT NULL,
                             FOREIGN KEY (customer_id) REFERENCES Customers(customer_id) ,
                             FOREIGN KEY (product_id) REFERENCES Products(product_id)

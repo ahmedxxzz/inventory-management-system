@@ -37,7 +37,7 @@ class ReturnModel:
         
         '''
         customer_id = self.cursor.execute("SELECT customer_id FROM Customers WHERE name = ?", (data[0],)).fetchone()[0]
-        product_id = self.cursor.execute("SELECT product_id FROM Products WHERE type = ?", (data[1],))
+        product_id = self.cursor.execute("SELECT product_id FROM Products WHERE type = ?", (data[1],)).fetchone()[0]
         price_per_piece = self.cursor.execute("SELECT cus_price_per_piece FROM Products WHERE type = ?", (data[1],)).fetchone()[0]
         self.cursor.execute('''INSERT INTO Cus_Returned_Items (date, product_id, quantity, reason, price_per_piece,  customer_id, resource_name)  VALUES (?, ?, ?, ?, ?, ?, ?);''', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), product_id, int(data[2]), data[3],  price_per_piece, customer_id, self.supplier))
         self.cursor.execute("UPDATE Products SET current_quantity = current_quantity + ? WHERE product_id = ?", (int(data[2]), product_id))
@@ -58,7 +58,7 @@ class ReturnModel:
                                     CRI.date AS time,
                                     P.type AS productcode,
                                     CRI.quantity AS quantity,
-                                    'علشان اهبل' AS reason
+                                    CRI.reason AS reason
                                 FROM
                                     Cus_Returned_Items AS CRI
                                 JOIN

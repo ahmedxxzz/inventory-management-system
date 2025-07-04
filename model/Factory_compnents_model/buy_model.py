@@ -120,6 +120,7 @@ class BuyModel:
                         factory_id,
                         purchas_date,
                         fac_money_before
+                        
                         )
                         VALUES (?, ?, ?);
                     ''',
@@ -164,6 +165,14 @@ class BuyModel:
                         total_price+= (float(purchase[2])-float(purchase[4])) * int(purchase[3])
                     total_quantity += int(purchase[3])
                     
+                
+                self.cursor.execute(
+                    '''
+                    UPDATE Fac_Purchases
+                    SET cost_money = ?
+                    WHERE purchase_id = ?;
+                    ''', (total_price, purchase_id)
+                )
                 self.cursor.execute(
                     '''
                     UPDATE Factories
@@ -183,3 +192,6 @@ class BuyModel:
             return False
 
 
+    def get_supplier_from_procode(self, code):
+        self.cursor.execute("SELECT resource_name FROM Products WHERE type = ?", (code,))
+        return self.cursor.fetchone()[0]

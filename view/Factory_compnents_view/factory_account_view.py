@@ -3,7 +3,8 @@ from tkinter import StringVar, ttk , messagebox
 
 class FactoryAccountView(ctk.CTkFrame):
     def __init__(self, root):
-        super().__init__(root)
+        self.root = root
+        super().__init__(self.root)
         self.pack(fill='both', expand=True)
         
         self.fac_frames = []
@@ -77,7 +78,7 @@ class FactoryAccountView(ctk.CTkFrame):
 
 
 
-    def add_factory_frame(self, fac_name, amount_money, product_quantity, zeros_func, report_class):
+    def add_factory_frame(self, fac_name, amount_money, product_quantity, zeros_func, details_class, root_frames):
         fac_frame = ctk.CTkFrame(self.bottom_frame, border_width=1,  height=40, )
         fac_frame.pack(side='top', fill='x')
         for i in range(0, 10):
@@ -86,9 +87,14 @@ class FactoryAccountView(ctk.CTkFrame):
         fac_frame.grid_rowconfigure(0, weight=0)
 
         #########################################
-
-        report_button = ctk.CTkButton(fac_frame, text='كشف حساب', font=("Arial", 14, "bold"), text_color='white',width=100, height=40, fg_color='green', command=lambda fac_name = fac_name: report_class(fac_name))
+        def show_details_click( fac_name):
+            self.destroy()
+            root_frames.append(details_class(self.root, root_frames, fac_name).view)
+        
+        
+        report_button = ctk.CTkButton(fac_frame, text='عرض التفاصيل', font=("Arial", 14, "bold"), text_color='white',width=100, height=40, fg_color='green', command=lambda fac_name = fac_name: show_details_click( fac_name))
         report_button.grid(row=0, column=9, pady=10)
+        
 
         
         zeros_button = ctk.CTkButton(fac_frame, text='تصفير الحساب', font=("Arial", 14, "bold"), text_color='white',width=100, height=40, fg_color='red', command=lambda fac_name = fac_name: zeros_func(fac_name))

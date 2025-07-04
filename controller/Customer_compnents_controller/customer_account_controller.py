@@ -1,12 +1,13 @@
 from view.Customer_compnents_view.customer_account_view  import CustomerAccountView
 from model.Customer_compnents_model.customer_account_model import CustomerAccountModel
-from controller.Customer_compnents_controller.report_controller import ReportController
+from controller.Customer_compnents_controller.customer_account_details_controller import CustomerAccountDetailsController
 
 class CustomerAccountController:
-    def __init__(self, root, supplier):
+    def __init__(self, root, supplier, root_frames):
         self.root = root
+        self.frames = root_frames
         self.supplier = supplier
-        self.view = CustomerAccountView(self.root)
+        self.view = CustomerAccountView(self.root, self.supplier)
         self.model = CustomerAccountModel(self.supplier)
         self.search_key_release()
         self._bind_events()
@@ -24,7 +25,7 @@ class CustomerAccountController:
         
         
         for row in self.model.get_customers_data(self.view.search_var.get().strip()):
-            self.view.add_customer_frame(*row, self.zeros_customer, ReportController)
+            self.view.add_customer_frame(*row, self.zeros_customer, CustomerAccountDetailsController, self.frames)
 
 
     def zeros_customer(self, customer_name ):

@@ -1,10 +1,11 @@
 from view.Factory_compnents_view.factory_account_view  import FactoryAccountView
 from model.Factory_compnents_model.factory_account_model import FactoryAccountModel
-from controller.Factory_compnents_controller.report_controller import ReportController
+from controller.Factory_compnents_controller.factory_account_details_controller import FactoryAccountDetailsController
 
 class FactoryAccountController:
-    def __init__(self, root):
+    def __init__(self, root, root_frames):
         self.root = root
+        self.frames = root_frames
         self.view = FactoryAccountView(self.root)
         self.model = FactoryAccountModel()
         self.search_key_release()
@@ -23,7 +24,7 @@ class FactoryAccountController:
         
         
         for row in self.model.get_factories_data(self.view.search_var.get().strip()):
-            self.view.add_factory_frame(*row, self.zeros_factory, ReportController)
+            self.view.add_factory_frame(*row, self.zeros_factory, FactoryAccountDetailsController, self.frames)
 
 
     def zeros_factory(self, factory_name ):

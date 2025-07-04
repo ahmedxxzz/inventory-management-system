@@ -59,5 +59,5 @@ class FactoryController:
         self.view.Frames.append(returns.view)
 
     def open_account(self):
-        account = FactoryAccountController(self.view)
+        account = FactoryAccountController(self.view,self.view.Frames )
         self.view.Frames.append(account.view)

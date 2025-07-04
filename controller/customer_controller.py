@@ -5,7 +5,8 @@ from controller.Customer_compnents_controller.return_controller import ReturnCon
 from controller.Customer_compnents_controller.customer_account_controller import CustomerAccountController
 
 class CustomerController:
-    def __init__(self, root_window, supplier) -> None:
+    def __init__(self, root_window, supplier, main_content_frames) -> None:
+        self.main_content_frames = main_content_frames # just used for the navigator 
         self.root = root_window # the window
         self.supplier = supplier
         self.view = CustomerView(self.root) # now this is the content frame 
@@ -61,12 +62,13 @@ class CustomerController:
 
 
     def open_account(self):
-        account = CustomerAccountController(self.view, self.supplier)
+        account = CustomerAccountController(self.view, self.supplier, self.view.Frames)
         self.view.Frames.append(account.view)
 
 
     def back(self):
         from controller.navigator_controller import NavigatorController
         self.view.destroy()
-        navigator = NavigatorController(self.root)
+        navigator = NavigatorController(self.root, self.main_content_frames)
+        self.main_content_frames.append(navigator.view)
 

@@ -175,7 +175,15 @@ class BuyModel:
                     if purchase[6] == 0:
                         total_price+= (float(purchase[2])-float(purchase[4])) * int(purchase[3])
                     total_quantity += int(purchase[3])
-                    
+
+                self.cursor.execute(
+                    '''
+                    UPDATE Cus_Purchases
+                    SET cost_money = ?
+                    WHERE purchase_id = ?;
+                    ''', (total_price, purchase_id)
+                )
+                
                 self.cursor.execute(
                     f'''
                     UPDATE Customers

@@ -1,66 +1,45 @@
-
 import customtkinter as ctk
 from tkinter import StringVar, ttk , messagebox
 
-class AddingTypeView(ctk.CTkFrame):
-    def __init__(self, frame):
-        super().__init__(frame)
-        self.pack(side='top', padx=10, pady=10, fill='both',expand=True)
-        
-        
-        
-        self.product_code = StringVar()
-        self.price = StringVar()
-        self.supplier = StringVar(value='snow white')
-        
-        
-        
-        
+class CustomerAccountDetailsView(ctk.CTkFrame):
+    def __init__(self, root, customer_name):
+        super().__init__(root, )
+        self.pack(fill='both', padx=10,expand=True)
+        self.customer_name = customer_name
         self.create_upper_frame()
         self.create_bottom_frame()
-    
-    
-    
+
+
     def create_upper_frame(self):
         
-        ## get the code and the money only
         upper_frame = ctk.CTkFrame(self, corner_radius=5,border_width=5,border_color='yellow',height=450)
         upper_frame.pack(side='top', fill='x')
-        
-        
-        inputs_frame = ctk.CTkFrame(upper_frame, corner_radius=5)
-        inputs_frame.pack(side='top',pady=20,)
-        ##############################################
-        
-        upper_input_frame = ctk.CTkFrame(inputs_frame, border_width=2, fg_color='#333333',width=560, height=400)
-        upper_input_frame.pack(side='top', padx=10,pady=10,)
-        
-        
-        
-        
-        ################################################
-        lbls_frame = ctk.CTkFrame(upper_input_frame, fg_color='#333333',width=560, height=400)
-        lbls_frame.pack(side='left', padx=10,pady=10,)
-        
-        lbls_names = ['كود القطعة', 'سعر البيع', 'الموزع']
-        
-        for lbl in lbls_names:
-            lbl = ctk.CTkLabel(lbls_frame, text=lbl, font=("Arial", 17, "bold"), text_color='white',width=200, height=40)
-            lbl.pack(side='top', padx=10, pady=10)
-        ################################################
-        entries_frame = ctk.CTkFrame(upper_input_frame, fg_color='#333333',width=560, height=400)
-        entries_frame.pack(side='right', padx=10,pady=10,)
-        
-        
-        ctk.CTkEntry(entries_frame, textvariable=self.product_code, font=("Arial", 18, "bold"),width=200, height=40, ).pack(side='top', padx=10, pady=10)
-        ctk.CTkEntry(entries_frame, textvariable=self.price,font=("Arial", 18, "bold"),width=200, height=40, validate="key", validatecommand = (self.register(self.validate_Entry), '%P', 'float')).pack(side='top', padx=10, pady=10)
-        
-        
-        ctk.CTkComboBox(entries_frame, values=["snow white", "golden rose"], variable=self.supplier).pack(side='top', padx=10, pady=10)
-        ################################################
-        self.save_btn = ctk.CTkButton(inputs_frame, text='اضافة', font=("Arial", 18, "bold"), text_color='white', fg_color="#007BFF", hover_color="#3484F0",width=200, height=40)
-        self.save_btn.pack(side='bottom', padx=10, pady=10)
 
+        self.back_btn = ctk.CTkButton(upper_frame, text='رجوع',  font=("Arial", 16, "bold"), width=100, height=30)
+        self.back_btn.place(relx=0.005, rely=0.02, anchor="nw")
+        
+        name_frame = ctk.CTkFrame(upper_frame, bg_color='#2b2b2b', fg_color='#2b2b2b',width=560, height=400)
+        name_frame.pack(side='top',pady=20,)
+        name_lbl = ctk.CTkLabel(name_frame, text=f'مكتب: {self.customer_name}', font=("Arial", 20, "bold"), text_color='white',width=200, height=40)
+        name_lbl.pack(side='top', padx=10, pady=10)
+        #################################################################
+        data_frame = ctk.CTkFrame(upper_frame, fg_color='#2b2b2b')
+        data_frame.pack(side='top', padx=10,pady=10,fill='x')
+        
+        self.quantity_lbl = ctk.CTkLabel(data_frame, text='الكمية الحالية :', font=("Arial", 20, "bold"), text_color='white',width=200, height=40)
+        self.quantity_lbl.pack(side='left', padx=10, pady=10)
+        self.money_lbl = ctk.CTkLabel(data_frame, text='الرصيد الحالي :', font=("Arial", 20, "bold"), text_color='white',width=200, height=40)
+        self.money_lbl.pack(side='right', padx=10, pady=10)
+        
+        
+        
+        btns_frame = ctk.CTkFrame(upper_frame, fg_color='#2b2b2b')
+        btns_frame.pack(side='top', padx=10,pady=10, fill= 'x')
+        
+        self.report_btn = ctk.CTkButton(btns_frame, text='كشف حساب', font=("Arial", 16, "bold"), text_color='white',width=200, height=40, fg_color='green')
+        self.report_btn.pack(side='top', padx=10, pady=10)
+        
+        
 
     def create_bottom_frame(self):
         """Creates the frame containing the Treeview for displaying data."""
@@ -82,8 +61,8 @@ class AddingTypeView(ctk.CTkFrame):
         style.map("Treeview.Heading",background=[('active', '#3484F0')])
 
         # --- Create Treeview Widget ---
-        self.tree_columns = ('product_code', 'quantity', 'fac_price', 'cus_price', 'resource_name')
-        self.tree_headers = ['كود القطعة',  'الكمية', 'سعر المصنع', 'سعر المكتب', 'الموزع']
+        self.tree_columns = ('customer_name', 'date', 'money', 'operation_type')
+        self.tree_headers = ['اسم المكتب', 'التاريخ', 'المبلغ', 'نوع العملية']
 
         self.tree = ttk.Treeview(bottom_frame, columns=self.tree_columns, show='headings', selectmode="extended")
         
@@ -93,12 +72,10 @@ class AddingTypeView(ctk.CTkFrame):
         
         
         # Define column widths (adjust as needed)
-        self.tree.column('product_code', width=100, anchor='center')
-        self.tree.column('quantity', width=120, anchor='center')
-        self.tree.column('fac_price', width=150, anchor='center')
-        self.tree.column('cus_price', width=150, anchor='center')
-        self.tree.column('resource_name', width=100, anchor='center')
-        
+        self.tree.column('customer_name', width=100, anchor='center')
+        self.tree.column('date', width=180, anchor='center')
+        self.tree.column('money', width=120, anchor='center')
+        self.tree.column('operation_type', width=150, anchor='center')
 
         # --- Add Scrollbars ---
         v_scrollbar = ttk.Scrollbar(bottom_frame, orient="vertical", command=self.tree.yview)
@@ -177,8 +154,11 @@ class AddingTypeView(ctk.CTkFrame):
         elif op_type == "":
             return True
 
+
     def message(self, mstype, info_text, text):
         if mstype == "yes_no":
             return messagebox.askyesno(info_text, text)
         elif mstype == "showinfo":
             messagebox.showinfo(info_text, text)
+
+

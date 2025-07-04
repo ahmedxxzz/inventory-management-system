@@ -66,7 +66,7 @@ class MainController:
         self.view.Frames.append(factory.view)
     
     def open_customer(self):
-        customer = NavigatorController(self.root)
+        customer = NavigatorController(self.root, self.view.Frames)
         self.view.Frames.append(customer.view)
 
     def open_inventory(self):

@@ -19,8 +19,6 @@ class BuyView(ctk.CTkFrame):
         self.price = StringVar()
         self.quantity = StringVar()
         self.discount = StringVar()
-        self.supplier = StringVar()
-        self.supplier.set('snow white')
         self.checkbox_var = StringVar(value="لا")
         
 
@@ -41,7 +39,7 @@ class BuyView(ctk.CTkFrame):
          
         inputs_lbls_frame = ctk.CTkFrame(entry_frame)
         inputs_lbls_frame.pack(side='left', fill='y')
-        lbls_names = ['اسم المصنع', 'كود القطعة', 'سعر القطعة', 'عدد القطع', 'الخصم', 'الموزع', 'تم الدفع']
+        lbls_names = ['اسم المصنع', 'كود القطعة', 'سعر القطعة', 'عدد القطع', 'الخصم', 'تم الدفع']
         
         for lbl in lbls_names:
             lbl = ctk.CTkLabel(inputs_lbls_frame, text=lbl, font=("Arial", 14, "bold"), text_color='white',width=200, height=40)
@@ -60,9 +58,7 @@ class BuyView(ctk.CTkFrame):
             
             if var != self.fac_name and var != self.product_code :
                 fac_entry.configure(validate="key", validatecommand = (fac_entry.register(self.validate_Entry), '%P', 'float' if var !=self.quantity else 'integer'))
-        
-        ctk.CTkOptionMenu(inputs_entries_frame,variable=self.supplier ,values=['snow white', 'golden rose'], font=("Arial", 18, "bold"),width=200, height=40, state='readonly').pack(side='top', padx=10, pady=10)
-        
+                
         self.save_buys_button = ctk.CTkButton(inputs_lbls_frame, text='حفظ الفاتورة', font=("Arial", 18, "bold"),width=200, height=40,)
         self.save_buys_button.pack(side='top', padx=10, pady=10)
         
@@ -72,7 +68,7 @@ class BuyView(ctk.CTkFrame):
         self.cache_buy_button.pack(side='top', padx=10, pady=10)
         
         ###### Recommendation frame
-        self.recommended_frame = ctk.CTkScrollableFrame(upper_frame, width=200,height=300 ,corner_radius=5, border_width=0, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
+        self.recommended_frame = ctk.CTkScrollableFrame(upper_frame, width=200,height=300 ,corner_radius=5, border_width=0, fg_color='transparent',scrollbar_button_color='#2b2b2b', scrollbar_button_hover_color='#2b2b2b', scrollbar_fg_color='#2b2b2b')
         self.recommended_frame.pack(side='left', padx=10,pady=30)
         
         ##### Temp Operations Frame
@@ -187,7 +183,7 @@ class BuyView(ctk.CTkFrame):
         factory_names = [ ('حماده طلبة', 50000.0), ('عمرو هلال', 75000.0), ('علاء احمد', 30000.0), ]
         products_codes = [ ('1001', 0), ('1002', 0), ('1003', 0), ]
         '''
-        for  ent in [self.fac_name, self.product_code, self.price, self.quantity, self.supplier]:
+        for  ent in [self.fac_name, self.product_code, self.price, self.quantity]:
             if ent.get() == '':
                 messagebox.showerror("خطأ", "لا يمكن ترك الحقول فارغة")
                 return False
@@ -261,7 +257,7 @@ class BuyView(ctk.CTkFrame):
         for fac, amount_money in matching_items:
             frame = ctk.CTkFrame(self.recommended_frame, fg_color='transparent', border_width=0, width=200, height=40)
             frame.pack(side='top', padx=10, pady=10)
-            button = ctk.CTkButton(frame,text=fac,width=100,  height=35,fg_color="#4CAF50", hover_color="#45a049",text_color="yellow",border_width=2,border_color="#388E3C", corner_radius=10,command=lambda btn_text=fac: var.set(btn_text))
+            button = ctk.CTkButton(frame,text=fac,width=100,  height=35,fg_color="#4CAF50", hover_color="#45a049",text_color="yellow",border_width=2,border_color="#388E3C", corner_radius=10, font=("Arial", 14), command=lambda btn_text=fac: var.set(btn_text))
             button.pack(side='left', padx=(0, 5))
             if recommendation_type == 'fac_names with money':                
                 money_lbl = ctk.CTkLabel(frame,text=amount_money,width=80,height=35,font=("Arial", 14, "bold"),text_color='white',fg_color="#007BFF", corner_radius=5)

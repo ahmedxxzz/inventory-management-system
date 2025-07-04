@@ -4,8 +4,9 @@ from view.navigator_view import NavigatorView
 
 
 class NavigatorController:
-    def __init__(self, root_window) -> None:
-        self.root = root_window # the window
+    def __init__(self, root_window, frames) -> None:
+        self.frames = frames
+        self.root = root_window # the window contain a left slide frame
         self.view = NavigatorView(self.root) # now this is the content frame 
         self._bind_events()
 
@@ -19,6 +20,7 @@ class NavigatorController:
 
     def on_image_click(self, supplier):
         self.view.destroy()
-        CustomerController(self.root, supplier)
+        self.customers = CustomerController(self.root, supplier, self.frames)
+        self.frames.append(self.customers.view)
 
     

@@ -68,7 +68,7 @@ class BuyView(ctk.CTkFrame):
         self.cache_buy_button.pack(side='top', padx=10, pady=10)
         
         ###### Recommendation frame
-        self.recommended_frame = ctk.CTkScrollableFrame(upper_frame, width=200,height=300 ,corner_radius=5, border_width=0, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
+        self.recommended_frame = ctk.CTkScrollableFrame(upper_frame, width=200,height=300 ,corner_radius=5, border_width=0, fg_color='transparent',scrollbar_button_color='#2b2b2b', scrollbar_button_hover_color='#2b2b2b', scrollbar_fg_color='#2b2b2b')
         self.recommended_frame.pack(side='left', padx=10,pady=30)
         
         ##### Temp Operations Frame
@@ -257,7 +257,7 @@ class BuyView(ctk.CTkFrame):
         for cus, amount_money in matching_items:
             frame = ctk.CTkFrame(self.recommended_frame, fg_color='transparent', border_width=0, width=200, height=40)
             frame.pack(side='top', padx=10, pady=10)
-            button = ctk.CTkButton(frame,text=cus,width=100,  height=35,fg_color="#4CAF50", hover_color="#45a049",text_color="yellow",border_width=2,border_color="#388E3C", corner_radius=10,command=lambda btn_text=cus: var.set(btn_text))
+            button = ctk.CTkButton(frame,text=cus,width=100,  height=35,fg_color="#4CAF50", hover_color="#45a049",text_color="yellow",border_width=2,border_color="#388E3C", font=("Arial", 14), corner_radius=10,command=lambda btn_text=cus: var.set(btn_text))
             button.pack(side='left', padx=(0, 5))
             if recommendation_type == 'cus_names with money':                
                 money_lbl = ctk.CTkLabel(frame,text=amount_money,width=80,height=35,font=("Arial", 14, "bold"),text_color='white',fg_color="#007BFF", corner_radius=5)

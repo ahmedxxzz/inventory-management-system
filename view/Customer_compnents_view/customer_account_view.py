@@ -2,10 +2,11 @@ import customtkinter as ctk
 from tkinter import StringVar, ttk , messagebox
 
 class CustomerAccountView(ctk.CTkFrame):
-    def __init__(self, root):
-        super().__init__(root)
+    def __init__(self, root, supplier):
+        self.root = root
+        super().__init__(self.root)
         self.pack(fill='both', expand=True)
-        
+        self.supplier = supplier
         self.cus_frames = []
         
         self.search_var = StringVar()
@@ -77,7 +78,7 @@ class CustomerAccountView(ctk.CTkFrame):
 
 
 
-    def add_customer_frame(self, cus_name, amount_money, product_quantity, zeros_func, report_class):
+    def add_customer_frame(self, cus_name, amount_money, product_quantity, zeros_func, details_class, root_frames):
         cus_frame = ctk.CTkFrame(self.bottom_frame, border_width=1,  height=40, )
         cus_frame.pack(side='top', fill='x')
         for i in range(0, 10):
@@ -86,8 +87,12 @@ class CustomerAccountView(ctk.CTkFrame):
         cus_frame.grid_rowconfigure(0, weight=0)
 
         #########################################
+        def show_details_click( cus_name):
+            self.destroy()
+            root_frames.append(details_class(self.root, root_frames, cus_name, self.supplier).view)
+        
 
-        report_button = ctk.CTkButton(cus_frame, text='كشف حساب', font=("Arial", 14, "bold"), text_color='white',width=100, height=40, fg_color='green', command=lambda cus_name = cus_name: report_class(cus_name))
+        report_button = ctk.CTkButton(cus_frame, text='عرض التفاصيل', font=("Arial", 14, "bold"), text_color='white',width=100, height=40, fg_color='green', command=lambda cus_name = cus_name: show_details_click(cus_name))
         report_button.grid(row=0, column=9, pady=10)
 
         

@@ -8,7 +8,7 @@ class AddingTypeModel:
 
 
     def get_products_info(self):
-        return self.cursor.execute("SELECT type, current_quantity, cus_price_per_piece, fac_price_per_piece, resource_name  FROM Products").fetchall()
+        return self.cursor.execute("SELECT type, current_quantity, cus_price_per_piece, resource_name  FROM Products").fetchall()
 
 
     def save_product(self, product_code, cus_price, supplier):

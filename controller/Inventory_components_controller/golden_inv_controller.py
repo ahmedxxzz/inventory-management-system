@@ -9,6 +9,16 @@ class GoldenInvController:
         self.view = GoldenInvView(self.root)
         self.model = GoldenInvModel()
         self.view.populate_treeview(self.model.get_products_info())
+        self._bind_events()
+
+    
+    
+    def _bind_events(self):
+        self.view.search_entry.bind("<KeyRelease>", self.search_product)
+
+    def search_product(self, event):
+        self.view.populate_treeview(self.model.search_product(self.view.search_entry.get().strip()))
+    
 
         
         

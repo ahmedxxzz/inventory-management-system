@@ -180,6 +180,18 @@ class MainModel:
                             amount_money REAL DEFAULT 0 CHECK (amount_money >= 0)
                             );
                         ''')
+            
+            cursor.execute('''
+                        CREATE TABLE IF NOT EXISTS Additional_Costs (
+                            addcost_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            type TEXT NOT NULL ,
+                            date TEXT NOT NULL ,
+                            amount_of_money REAL NOT NULL CHECK (amount_of_money >= 0),
+                            resource_name TEXT NOT NULL check (resource_name == 'golden rose' or resource_name == 'snow white'),
+                            safe_id INTEGER NOT NULL,
+                            FOREIGN KEY (safe_id) REFERENCES Safe(safe_id)
+                        );
+                        ''')
 
             conn.commit()
 

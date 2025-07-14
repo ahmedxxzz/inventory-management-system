@@ -3,6 +3,6 @@ from model.Customer_compnents_model.report_model import ReportModel
 
 
 class ReportController:
-    def __init__(self, cus_name):
+    def __init__(self, data, operation_type='buy'):
         print('here is report controller')
-        print(f'this is customer name that will reported : {cus_name}')
+        print('this is customer name that will reported : ')

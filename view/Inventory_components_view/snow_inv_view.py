@@ -5,10 +5,21 @@ from tkinter import ttk
 class SnowInvView(ctk.CTkFrame):
     def __init__(self, frame):
         super().__init__(frame)
-        self.pack(side='top', padx=10, pady=10, fill='both',expand=True)
+        self.pack(side='top', padx=10,  fill='both',expand=True)
+        
+        self.search_var = ctk.StringVar()
+        self.create_upper_frame()
         self.create_the_table()
         
-    
+    def create_upper_frame(self):
+        upper_frame = ctk.CTkFrame(self, corner_radius=5,border_width=5,border_color='yellow')
+        upper_frame.pack(side='top', fill='x')
+
+        search_lbl = ctk.CTkLabel(upper_frame, text='بحث', font=("Arial", 16, "bold"), text_color='white',width=200, height=40)
+        search_lbl.pack(side='right', padx=10, pady=10)
+
+        self.search_entry = ctk.CTkEntry(upper_frame, textvariable=self.search_var, font=("Arial", 16, "bold"), height= 40, justify='right')
+        self.search_entry.pack(side='left',  padx=(50,), pady=10, fill='x', expand=True)
 
     def create_the_table(self):
         """Creates the frame containing the Treeview for displaying data."""
@@ -30,8 +41,8 @@ class SnowInvView(ctk.CTkFrame):
         style.map("Treeview.Heading",background=[('active', '#3484F0')])
 
         # --- Create Treeview Widget ---
-        self.tree_columns = ('product_code', 'quantity', 'fac_price', 'cus_price', )
-        self.tree_headers = ['كود القطعة',  'الكمية', 'سعر المصنع', 'سعر المكتب']
+        self.tree_columns = ('product_code', 'quantity',  'cus_price', )
+        self.tree_headers = ['كود القطعة',  'الكمية',  'سعر المكتب']
 
         self.tree = ttk.Treeview(bottom_frame, columns=self.tree_columns, show='headings', selectmode="extended")
         
@@ -43,7 +54,6 @@ class SnowInvView(ctk.CTkFrame):
         # Define column widths (adjust as needed)
         self.tree.column('product_code', width=100, anchor='center')
         self.tree.column('quantity', width=120, anchor='center')
-        self.tree.column('fac_price', width=150, anchor='center')
         self.tree.column('cus_price', width=150, anchor='center')
         
 

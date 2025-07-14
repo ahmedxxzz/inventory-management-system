@@ -26,7 +26,7 @@ class MainView(ctk.CTkFrame):
 
 
     def create_buttons(self):
-        buttons = [ 'الرئيسية', 'المصانع', 'المكاتب', 'المخزن', 'الخزنة', 'الخروج']
+        buttons = [ 'الرئيسية', 'المصانع', 'المكاتب', 'المخزن', 'الخزنة', 'المصاريف','الخروج']
         for button in buttons:
             button = ctk.CTkButton(self, text=button, state='normal', fg_color='black', text_color='yellow',font=ctk.CTkFont(size=20, weight='bold'),corner_radius=20, cursor="hand2", hover_color='red' ,height=50,)
             button.pack(side='top', fill='x',pady=10,padx=10)

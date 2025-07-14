@@ -4,7 +4,7 @@ from controller.dashboard_controller import DashboardController
 from controller.factory_controller import FactoryController
 from controller.inventory_controller import InventoryController
 from controller.navigator_controller import NavigatorController
-
+from controller.additional_costs_contorller import AdditionalCostsController
 from controller.safe_controller import SafeController
 
 
@@ -49,6 +49,8 @@ class MainController:
             self.open_inventory()
         elif index == 4:
             self.open_safe()
+        elif index == 5:
+            self.open_extra_costs()
         else:
             self.root.destroy()
             exit()
@@ -75,3 +77,7 @@ class MainController:
     def open_safe(self):
         safe = SafeController(self.root)
         self.view.Frames.append(safe.view)
+
+    def open_extra_costs(self):
+        extra_costs = AdditionalCostsController(self.root)
+        self.view.Frames.append(extra_costs.view)

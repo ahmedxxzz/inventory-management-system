@@ -1,5 +1,6 @@
 from view.Factory_compnents_view.pay_view import PayView
 from model.Factory_compnents_model.pay_model import PayModel
+from controller.Factory_compnents_controller.report_controller import ReportController
 
 class PayController:
     def __init__(self, root):
@@ -24,8 +25,12 @@ class PayController:
     def save_pay(self):
 
         if self.check_inputs():
+            data = [self.view.fac_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()]
             if self.model.save_pay_to_db(self.view.fac_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()):
                 self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الدفع بنجاح')
+                if self.view.message('yes_no', 'فاتورة', 'هل تريد طباعة الفاتورة ؟'):
+                    ReportController(data, 'pay')
+                
                 self.view.clear_inputs()
 
 

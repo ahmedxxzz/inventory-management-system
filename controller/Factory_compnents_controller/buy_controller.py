@@ -1,5 +1,7 @@
 from view.Factory_compnents_view.buy_view import BuyView
 from model.Factory_compnents_model.buy_model import BuyModel
+from controller.Factory_compnents_controller.report_controller import ReportController
+
 
 class BuyController:
     def __init__(self, root):
@@ -42,41 +44,50 @@ class BuyController:
             self.view.populate_treeview(self.model.get_buys_from_db())
             
             self.view.message("عملية ناجحة", "تم حفظ الفاتورة بنجاح")
+            if self.view.message('طباعة','هل تريد طباعة الفاتورة','yes_no'):
+                ReportController(self.view.temp_operations, 'buy')
         else:
             self.view.message("عملية فاشلة", "لم يتم حفظ الفاتورة")
 
 
     def cache_buy(self):
         if self.view.check_inputs_before_caching(factory_names = self.model.get_factory_names_and_money(),products_codes = self.model.get_products_codes()): # validation input 
-            data = [ # facname, productcode, price, quantity, discount, supplier , cash or not
-                self.view.fac_name.get(), self.view.product_code.get(), self.view.price.get(), self.view.quantity.get(), self.view.discount.get(), self.model.get_supplier_from_procode(self.view.product_code.get().strip()), self.view.checkbox_var.get()
-                ]
+            data = {
+                        'facname': self.view.fac_name.get(),
+                        'productcode': self.view.product_code.get(),
+                        'price': self.view.price.get(),
+                        'quantity': self.view.quantity.get(),
+                        'discount': self.view.discount.get(),
+                        'supplier': self.model.get_supplier_from_procode(self.view.product_code.get().strip()),
+                        'paid': self.view.checkbox_var.get()
+                    }
             self.view.temp_operations.append(data)
             
             self.view.temp_operations_frame.configure(border_width=5, fg_color= 'gray20', border_color='#21130d', scrollbar_button_color='#696969', scrollbar_button_hover_color='red', scrollbar_fg_color='#333333')
             button = self.view.add_temp_operation_button()
             button.configure(command=lambda btn=button, data=data: self.cached_button_click(btn, data))
             
-            for ent in [self.view.fac_name, self.view.product_code, self.view.price, self.view.quantity, self.view.discount]:
+            for ent in [self.view.fac_name, self.view.product_code, self.view.price, self.view.quantity, self.view.discount, self.view.checkbox_var]:
                 if ent == self.view.checkbox_var:
-                    ent.set('لا')
+                    ent.set('0')
                     continue
                 ent.set('')
 
 
     def cached_button_click(self, btn, data ):
-        self.view.fac_name.set(data[0])
-        self.view.product_code.set(data[1])
-        self.view.price.set(data[2])
-        self.view.quantity.set(data[3])
-        self.view.discount.set(data[4])
-        self.view.checkbox_var.set(data[6])
+        self.view.fac_name.set(data['facname'])
+        self.view.product_code.set(data['productcode'])
+        self.view.price.set(data['price'])
+        self.view.quantity.set(data['quantity'])
+        self.view.discount.set(data['discount'])
+        self.view.checkbox_var.set(data['paid'])
         self.view.temp_operations_buttons.remove(btn)
         self.view.temp_operations.remove(data)
         btn.destroy()
         btn = None
         if len(self.view.temp_operations_buttons) == 0:
             self.view.temp_operations_frame.configure(border_width=0, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
+
 
 
     def recommendation_focusIn(self, ent, var):

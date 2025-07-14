@@ -19,7 +19,7 @@ class BuyView(ctk.CTkFrame):
         self.price = StringVar()
         self.quantity = StringVar()
         self.discount = StringVar()
-        self.checkbox_var = StringVar(value="لا")
+        self.checkbox_var = StringVar(value="0")
         
 
         
@@ -62,7 +62,7 @@ class BuyView(ctk.CTkFrame):
         self.save_buys_button = ctk.CTkButton(inputs_lbls_frame, text='حفظ الفاتورة', font=("Arial", 18, "bold"),width=200, height=40,)
         self.save_buys_button.pack(side='top', padx=10, pady=10)
         
-        self.checkbox= ctk.CTkCheckBox( inputs_entries_frame, text='',  variable=self.checkbox_var, onvalue="نعم", offvalue="لا" )
+        self.checkbox= ctk.CTkCheckBox( inputs_entries_frame, text='',  variable=self.checkbox_var, onvalue="1", offvalue="0" )
         self.checkbox.pack(side='top', padx=10, pady=17)
         self.cache_buy_button = ctk.CTkButton(inputs_entries_frame, text='اضافة الى الفاتورة', font=("Arial", 18, "bold"),width=200, height=40,)
         self.cache_buy_button.pack(side='top', padx=10, pady=10)
@@ -174,8 +174,11 @@ class BuyView(ctk.CTkFrame):
             return str(value).lower()
 
 
-    def message(self,info_text, text):
-        messagebox.showinfo(info_text, text)
+    def message(self, info_text, text, mstype='showinfo'):
+        if mstype == "yes_no":
+            return messagebox.askyesno(info_text, text)
+        elif mstype == "showinfo":
+            messagebox.showinfo(info_text, text)
     
 
     def check_inputs_before_caching(self, factory_names, products_codes):

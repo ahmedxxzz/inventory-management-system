@@ -1,6 +1,6 @@
+from view.dashboard_view import DashboardView
+from model.dashboard_model import DashboardModel
 
 class DashboardController:
     def __init__(self, root_window):
-        self.root = root_window
-        self.view = None
-        print('here is dashboard controller')
+        self.view = DashboardView(root_window)

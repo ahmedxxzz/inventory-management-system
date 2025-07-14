@@ -3,7 +3,6 @@ from model.main_model import MainModel
 from controller.dashboard_controller import DashboardController
 from controller.factory_controller import FactoryController
 from controller.inventory_controller import InventoryController
-# from controller.customer_controller import CustomerController
 from controller.navigator_controller import NavigatorController
 
 from controller.safe_controller import SafeController

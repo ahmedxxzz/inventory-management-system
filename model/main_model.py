@@ -13,7 +13,7 @@ class MainModel:
         else :
             print(f"Database {db_file} isn't exists. Setting up database.")
             self.create_tables(db_file)
-            self.add_fake_data(db_file)
+            # self.add_fake_data(db_file)
 
     
 
@@ -137,12 +137,12 @@ class MainModel:
             cursor.execute(''' 
                             CREATE TABLE IF NOT EXISTS Cus_Purchases (
                                 purchase_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                customer_id INTEGER NOT NULL,
                                 purchase_date TEXT NOT NULL ,
                                 discount_Total REAL DEFAULT 0 CHECK (discount_Total >= 0),
-                                resource_name TEXT NOT NULL check (resource_name == 'golden rose' or resource_name == 'snow white'),
                                 cost_money REAL Default 0 CHECK (cost_money >= 0),
                                 cus_money_before REAL DEFAULT 0 CHECK (cus_money_before >= 0),
-                                customer_id INTEGER NOT NULL,
+                                resource_name TEXT NOT NULL check (resource_name == 'golden rose' or resource_name == 'snow white'),
                                 FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
                             );''')
             # Create PurchaseItems table
@@ -192,90 +192,90 @@ class MainModel:
             conn.close()
 
 
-    def add_fake_data(self, filename):
-        conn = sqlite3.connect(filename)
-        cursor = conn.cursor()
+    # def add_fake_data(self, filename):
+    #     conn = sqlite3.connect(filename)
+    #     cursor = conn.cursor()
 
-        # بيانات ثابتة باللغة العربية
-        factory_names = ["مصنع الأمل", "مصنع النور", "مصنع الحياة", "مصنع التقدم", "مصنع الريادة"]
-        customer_names = ["أحمد علي", "سارة محمد", "محمود حسن", "ليلى إبراهيم", "خالد سمير"]
-        product_types = ["صنف 1", "صنف 2", "صنف 3", "صنف 4", "صنف 5", "صنف 6"]
-        resource_names = ['golden rose', 'snow white']
-        safe_types = ["خزنة رئيسية", "خزنة فرعية"]
+    #     # بيانات ثابتة باللغة العربية
+    #     factory_names = ["مصنع الأمل", "مصنع النور", "مصنع الحياة", "مصنع التقدم", "مصنع الريادة"]
+    #     customer_names = ["أحمد علي", "سارة محمد", "محمود حسن", "ليلى إبراهيم", "خالد سمير"]
+    #     product_types = ["صنف 1", "صنف 2", "صنف 3", "صنف 4", "صنف 5", "صنف 6"]
+    #     resource_names = ['golden rose', 'snow white']
+    #     safe_types = ["خزنة رئيسية", "خزنة فرعية"]
 
-        # إدخال خزنة
-        for stype in safe_types:
-            amount = round(random.uniform(10000, 50000), 2)
-            cursor.execute("INSERT INTO Safe (type, amount_money) VALUES (?, ?)", (stype, amount))
+    #     # إدخال خزنة
+    #     for stype in safe_types:
+    #         amount = round(random.uniform(10000, 50000), 2)
+    #         cursor.execute("INSERT INTO Safe (type, amount_money) VALUES (?, ?)", (stype, amount))
 
-        # إدخال المصانع
-        for name in factory_names:
-            amount_money = round(random.uniform(1000, 5000), 2)
-            quantity = random.randint(100, 300)
-            cursor.execute('''
-                INSERT INTO Factories (name, amount_money, current_quantity)
-                VALUES (?, ?, ?)
-            ''', (name, amount_money, quantity))
+    #     # إدخال المصانع
+    #     for name in factory_names:
+    #         amount_money = round(random.uniform(1000, 5000), 2)
+    #         quantity = random.randint(100, 300)
+    #         cursor.execute('''
+    #             INSERT INTO Factories (name, amount_money, current_quantity)
+    #             VALUES (?, ?, ?)
+    #         ''', (name, amount_money, quantity))
 
-        # إدخال العملاء
-        for name in customer_names:
-            gr_money = round(random.uniform(500, 3000), 2)
-            gr_qty = random.randint(50, 300)
-            sw_money = round(random.uniform(500, 3000), 2)
-            sw_qty = random.randint(50, 300)
-            cursor.execute('''
-                INSERT INTO Customers (name, Golden_Rose_amount_money, Golden_Rose_current_quantity,
-                                    Snow_White_amount_money, Snow_White_current_quantity)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (name, gr_money, gr_qty, sw_money, sw_qty))
+    #     # إدخال العملاء
+    #     for name in customer_names:
+    #         gr_money = round(random.uniform(500, 3000), 2)
+    #         gr_qty = random.randint(50, 300)
+    #         sw_money = round(random.uniform(500, 3000), 2)
+    #         sw_qty = random.randint(50, 300)
+    #         cursor.execute('''
+    #             INSERT INTO Customers (name, Golden_Rose_amount_money, Golden_Rose_current_quantity,
+    #                                 Snow_White_amount_money, Snow_White_current_quantity)
+    #             VALUES (?, ?, ?, ?, ?)
+    #         ''', (name, gr_money, gr_qty, sw_money, sw_qty))
 
-        # إدخال منتجات
-        for i, ptype in enumerate(product_types):
-            quantity = random.randint(50, 200)
-            cus_price = round(random.uniform(5, 20), 2)
-            fac_price = round(random.uniform(3, 15), 2)
-            res = random.choice(resource_names)
-            cursor.execute('''
-                INSERT INTO Products (type, current_quantity, cus_price_per_piece,
-                                    fac_price_per_piece, resource_name)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (ptype, quantity, cus_price, fac_price, res))
+    #     # إدخال منتجات
+    #     for i, ptype in enumerate(product_types):
+    #         quantity = random.randint(50, 200)
+    #         cus_price = round(random.uniform(5, 20), 2)
+    #         fac_price = round(random.uniform(3, 15), 2)
+    #         res = random.choice(resource_names)
+    #         cursor.execute('''
+    #             INSERT INTO Products (type, current_quantity, cus_price_per_piece,
+    #                                 fac_price_per_piece, resource_name)
+    #             VALUES (?, ?, ?, ?, ?)
+    #         ''', (ptype, quantity, cus_price, fac_price, res))
 
-        # جلب المعرفات
-        cursor.execute("SELECT factory_id FROM Factories")
-        factory_ids = [row[0] for row in cursor.fetchall()]
-        cursor.execute("SELECT customer_id FROM Customers")
-        customer_ids = [row[0] for row in cursor.fetchall()]
-        cursor.execute("SELECT safe_id FROM Safe")
-        safe_ids = [row[0] for row in cursor.fetchall()]
+    #     # جلب المعرفات
+    #     cursor.execute("SELECT factory_id FROM Factories")
+    #     factory_ids = [row[0] for row in cursor.fetchall()]
+    #     cursor.execute("SELECT customer_id FROM Customers")
+    #     customer_ids = [row[0] for row in cursor.fetchall()]
+    #     cursor.execute("SELECT safe_id FROM Safe")
+    #     safe_ids = [row[0] for row in cursor.fetchall()]
 
-        # إدخال دفعات للمصانع
-        for _ in range(10):
-            fid = random.choice(factory_ids)
-            sid = random.choice(safe_ids)
-            amount = round(random.uniform(500, 2000), 2)
-            fac_before = round(random.uniform(1000, 3000), 2)
-            date = datetime.date.today() - datetime.timedelta(days=random.randint(0, 30))
-            cursor.execute('''
-                INSERT INTO Fac_Pays (date, amount_money, factory_id, fac_money_before, safe_id)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (str(date), amount, fid, fac_before, sid))
+    #     # إدخال دفعات للمصانع
+    #     for _ in range(10):
+    #         fid = random.choice(factory_ids)
+    #         sid = random.choice(safe_ids)
+    #         amount = round(random.uniform(500, 2000), 2)
+    #         fac_before = round(random.uniform(1000, 3000), 2)
+    #         date = datetime.date.today() - datetime.timedelta(days=random.randint(0, 30))
+    #         cursor.execute('''
+    #             INSERT INTO Fac_Pays (date, amount_money, factory_id, fac_money_before, safe_id)
+    #             VALUES (?, ?, ?, ?, ?)
+    #         ''', (str(date), amount, fid, fac_before, sid))
 
-        # إدخال دفعات للعملاء
-        for _ in range(10):
-            cid = random.choice(customer_ids)
-            sid = random.choice(safe_ids)
-            amount = round(random.uniform(300, 1500), 2)
-            res_name = random.choice(resource_names)
-            safe_before = round(random.uniform(5000, 10000), 2)
-            cus_before = round(random.uniform(1000, 3000), 2)
-            cus_after = cus_before + amount
-            date = datetime.date.today() - datetime.timedelta(days=random.randint(0, 30))
-            cursor.execute('''
-                INSERT INTO Cus_Pays (date, amount_money, customer_id, resource_name, safe_money_before,
-                                    safe_id, customer_money_before, customer_money_after)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (str(date), amount, cid, res_name, safe_before, sid, cus_before, cus_after))
+    #     # إدخال دفعات للعملاء
+    #     for _ in range(10):
+    #         cid = random.choice(customer_ids)
+    #         sid = random.choice(safe_ids)
+    #         amount = round(random.uniform(300, 1500), 2)
+    #         res_name = random.choice(resource_names)
+    #         safe_before = round(random.uniform(5000, 10000), 2)
+    #         cus_before = round(random.uniform(1000, 3000), 2)
+    #         cus_after = cus_before + amount
+    #         date = datetime.date.today() - datetime.timedelta(days=random.randint(0, 30))
+    #         cursor.execute('''
+    #             INSERT INTO Cus_Pays (date, amount_money, customer_id, resource_name, safe_money_before,
+    #                                 safe_id, customer_money_before, customer_money_after)
+    #             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    #         ''', (str(date), amount, cid, res_name, safe_before, sid, cus_before, cus_after))
 
-        conn.commit()
-        conn.close()
+    #     conn.commit()
+    #     conn.close()

@@ -4,14 +4,14 @@ from datetime import datetime
 
 
 class BuyModel:
-    def __init__(self):
+    def __init__(self, supplier):
         self.conn = sqlite3.connect('IMS.db')
         self.cursor = self.conn.cursor()
+        self.supplier = supplier
 
 
-
-    def get_customer_names_and_money(self, supplier):
-        self.cursor.execute(f"SELECT name, {'Golden_Rose_amount_money' if supplier == 'golden rose' else 'Snow_White_amount_money'}  FROM Customers")
+    def get_customer_names_and_money(self):
+        self.cursor.execute(f"SELECT name, {'Golden_Rose_amount_money' if self.supplier == 'golden rose' else 'Snow_White_amount_money'}  FROM Customers")
         '''
         returned data = [('احمد', 550), ('محمد', 500)]
         '''
@@ -19,19 +19,18 @@ class BuyModel:
 
 
     def get_products_codes(self):
-        self.cursor.execute("SELECT type, 0 FROM Products")
+        self.cursor.execute("SELECT type, 0 FROM Products Where resource_name = ?", (self.supplier,))
         '''
         returned data = [ ('1001', 0), ('1002', 0), ('1003', 0), ]
         '''
         return self.cursor.fetchall()
 
 
-    def get_buys_from_db(self, supplier):
+    def get_buys_from_db(self):
 
         '''
         data returned example :
         [ [cusname, time, productcode, price, quantity, discount, total price, paid or not], ]
-        
         '''
         self.cursor.execute(
             '''
@@ -55,7 +54,7 @@ class BuyModel:
             JOIN Products AS P
             ON CPI.product_id = P.product_id
             where CP.resource_name = ?;
-            ''', (supplier,)
+            ''', (self.supplier,)
         )
 
         return self.cursor.fetchall()
@@ -69,10 +68,14 @@ class BuyModel:
     def get_product_id_from_code(self, code):
         self.cursor.execute("SELECT product_id FROM Products WHERE type = ?", (code,))
         return self.cursor.fetchone()[0]
+    
+    def get_product_price_from_id(self, code):
+        self.cursor.execute("SELECT cus_price_per_piece FROM Products WHERE product_id = ?", (int(code),))
+        return self.cursor.fetchone()[0]
 
 
-    def get_cus_money_by_id(self, id, supplier):
-        self.cursor.execute(f"SELECT {'Golden_Rose_amount_money' if supplier == 'golden rose' else 'Snow_White_amount_money'} FROM Customers WHERE customer_id = ?", (id,))
+    def get_cus_money_by_id(self, id):
+        self.cursor.execute(f"SELECT {'Golden_Rose_amount_money' if self.supplier == 'golden rose' else 'Snow_White_amount_money'} FROM Customers WHERE customer_id = ?", (id,))
         data = self.cursor.fetchone()
         if data :
             return data[0]
@@ -80,31 +83,31 @@ class BuyModel:
             return 0
 
 
-    def insert_buys_to_db(self, buys, supplier):
+    def insert_buys_to_db(self, buys):
         '''
         buys = [
-            [cusname, productcode, price, quantity, discount, supplier, paid or not],
-            [cusname, productcode, price, quantity, discount, supplier, paid or not],
+            {'cusname' : cusname, 'productcode' : productcode, 'quantity' : quantity, 'discount' : discount, 'paid' : yes(1) or not(0)},
+            {'cusname' : cusname, 'productcode' : productcode, 'quantity' : quantity, 'discount' : discount, 'paid' : yes(1) or not(0)},
         ]
         '''
         
         
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         for buy in buys:
-            buy[0] = self.get_cus_id_from_name(buy[0])
-            buy[1] = self.get_product_id_from_code(buy[1])
-            buy[6] = 0 if buy[6] == 'لا' else 1
-        buys.sort(key=lambda x: x[0])
+            buy['cusname'] = self.get_cus_id_from_name(buy['cusname'])
+            buy['productcode'] = self.get_product_id_from_code(buy['productcode'])
+            buy['price'] = self.get_product_price_from_id(buy['productcode']) # price befor the discount
+
+        buys.sort(key=lambda x: x['cusname'])
         
         
         def group_by_customer(buys):
             cus_grouped_lists = []
             current_group = [buys[0]] 
             for i in range(1, len(buys)):
-                if buys[i][0] == current_group[0][0]:
+                if buys[i]['cusname'] == current_group[0]['cusname']:
                     current_group.append(buys[i])
                 else:
-                    
                     cus_grouped_lists.append(current_group)
                     current_group = [buys[i]]
             cus_grouped_lists.append(current_group) 
@@ -114,8 +117,8 @@ class BuyModel:
         '''
         now buys = [
             # [ list of buys of the same customer ]
-             [[cus id, productcode id, price, quantity, discount, supplier, paid or not],[cusname, productcode, price, quantity, discount, supplier, paid or not],],
-             [[cus id, productcode id, price, quantity, discount, supplier, paid or not],[cusname, productcode, price, quantity, discount, supplier, paid or not],]
+             [{'cusname' : cus id, 'price': price before the discount, 'productcode' : productcode id, 'quantity' : quantity, 'discount' : discount, 'paid' : yes(1) or not(0)}, {'cusname' : cus id, 'productcode' : productcode id, 'quantity' : quantity, 'discount' : discount, 'paid' : yes(1) or not(0)},],
+             [{'cusname' : cus id, 'price': price before the discount, 'productcode' : productcode id, 'quantity' : quantity, 'discount' : discount, 'paid' : yes(1) or not(0)}, {'cusname' : cus id, 'productcode' : productcode id, 'quantity' : quantity, 'discount' : discount, 'paid' : yes(1) or not(0)},],
              ]
         '''
         total_discounts = []
@@ -123,11 +126,11 @@ class BuyModel:
         for buy in buys:
             totaldiscount = 0
             for item in buy:
-                totaldiscount+= item[4]
+                totaldiscount+= float(item['discount'])
             total_discounts.append(totaldiscount)
-            
+
         try :
-            for buy in buys:
+            for buy in buys:                
                 self.cursor.execute('''
                     INSERT INTO Cus_Purchases (
                         customer_id,
@@ -138,7 +141,7 @@ class BuyModel:
                         )
                         VALUES (?, ?, ?, ?, ?);
                     ''',
-                    (buy[0][0], date, self.get_cus_money_by_id(buy[0][0]), total_discounts[buys.index(buy)], supplier)
+                    (buy[0]['cusname'], date, self.get_cus_money_by_id(buy[0]['cusname']), total_discounts[buys.index(buy)], self.supplier,)
                 )
                 purchase_id = self.cursor.lastrowid
                 
@@ -146,7 +149,6 @@ class BuyModel:
                 total_price = 0
                 total_quantity = 0
                 for purchase in buy:
-                    purchase = tuple(purchase)
                     self.cursor.execute(
                         '''
                         INSERT INTO Cus_PurchaseItems (
@@ -155,41 +157,40 @@ class BuyModel:
                                 quantity,
                                 price_per_piece,
                                 discount_per_piece,
-                                paid
-                                )
+                                paid)
                                 VALUES (?, ?, ?, ?, ?, ?);
-                        ''', (purchase_id, purchase[1], purchase[2], purchase[3], purchase[4],  purchase[5])
+                        ''', (purchase_id, purchase['productcode'], purchase['quantity'],purchase['price'] ,purchase['discount'], purchase['paid'],)
                     )
-                    
-                    
+
+
                     self.cursor.execute(
                         '''
                         UPDATE Products
-                        SET current_quantity = current_quantity - ?,
-                        WHERE product_id = ?;
+                        SET current_quantity = current_quantity - ?
+                        WHERE product_id = ? and resource_name = ?;
                         '''
-                        , (purchase[3], purchase[1])
+                        , (int(purchase['quantity']), purchase['productcode'], self.supplier,)
                     )
                     
                     
-                    if purchase[6] == 0:
-                        total_price+= (float(purchase[2])-float(purchase[4])) * int(purchase[3])
-                    total_quantity += int(purchase[3])
+                    if purchase['paid'] != 0:
+                        total_price+= (float(purchase['price'])-float(purchase['discount'])) * int(purchase['quantity'])
+                    total_quantity += int(purchase['quantity'])
 
                 self.cursor.execute(
                     '''
                     UPDATE Cus_Purchases
                     SET cost_money = ?
                     WHERE purchase_id = ?;
-                    ''', (total_price, purchase_id)
+                    ''', (total_price, purchase_id, )
                 )
                 
                 self.cursor.execute(
                     f'''
                     UPDATE Customers
-                    SET {'Golden_Rose_amount_money' if supplier == 'golden rose' else 'Snow_White_amount_money'} = {'Golden_Rose_amount_money' if supplier == 'golden rose' else 'Snow_White_amount_money'} + ?, {'Golden_Rose_current_quantity' if supplier == 'golden rose' else 'Snow_White_current_quantity'} = {'Golden_Rose_current_quantity' if supplier == 'golden rose' else 'Snow_White_current_quantity'} + ?
+                    SET {'Golden_Rose_amount_money' if self.supplier == 'golden rose' else 'Snow_White_amount_money'} = {'Golden_Rose_amount_money' if self.supplier == 'golden rose' else 'Snow_White_amount_money'} + ?, {'Golden_Rose_current_quantity' if self.supplier == 'golden rose' else 'Snow_White_current_quantity'} = {'Golden_Rose_current_quantity' if self.supplier == 'golden rose' else 'Snow_White_current_quantity'} + ?
                     WHERE customer_id = ?;
-                    ''', (total_price,total_quantity, buy[0][0])
+                    ''', (total_price,total_quantity, buy[0]['cusname'], )
                 )
                 
                 

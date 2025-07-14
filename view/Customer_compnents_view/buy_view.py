@@ -16,10 +16,9 @@ class BuyView(ctk.CTkFrame):
         
         self.cus_name = StringVar()
         self.product_code = StringVar()
-        self.price = StringVar()
         self.quantity = StringVar()
         self.discount = StringVar()
-        self.checkbox_var = StringVar(value="لا")
+        self.checkbox_var = StringVar(value="0")
 
 
         
@@ -39,7 +38,7 @@ class BuyView(ctk.CTkFrame):
          
         inputs_lbls_frame = ctk.CTkFrame(entry_frame)
         inputs_lbls_frame.pack(side='left', fill='y')
-        lbls_names = ['اسم المكتب', 'كود القطعة', 'سعر القطعة', 'عدد القطع', 'الخصم', 'تم الدفع']
+        lbls_names = ['اسم المكتب', 'كود القطعة', 'عدد القطع', 'الخصم', 'تم الدفع']
         
         for lbl in lbls_names:
             lbl = ctk.CTkLabel(inputs_lbls_frame, text=lbl, font=("Arial", 14, "bold"), text_color='white',width=200, height=40)
@@ -50,7 +49,7 @@ class BuyView(ctk.CTkFrame):
         inputs_entries_frame.pack(side='right', fill='y')
         
         
-        entry_variables = [self.cus_name, self.product_code, self.price, self.quantity, self.discount]
+        entry_variables = [self.cus_name, self.product_code, self.quantity, self.discount]
         for var in entry_variables:
             cus_entry = ctk.CTkEntry(inputs_entries_frame, textvariable=var, font=("Arial", 18, "bold"),width=200, height=40, justify='right' if var ==self.cus_name else 'left', )
             cus_entry.pack(side='top', padx=10, pady=10)
@@ -62,7 +61,7 @@ class BuyView(ctk.CTkFrame):
         self.save_buys_button = ctk.CTkButton(inputs_lbls_frame, text='حفظ الفاتورة', font=("Arial", 18, "bold"),width=200, height=40,)
         self.save_buys_button.pack(side='top', padx=10, pady=10)
         
-        self.checkbox= ctk.CTkCheckBox( inputs_entries_frame, text='',  variable=self.checkbox_var, onvalue="نعم", offvalue="لا" )
+        self.checkbox= ctk.CTkCheckBox( inputs_entries_frame, text='',  variable=self.checkbox_var, onvalue="1", offvalue="0" )
         self.checkbox.pack(side='top', padx=10, pady=17)
         self.cache_buy_button = ctk.CTkButton(inputs_entries_frame, text='اضافة الى الفاتورة', font=("Arial", 18, "bold"),width=200, height=40,)
         self.cache_buy_button.pack(side='top', padx=10, pady=10)
@@ -174,28 +173,24 @@ class BuyView(ctk.CTkFrame):
             return str(value).lower()
 
 
-    def message(self,info_text, text):
-        messagebox.showinfo(info_text, text)
-    
+
+    def message(self,  info_text, text, mstype='showinfo' ):
+        if mstype == "yes_no":
+            return messagebox.askyesno(info_text, text)
+        elif mstype == "showinfo":
+            messagebox.showinfo(info_text, text)
+
 
     def check_inputs_before_caching(self, customers_names, products_codes):
         ''' 
         customers_names = [ ('حماده طلبة', 50000.0), ('عمرو هلال', 75000.0), ('علاء احمد', 30000.0), ]
         products_codes = [ ('1001', 0), ('1002', 0), ('1003', 0), ]
         '''
-        for  ent in [self.cus_name, self.product_code, self.price, self.quantity]:
+        for  ent in [self.cus_name, self.product_code, self.quantity]:
             if ent.get() == '':
                 messagebox.showerror("خطأ", "لا يمكن ترك الحقول فارغة")
                 return False
-        
-        if self.discount.get() != '':
-            if float(self.price.get())<= float(self.discount.get()):
-                messagebox.showerror("خطأ", "لا يمكن ان يكون الخصم اكبر من السعر")
-                return False
-        
-        if float(self.price.get())<= 0:
-            messagebox.showerror("خطأ", "لا يمكن ان يكون السعر اقل من او يساوى صفر")
-            return False
+    
         
         if int(self.quantity.get())< 1:
             messagebox.showerror("خطأ", "لا يمكن ان يكون الكمية اقل من 1")

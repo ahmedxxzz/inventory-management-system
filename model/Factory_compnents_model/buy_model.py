@@ -78,25 +78,40 @@ class BuyModel:
     def insert_buys_to_db(self, buys):
         '''
         buys = [
-            [facname, productcode, price, quantity, discount, supplier, paid or not],
-            [facname, productcode, price, quantity, discount, supplier, paid or not],
+            {
+                'facname': 'facname',
+                'productcode': 'productcode',
+                'price': 0,
+                'quantity': 0,
+                'discount': 0,
+                'supplier': 'golden rose',
+                'paid': 'paid or not',
+            },
+            {
+                'facname': 'facname',
+                'productcode': 'productcode',
+                'price': 0,
+                'quantity': 0,
+                'discount': 0,
+                'supplier': 'golden rose',
+                'paid': 'paid or not',
+            },
         ]
         '''
         
         
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         for buy in buys:
-            buy[0] = self.get_fac_id_from_name(buy[0])
-            buy[1] = self.get_product_id_from_code(buy[1])
-            buy[6] = 0 if buy[6] == 'لا' else 1
-        buys.sort(key=lambda x: x[0])
+            buy['facname'] = self.get_fac_id_from_name(buy['facname'])
+            buy['productcode'] = self.get_product_id_from_code(buy['productcode'])
+        buys.sort(key=lambda x: x['facname'])
         
         
         def group_by_factory(buys):
             fac_grouped_lists = []
             current_group = [buys[0]] 
             for i in range(1, len(buys)):
-                if buys[i][0] == current_group[0][0]:
+                if buys[i]['facname'] == current_group[0]['facname']:
                     current_group.append(buys[i])
                 else:
                     
@@ -109,8 +124,9 @@ class BuyModel:
         '''
         now buys = [
             # [ list of buys of the same factory ]
-             [[fac id, productcode id, price, quantity, discount, supplier, paid or not],[facname, productcode, price, quantity, discount, supplier, paid or not],],
-             [[fac id, productcode id, price, quantity, discount, supplier, paid or not],[facname, productcode, price, quantity, discount, supplier, paid or not],]
+            
+             [{'facname': 'facid', 'productcode': 'productcode id', 'price': 0, 'quantity': 0, 'discount': 0, 'supplier': 'golden rose', 'paid': 'paid or not', },{'facname': 'facname', 'productcode': 'productcode', 'price': 0, 'quantity': 0, 'discount': 0, 'supplier': 'golden rose', 'paid': 'paid or not', },],
+             [{'facname': 'facid', 'productcode': 'productcode id', 'price': 0, 'quantity': 0, 'discount': 0, 'supplier': 'golden rose', 'paid': 'paid or not', },{'facname': 'facname', 'productcode': 'productcode', 'price': 0, 'quantity': 0, 'discount': 0, 'supplier': 'golden rose', 'paid': 'paid or not', },],
              ]
         '''
         try :
@@ -124,7 +140,7 @@ class BuyModel:
                         )
                         VALUES (?, ?, ?);
                     ''',
-                    (buy[0][0], date, self.get_fac_money_by_id(buy[0][0]))
+                    (buy[0]['facname'], date, self.get_fac_money_by_id(buy[0]['facname']))
                 )
                 purchase_id = self.cursor.lastrowid
                 
@@ -132,7 +148,6 @@ class BuyModel:
                 total_price = 0
                 total_quantity = 0
                 for purchase in buy:
-                    purchase = tuple(purchase)
                     self.cursor.execute(
                         '''
                         INSERT INTO Fac_PurchaseItems (
@@ -145,7 +160,7 @@ class BuyModel:
                                 paid
                                 )
                                 VALUES (?, ?, ?, ?, ?, ?, ?);
-                        ''', (purchase_id, purchase[1], purchase[2], purchase[3], purchase[4], purchase[5], purchase[6])
+                        ''', (purchase_id, purchase['productcode'], purchase['quantity'], purchase['price'], purchase['discount'], purchase['supplier'], purchase['paid'])
                     )
                     
                     
@@ -153,17 +168,16 @@ class BuyModel:
                         '''
                         UPDATE Products
                         SET current_quantity = current_quantity + ?,
-                        fac_price_per_piece = ?,
-                        resource_name = ?
+                        fac_price_per_piece = ?
                         WHERE product_id = ?;
                         '''
-                        , (purchase[3], purchase[2], purchase[5], purchase[1])
+                        , (int(purchase['quantity']), float(purchase['price'])-float(purchase['discount']) , purchase['productcode'])
                     )
                     
                     
-                    if purchase[6] == 0:
-                        total_price+= (float(purchase[2])-float(purchase[4])) * int(purchase[3])
-                    total_quantity += int(purchase[3])
+                    if purchase['paid'] != 0:
+                        total_price+= (float(purchase['price'])-float(purchase['discount'])) * int(purchase['quantity'])
+                    total_quantity += int(purchase['quantity'])
                     
                 
                 self.cursor.execute(
@@ -178,7 +192,7 @@ class BuyModel:
                     UPDATE Factories
                     SET amount_money = amount_money + ?, current_quantity = current_quantity + ?
                     WHERE factory_id = ?;
-                    ''', (total_price,total_quantity, buy[0][0])
+                    ''', (total_price,total_quantity, buy[0]['facname'])
                 )
                 
                 

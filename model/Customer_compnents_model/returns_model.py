@@ -38,13 +38,24 @@ class ReturnModel:
         '''
         customer_id = self.cursor.execute("SELECT customer_id FROM Customers WHERE name = ?", (data[0],)).fetchone()[0]
         product_id = self.cursor.execute("SELECT product_id FROM Products WHERE type = ?", (data[1],)).fetchone()[0]
-        price_per_piece = self.cursor.execute("SELECT cus_price_per_piece FROM Products WHERE type = ?", (data[1],)).fetchone()[0]
-        self.cursor.execute('''INSERT INTO Cus_Returned_Items (date, product_id, quantity, reason, price_per_piece,  customer_id, resource_name)  VALUES (?, ?, ?, ?, ?, ?, ?);''', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), product_id, int(data[2]), data[3],  price_per_piece, customer_id, self.supplier))
+        price_per_piece_after_discount = self.cursor.execute("""SELECT
+                                                                    CPI.price_per_piece - CPI.discount_per_piece AS final_price_per_piece
+                                                                FROM
+                                                                    Cus_Purchases AS CP
+                                                                JOIN
+                                                                    Cus_PurchaseItems AS CPI ON CP.purchase_id = CPI.purchase_id
+                                                                WHERE
+                                                                    CP.customer_id = ? 
+                                                                    AND CPI.product_id = ?
+                                                                ORDER BY
+                                                                    CP.purchase_date DESC, CP.purchase_id DESC -- Order by date and then purchase_id for consistent "last"
+                                                                LIMIT 1;""", (customer_id,product_id )).fetchone()[0]
+        self.cursor.execute('''INSERT INTO Cus_Returned_Items (date, product_id, quantity, reason, price_per_piece,  customer_id, resource_name)  VALUES (?, ?, ?, ?, ?, ?, ?);''', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), product_id, int(data[2]), data[3],  price_per_piece_after_discount, customer_id, self.supplier))
         self.cursor.execute("UPDATE Products SET current_quantity = current_quantity + ? WHERE product_id = ?", (int(data[2]), product_id))
         if self.supplier == 'golden rose':
-            self.cursor.execute("UPDATE Customers SET Golden_Rose_amount_money = Golden_Rose_amount_money - ? ,Golden_Rose_current_quantity = Golden_Rose_current_quantity - ? WHERE customer_id = ?", (float(price_per_piece) * int(data[2]), int(data[2]), customer_id))
+            self.cursor.execute("UPDATE Customers SET Golden_Rose_amount_money = Golden_Rose_amount_money - ? ,Golden_Rose_current_quantity = Golden_Rose_current_quantity - ? WHERE customer_id = ?", (float(price_per_piece_after_discount) * int(data[2]), int(data[2]), customer_id))
         else:
-            self.cursor.execute("UPDATE Customers SET Snow_White_amount_money = Snow_White_amount_money - ? ,Snow_White_current_quantity = Snow_White_current_quantity - ? WHERE customer_id = ?", (float(price_per_piece) * int(data[2]), int(data[2]), customer_id))
+            self.cursor.execute("UPDATE Customers SET Snow_White_amount_money = Snow_White_amount_money - ? ,Snow_White_current_quantity = Snow_White_current_quantity - ? WHERE customer_id = ?", (float(price_per_piece_after_discount) * int(data[2]), int(data[2]), customer_id))
         self.conn.commit()
         return True
 

@@ -36,7 +36,7 @@ class CustomerAccountDetailsView(ctk.CTkFrame):
         btns_frame = ctk.CTkFrame(upper_frame, fg_color='#2b2b2b')
         btns_frame.pack(side='top', padx=10,pady=10, fill= 'x')
         
-        self.report_btn = ctk.CTkButton(btns_frame, text='كشف حساب', font=("Arial", 16, "bold"), text_color='white',width=200, height=40, fg_color='green')
+        self.report_btn = ctk.CTkButton(btns_frame, text='طباعة كشف الحساب', font=("Arial", 16, "bold"), text_color='white',width=200, height=40, fg_color='green')
         self.report_btn.pack(side='top', padx=10, pady=10)
         
         
@@ -54,15 +54,15 @@ class CustomerAccountDetailsView(ctk.CTkFrame):
         style = ttk.Style()
         style.theme_use("default")
         style.configure("Treeview",background="#2b2b2b",foreground="white",rowheight=25,fieldbackground="#2b2b2b",bordercolor="#343638",borderwidth=0)
-        style.map('Treeview', background=[('selected', '#2a2d2e')])
+        style.map('Treeview', background=[('selected', "#1599c4")])
 
         # Configure the Treeview Heading colors
         style.configure("Treeview.Heading",background="#565b5e",foreground="white",relief="flat",font=('Arial', 12, 'bold'))
         style.map("Treeview.Heading",background=[('active', '#3484F0')])
 
         # --- Create Treeview Widget ---
-        self.tree_columns = ('customer_name', 'date', 'money', 'operation_type')
-        self.tree_headers = ['اسم المكتب', 'التاريخ', 'المبلغ', 'نوع العملية']
+        self.tree_columns = ('id', 'date', 'money', 'operation_type')
+        self.tree_headers = ['معرف العملية', 'التاريخ', 'المبلغ', 'نوع العملية']
 
         self.tree = ttk.Treeview(bottom_frame, columns=self.tree_columns, show='headings', selectmode="extended")
         
@@ -72,7 +72,7 @@ class CustomerAccountDetailsView(ctk.CTkFrame):
         
         
         # Define column widths (adjust as needed)
-        self.tree.column('customer_name', width=100, anchor='center')
+        self.tree.column('id', width=100, anchor='center')
         self.tree.column('date', width=180, anchor='center')
         self.tree.column('money', width=120, anchor='center')
         self.tree.column('operation_type', width=150, anchor='center')
@@ -86,7 +86,6 @@ class CustomerAccountDetailsView(ctk.CTkFrame):
         self.tree.grid(row=0, column=0, sticky='nsew')
         v_scrollbar.grid(row=0, column=1, sticky='ns')
         h_scrollbar.grid(row=1, column=0, sticky='ew')
-
 
     def populate_treeview(self, data):
         """Clears the tree and inserts new data."""

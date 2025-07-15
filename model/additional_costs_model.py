@@ -8,7 +8,7 @@ class AdditionalCostsModel:
 
 
     def get_Adds(self):
-        return self.cursor.execute("SELECT AC.type, AC.date, AC.amount_of_money, AC.resource_name, SF.type  FROM Additional_Costs as AC INNER JOIN Safe AS SF ON AC.safe_id = SF.safe_id").fetchall()
+        return self.cursor.execute("SELECT AC.type, AC.date, AC.amount_of_money,SF.type  FROM Additional_Costs as AC INNER JOIN Safe AS SF ON AC.safe_id = SF.safe_id").fetchall()
 
 
     def get_safes(self):
@@ -24,10 +24,10 @@ class AdditionalCostsModel:
         return self.cursor.fetchone()[0]
 
 
-    def save_adds(self, adds_type, price, supplier, safe):
+    def save_adds(self, adds_type, price,  safe):
         try :
             date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.cursor.execute("INSERT INTO Additional_Costs (type, date, amount_of_money, resource_name, safe_id) VALUES (?, ?, ?, ?, ?);", (adds_type,  date, price, supplier,self.get_safe_id_from_name(safe))) 
+            self.cursor.execute("INSERT INTO Additional_Costs (type, date, amount_of_money,  safe_id) VALUES (?, ?, ?, ?);", (adds_type,  date, price, self.get_safe_id_from_name(safe))) 
             self.conn.commit()
         except Exception as e:
             print(f"there is a problem in save_product : {e}")

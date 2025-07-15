@@ -15,13 +15,13 @@ class CustomerAccountDetailsModel:
     def get_customer_account_details(self):
         cus_id = self.get_cus_id_by_name(self.customer_name)
         
-        self.cursor.execute(f"SELECT '{self.customer_name}', purchase_date, cost_money, 'شراء' FROM Cus_Purchases WHERE customer_id = ? AND resource_name=?", (cus_id, self.supplier))
+        self.cursor.execute(f"SELECT purchase_id, purchase_date, cost_money, 'شراء' FROM Cus_Purchases WHERE customer_id = ? AND resource_name=?", (cus_id, self.supplier))
         buys = self.cursor.fetchall()
         
-        self.cursor.execute(f"SELECT '{self.customer_name}', date, amount_money, 'دفع' FROM Cus_Pays WHERE customer_id = ? AND resource_name=?", (cus_id, self.supplier))
+        self.cursor.execute(f"SELECT pay_id, date, amount_money, 'دفع' FROM Cus_Pays WHERE customer_id = ? AND resource_name=?", (cus_id, self.supplier))
         pays = self.cursor.fetchall() 
         
-        self.cursor.execute(f"SELECT '{self.customer_name}', date, quantity * price_per_piece , 'مرتجع' FROM Cus_Returned_Items WHERE customer_id = ? AND resource_name=?", (cus_id, self.supplier))
+        self.cursor.execute(f"SELECT returned_process_id, date, quantity * price_per_piece , 'مرتجع' FROM Cus_Returned_Items WHERE customer_id = ? AND resource_name=?", (cus_id, self.supplier))
         returns = self.cursor.fetchall() 
         return buys + pays + returns
 

@@ -18,6 +18,7 @@ class PayController:
         self.view.cus_name_entry.bind('<KeyRelease>', lambda event, ent = self.view.cus_name_entry: self.recommendation_KeyRelease(ent,  ent.cget("textvariable")))
         self.view.cus_name_entry.bind('<FocusOut>', lambda event : self.recommendation_focusOut())
         
+        self.view.option_menu.configure(values=self.model.get_safes())
         
         self.view.button.configure(command=self.save_pay)
         
@@ -31,6 +32,7 @@ class PayController:
                 if self.view.message('yes_no', 'فاتورة', 'هل تريد طباعة الفاتورة ؟'):
                     ReportController([self.view.cus_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()], 'pay')
                 self.view.clear_inputs()
+                self.view.populate_treeview(self.model.get_pays_from_db())
 
 
     def check_inputs(self):

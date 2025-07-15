@@ -39,6 +39,7 @@ class FactoryAccountController:
         if self.check_inputs():
             self.model.adding_new_fac(self.view.fac_name.get().strip(), float(self.view.amount_money.get()), int(self.view.product_quantity.get()))
             self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الاضافة بنجاح')
+            self.clear_inputs()
             self.search_key_release()
         
 
@@ -53,3 +54,10 @@ class FactoryAccountController:
             return False
 
         return True
+
+
+    def clear_inputs(self):
+        self.view.search_var.set('')
+        self.view.fac_name.set('')
+        self.view.amount_money.set('')
+        self.view.product_quantity.set('')

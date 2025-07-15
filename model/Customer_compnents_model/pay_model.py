@@ -66,7 +66,7 @@ class PayModel:
 
     def save_pay_to_db(self, customer_name, amount_money, safe_type):
         try :
-            safe_id, safe_money_before = self.cursor.execute("SELECT safe_id, amount_money FROM Safe WHERE type = ?", (safe_type,)).fetchone()[0]
+            safe_id, safe_money_before = self.cursor.execute("SELECT safe_id, amount_money FROM Safe WHERE type = ?", (safe_type,)).fetchone()
             if self.supplier == 'golden rose':
                 cus_id , cus_money_before = self.cursor.execute("SELECT customer_id, Golden_Rose_amount_money FROM Customers WHERE name = ?", (customer_name,)).fetchone()
             else:
@@ -88,4 +88,9 @@ class PayModel:
 
         return True
 
-
+    def get_safes(self):
+        data = self.cursor.execute("SELECT type FROM Safe").fetchall()
+        safe_values =[] 
+        for i in data:
+            safe_values.append(i[0])
+        return safe_values

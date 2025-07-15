@@ -16,6 +16,7 @@ class PayController:
         self.view.fac_name_entry.bind('<FocusIn>', lambda event, ent = self.view.fac_name_entry: self.recommendation_focusIn(ent, ent.cget("textvariable")))
         self.view.fac_name_entry.bind('<KeyRelease>', lambda event, ent = self.view.fac_name_entry: self.recommendation_KeyRelease(ent,  ent.cget("textvariable")))
         self.view.fac_name_entry.bind('<FocusOut>', lambda event : self.recommendation_focusOut())
+        self.view.option_menu.configure(values=self.model.get_safes())
         
         
         self.view.button.configure(command=self.save_pay)
@@ -32,7 +33,7 @@ class PayController:
                     ReportController(data, 'pay')
                 
                 self.view.clear_inputs()
-
+                self.view.populate_treeview(self.model.get_pays_from_db())
 
     def check_inputs(self):
         if self.view.fac_name.get().strip() == '' or self.view.money_amount.get().strip() == '':

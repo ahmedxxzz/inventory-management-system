@@ -14,13 +14,13 @@ class FactoryAccountDetailsModel:
     def get_factory_account_details(self):
         fac_id = self.get_fac_id_by_name(self.factory_name)
         
-        self.cursor.execute(f"SELECT '{self.factory_name}', purchas_date, cost_money, 'شراء' FROM Fac_Purchases WHERE factory_id = ?", (fac_id,))
+        self.cursor.execute(f"SELECT purchase_id, purchas_date, cost_money, 'شراء' FROM Fac_Purchases WHERE factory_id = ?", (fac_id,))
         buys = self.cursor.fetchall() # [(factory_name, purchas_date, cost_money, 'شراء'), ...]
         
-        self.cursor.execute(f"SELECT '{self.factory_name}', date, amount_money, 'دفع' FROM Fac_Pays WHERE factory_id = ?", (fac_id,))
+        self.cursor.execute(f"SELECT pay_id, date, amount_money, 'دفع' FROM Fac_Pays WHERE factory_id = ?", (fac_id,))
         pays = self.cursor.fetchall() # [(factory_name, purchas_date, cost_money, 'شراء'), ...]
         
-        self.cursor.execute(f"SELECT '{self.factory_name}', date, quantity * price_per_piece , 'مرتجع' FROM Fac_Returned_Items WHERE factory_id = ?", (fac_id,))
+        self.cursor.execute(f"SELECT returned_process_id, date, quantity * price_per_piece , 'مرتجع' FROM Fac_Returned_Items WHERE factory_id = ?", (fac_id,))
         returns = self.cursor.fetchall() # [(factory_name, purchas_date, cost_money, 'شراء'), ...]
         return buys + pays + returns
 

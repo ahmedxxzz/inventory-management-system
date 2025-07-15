@@ -10,7 +10,6 @@ class AdditionalCostsView(ctk.CTkFrame):
 
         self.adds_type = StringVar()
         self.price = StringVar()
-        self.supplier = StringVar(value='snow white')
         self.safe = StringVar(value='اختار الخزنة')
 
 
@@ -53,7 +52,6 @@ class AdditionalCostsView(ctk.CTkFrame):
         ctk.CTkEntry(entries_frame, textvariable=self.price,font=("Arial", 18, "bold"),width=200, height=40, validate="key", validatecommand = (self.register(self.validate_Entry), '%P', 'float')).pack(side='top', padx=10, pady=10)
         
         
-        ctk.CTkComboBox(entries_frame, values=["snow white", "golden rose"], variable=self.supplier).pack(side='top', padx=10, pady=10)
         self.safe_combo= ctk.CTkComboBox(entries_frame ,variable=self.safe)
         self.safe_combo.pack(side='top', padx=10, pady=10)
         ################################################

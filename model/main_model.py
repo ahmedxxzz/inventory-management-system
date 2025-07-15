@@ -53,13 +53,13 @@ class MainModel:
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS Fac_Pays (
                     pay_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    factory_id INTEGER NOT NULL,
+                    safe_id INTEGER NOT NULL,
                     date TEXT NOT NULL ,
                     amount_money REAL NOT NULL,
-                    factory_id INTEGER NOT NULL,
                     fac_money_before REAL DEFAULT 0 CHECK (fac_money_before >= 0),
-                    safe_id INTEGER NOT NULL,
                     FOREIGN KEY (safe_id) REFERENCES Safe(safe_id),
-                    FOREIGN KEY (factory_id) REFERENCES Factories(factory_id) 
+                    FOREIGN KEY (factory_id) REFERENCES Factories(factory_id)
                 );
             ''')
 
@@ -187,7 +187,6 @@ class MainModel:
                             type TEXT NOT NULL ,
                             date TEXT NOT NULL ,
                             amount_of_money REAL NOT NULL CHECK (amount_of_money >= 0),
-                            resource_name TEXT NOT NULL check (resource_name == 'golden rose' or resource_name == 'snow white'),
                             safe_id INTEGER NOT NULL,
                             FOREIGN KEY (safe_id) REFERENCES Safe(safe_id)
                         );

@@ -51,10 +51,7 @@ class ReturnController:
             self.view.message('showinfo', 'عملية فاشلة', 'كود المنتج غير موجود')
             return
         
-        if  self.model.check_product_code_exist(self.view.product_code.get()):
-            if int(self.model.check_product_quantity(self.view.product_code.get())) < int(self.view.quantity.get()):
-                self.view.message('showinfo', 'عملية فاشلة', 'لا يوجد كمية كافية للمنتج')
-                return
+
         
         
         
@@ -63,7 +60,7 @@ class ReturnController:
         if self.model.save_return_to_db(data):
             self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الاسترجاع بنجاح')
             if self.view.message('yes_no', 'فاتورة', 'هل تريد طباعة الفاتورة ؟'):
-                ReportController([self.view.cus_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()], 'pay')
+                ReportController(data , 'return')
             self.view.clear_inputs()
         self.view.populate_treeview(self.model.get_returns_from_db())
 

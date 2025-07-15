@@ -39,7 +39,7 @@ class CustomerAccountView(ctk.CTkFrame):
         adding_cus_frame = ctk.CTkFrame(upper_frame,)
         adding_cus_frame.pack(side='top', pady=10, padx=10, fill='x')
         
-        self.adding_btn = ctk.CTkButton(adding_cus_frame, text='اضافة مصنع جديد', font=("Arial", 16, "bold"), text_color='white',width=200, height=40, fg_color='green',)
+        self.adding_btn = ctk.CTkButton(adding_cus_frame, text='اضافة مكتب جديد', font=("Arial", 16, "bold"), text_color='white',width=200, height=40, fg_color='green',)
         self.adding_btn.pack(side='right', padx=10, pady=10)
         
         

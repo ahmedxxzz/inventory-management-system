@@ -20,14 +20,14 @@ class AdditionalCostsController:
 
     def save_product(self):
         if self.check_inputs():
-            self.model.save_adds(self.view.adds_type.get(), self.view.price.get(), self.view.supplier.get(), self.view.safe.get())
+            self.model.save_adds(self.view.adds_type.get(), self.view.price.get(), self.view.safe.get())
             self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الاضافة بنجاح')
             self.view.populate_treeview(self.model.get_Adds())
 
 
     def check_inputs(self):
 
-        if self.view.adds_type.get().strip() == '' or self.view.price.get() == '' or self.view.supplier.get().strip() == '':
+        if self.view.adds_type.get().strip() == '' or self.view.price.get() == '' :
             self.view.message('showinfo', ' خطاء', 'يرجى عدم ترك الحقول فارغة')
             return False
         

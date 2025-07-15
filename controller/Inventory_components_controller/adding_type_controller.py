@@ -20,6 +20,7 @@ class AddingTypeController:
         if self.check_inputs():
             self.model.save_product(self.view.product_code.get(), self.view.price.get(), self.view.supplier.get())
             self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الاضافة بنجاح')
+            self.clear_inputs()
             self.view.populate_treeview(self.model.get_products_info())
 
 
@@ -44,3 +45,8 @@ class AddingTypeController:
         
         return True
 
+
+    def clear_inputs(self):
+        self.view.product_code.set('')
+        self.view.price.set('')
+        self.view.supplier.set('snow white')

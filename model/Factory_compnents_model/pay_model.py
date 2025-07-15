@@ -75,3 +75,11 @@ class PayModel:
             print(f"there is a problem in save_pay_to_db : {e}")
             return False
         return True
+
+
+    def get_safes(self):
+        data = self.cursor.execute("SELECT type FROM Safe").fetchall()
+        safe_values =[] 
+        for i in data:
+            safe_values.append(i[0])
+        return safe_values

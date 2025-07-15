@@ -49,8 +49,8 @@ class PayView(ctk.CTkFrame):
             fac_entry.pack(side='top', padx=10, pady=10)
             if var == self.fac_name:
                 self.fac_name_entry = fac_entry
-                ctk.CTkOptionMenu(inputs_entries_frame,variable=self.safe_type ,values=['cash', 'vodafone cash'], font=("Arial", 18, "bold"),width=200, height=40, state='readonly').pack(side='top', padx=10, pady=10)
-            
+                self.option_menu =ctk.CTkOptionMenu(inputs_entries_frame,variable=self.safe_type , font=("Arial", 18, "bold"),width=200, height=40, state='readonly')
+                self.option_menu.pack(side='top', padx=10, pady=10)
             if var == self.money_amount:
                 fac_entry.configure(validate="key", validatecommand = (fac_entry.register(self.validate_Entry), '%P', 'float'))
         

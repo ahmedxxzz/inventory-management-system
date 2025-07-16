@@ -1,5 +1,5 @@
 import sqlite3
-import datetime
+from datetime import datetime
 
 class AdditionalCostsModel:
     def __init__(self):

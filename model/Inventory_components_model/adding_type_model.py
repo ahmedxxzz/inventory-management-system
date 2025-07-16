@@ -28,3 +28,11 @@ class AddingTypeModel:
         return False
 
 
+    def edit_product(self, product_code, price, supplier):
+        try :
+            self.cursor.execute("UPDATE Products SET cus_price_per_piece = ?, resource_name = ? WHERE type = ?", (price, supplier, product_code, ))
+            self.conn.commit()
+        except Exception as e:
+            print(f"there is a problem in save_product : {e}")
+            return False
+        return True

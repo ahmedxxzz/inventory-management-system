@@ -38,7 +38,7 @@ class AdditionalCostsView(ctk.CTkFrame):
         lbls_frame = ctk.CTkFrame(upper_input_frame, fg_color='#333333',width=560, height=400)
         lbls_frame.pack(side='left', padx=10,pady=10,)
         
-        lbls_names = ['نوع التكاليف', 'سعر التكاليف', 'الموزع','نوع الخزنة']
+        lbls_names = ['نوع التكاليف', 'سعر التكاليف', 'نوع الخزنة']
         
         for lbl in lbls_names:
             lbl = ctk.CTkLabel(lbls_frame, text=lbl, font=("Arial", 17, "bold"), text_color='white',width=200, height=40)

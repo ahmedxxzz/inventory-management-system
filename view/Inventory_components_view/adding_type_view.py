@@ -58,9 +58,15 @@ class AddingTypeView(ctk.CTkFrame):
         
         ctk.CTkComboBox(entries_frame, values=["snow white", "golden rose"], variable=self.supplier).pack(side='top', padx=10, pady=10)
         ################################################
-        self.save_btn = ctk.CTkButton(inputs_frame, text='اضافة', font=("Arial", 18, "bold"), text_color='white', fg_color="#007BFF", hover_color="#3484F0",width=200, height=40)
-        self.save_btn.pack(side='bottom', padx=10, pady=10)
+        btns_frame = ctk.CTkFrame(inputs_frame, fg_color='#333333')
+        btns_frame.pack(side='bottom', padx=10,pady=10,)
+        
+        
+        self.save_btn = ctk.CTkButton(btns_frame, text='اضافة', font=("Arial", 18, "bold"), text_color='white', fg_color="green", width=200, height=40)
+        self.save_btn.pack(side='left', padx=10, pady=10)
 
+        self.edit_btn = ctk.CTkButton(btns_frame, text='تعديل', font=("Arial", 18, "bold"), text_color='white', fg_color="#007BFF",width=200, height=40)
+        self.edit_btn.pack(side='right', padx=10, pady=10)
 
     def create_bottom_frame(self):
         """Creates the frame containing the Treeview for displaying data."""

@@ -14,14 +14,15 @@ class AddingTypeController:
     
     def _bind_events(self):
         self.view.save_btn.configure(command=self.save_product)
+        self.view.edit_btn.configure(command=self.edit_product)
 
 
     def save_product(self):
         if self.check_inputs():
-            self.model.save_product(self.view.product_code.get(), self.view.price.get(), self.view.supplier.get())
-            self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الاضافة بنجاح')
-            self.clear_inputs()
-            self.view.populate_treeview(self.model.get_products_info())
+            if self.model.save_product(self.view.product_code.get(), self.view.price.get(), self.view.supplier.get()):
+                self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الاضافة بنجاح')
+                self.clear_inputs()
+                self.view.populate_treeview(self.model.get_products_info())
 
 
     def check_inputs(self):
@@ -45,6 +46,20 @@ class AddingTypeController:
         
         return True
 
+
+    def edit_product(self):
+        if self.view.product_code.get().strip() == '' or self.view.price.get().strip() == '' or self.view.supplier.get().strip() == '':
+            self.view.message('showinfo', ' خطاء', 'يرجى عدم ترك الحقول فارغة')
+            return False
+        if float(self.view.price.get()) <= 0.0:
+            self.view.message('showinfo', 'عملية فاشلة', 'سعر المنتج يجب ان يكون اكبر من 0')
+            return False
+        
+        if self.model.edit_product(self.view.product_code.get(), self.view.price.get(), self.view.supplier.get()):
+            self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية التعديل بنجاح')
+            self.clear_inputs()
+            self.view.populate_treeview(self.model.get_products_info())
+            
 
     def clear_inputs(self):
         self.view.product_code.set('')

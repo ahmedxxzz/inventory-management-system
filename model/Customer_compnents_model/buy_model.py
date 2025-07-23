@@ -68,7 +68,8 @@ class BuyModel:
     def get_product_id_from_code(self, code):
         self.cursor.execute("SELECT product_id FROM Products WHERE type = ?", (code,))
         return self.cursor.fetchone()[0]
-    
+
+
     def get_product_price_from_id(self, code):
         self.cursor.execute("SELECT cus_price_per_piece FROM Products WHERE product_id = ?", (int(code),))
         return self.cursor.fetchone()[0]
@@ -192,6 +193,9 @@ class BuyModel:
                     WHERE customer_id = ?;
                     ''', (total_price,total_quantity, buy[0]['cusname'], )
                 )
+                self.set_products_notification(buy) # [{product_id : quantity, product_id : quantity}, {product_id : quantity, product_id : quantity}]
+                self.set_cutomer_limit_notification(buy)
+            
                 
                 
 
@@ -204,3 +208,59 @@ class BuyModel:
             return False
 
 
+
+    def set_products_notification(self, buys):
+        # buys = [{product_id : quantity, product_id : quantity}, {product_id : quantity, product_id : quantity}]
+        for buy in buys:
+            product_id = buy['productcode']
+            pro_type, product_quantity = self.cursor.execute('select type, current_quantity from Products where product_id = ?;',(product_id,)).fetchone()
+            if product_quantity <= 12:
+                noti_type = "golden_product" if self.supplier== 'golden rose' else 'snow_product'
+                self.cursor.execute('select message from Notifications where type = ? AND entity_id = ?;', (noti_type,product_id,))
+                message  = self.cursor.fetchone()[0]
+                if message is None:
+                    message = f"الكمية المتوفرة من المنتج : {pro_type} = {product_quantity} قطعة"
+                    self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", (noti_type, 0, product_id, message))
+                    self.conn.commit()
+                else:
+                    message = f"الكمية المتوفرة من المنتج : {pro_type} = {product_quantity} قطعة"
+                    self.cursor.execute("UPDATE Notifications SET seen=0, message = ? WHERE type = ? AND entity_id = ?", (message, noti_type, product_id,))
+                self.conn.commit()
+
+    def set_cutomer_limit_notification(self, buys):
+        # buys = [{cusname : cus id,}, {cusname : cus id,}, {cusname : cus id,},]
+        cutomer_id = buys[0]['cusname']
+        if self.supplier == 'golden rose':
+            cus_amount_money = self.cursor.execute('select Golden_Rose_amount_money from Customers where customer_id = ?;',(cutomer_id,)).fetchone()[0]
+        else:
+            cus_amount_money = self.cursor.execute('select Snow_White_amount_money from Customers where customer_id = ?;',(cutomer_id,)).fetchone()[0]
+
+
+        if cus_amount_money //50000 >=1:
+            if self.supplier == 'golden rose':
+                message, seen = self.cursor.execute('select message, seen from Notifications where type = ? AND entity_id = ?;', ("golden_cus_overdue",cutomer_id,)).fetchone()
+                if message is None or seen == 1:
+                    message = f"ديون المكتب {self.get_cus_name_by_id(cutomer_id)} ل {self.supplier} تجاوزت المبلغ : {cus_amount_money} جنيه"
+                    self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", ("golden_cus_overdue", 0, cutomer_id, message))
+                else:
+                    if seen == 0:
+                        last_noti_amount = float(message.split(' ')[-2])
+                        if last_noti_amount//50000 != cus_amount_money//50000:
+                            message = f"ديون المكتب {self.get_cus_name_by_id(cutomer_id)} ل {self.supplier} تجاوزت المبلغ : {cus_amount_money} جنيه" 
+                            self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", ("golden_cus_overdue", 0, cutomer_id, message))
+            else:
+                message, seen = self.cursor.execute('select message, seen from Notifications where type = ? AND entity_id = ?;', ("snow_cus_overdue",cutomer_id,)).fetchone()
+                if message is None or seen == 1:
+                    message = f"ديون المكتب {self.get_cus_name_by_id(cutomer_id)} ل {self.supplier} تجاوزت المبلغ : {cus_amount_money} جنيه"
+                    self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", ("snow_cus_overdue", 0, cutomer_id, message))
+                else:
+                    if seen == 0:
+                        last_noti_amount = float(message.split(' ')[-2])
+                        if last_noti_amount//50000 != cus_amount_money//50000:
+                            message = f"ديون المكتب {self.get_cus_name_by_id(cutomer_id)} ل {self.supplier} تجاوزت المبلغ : {cus_amount_money} جنيه" 
+                            self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", ("snow_cus_overdue", 0, cutomer_id, message))
+                        
+
+    def get_cus_name_by_id(self, id):
+        self.cursor.execute("SELECT name FROM Customers WHERE customer_id = ?", (id,))
+        return self.cursor.fetchone()[0]

@@ -103,6 +103,7 @@ class BuyModel:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         for buy in buys:
             buy['facname'] = self.get_fac_id_from_name(buy['facname'])
+            
             buy['productcode'] = self.get_product_id_from_code(buy['productcode'])
         buys.sort(key=lambda x: x['facname'])
         
@@ -131,6 +132,7 @@ class BuyModel:
         '''
         try :
             for buy in buys:
+                self.cursor.execute("DELETE FROM Notifications WHERE type = 'factory_no_work' AND entity_id = ?", (buy[0]['facname'],))        
                 self.cursor.execute('''
                     INSERT INTO Fac_Purchases (
                         factory_id,
@@ -194,7 +196,6 @@ class BuyModel:
                     WHERE factory_id = ?;
                     ''', (total_price,total_quantity, buy[0]['facname'])
                 )
-                
                 
 
 

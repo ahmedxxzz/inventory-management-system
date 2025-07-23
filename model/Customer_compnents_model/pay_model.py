@@ -80,6 +80,11 @@ class PayModel:
                 self.cursor.execute("UPDATE Customers SET Snow_White_amount_money = Snow_White_amount_money - ? WHERE customer_id = ?", (amount_money, cus_id))
                 
             self.cursor.execute("UPDATE Safe SET amount_money = amount_money + ? WHERE safe_id = ?", (amount_money, safe_id))
+
+            if self.supplier == 'golden rose':
+                self.cursor.execute("DELETE FROM Notifications WHERE type='golden_cus_unpaid' AND entity_id = ?", (cus_id,))
+            else:
+                self.cursor.execute("DELETE FROM Notifications WHERE type='snow_cus_unpaid' AND entity_id = ?", (cus_id,))
             self.conn.commit()
 
         except Exception as e:

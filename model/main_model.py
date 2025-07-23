@@ -1,13 +1,14 @@
 import sqlite3
 import os
-import datetime
-import random
+from datetime import datetime, date, timedelta
 
 
 class MainModel:
 
     def __init__(self):
         db_file = "IMS.db"
+        self.conn = sqlite3.connect(db_file)
+        self.cursor = self.conn.cursor()
         if os.path.exists(db_file):
             print(f"Database {db_file} already exists. Skipping database setup.")
         else :
@@ -192,6 +193,17 @@ class MainModel:
                         );
                         ''')
 
+
+            cursor.execute('''
+                        CREATE TABLE IF NOT EXISTS Notifications (
+                            notification_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                            type TEXT NOT NULL ,-- type of notification ('snow_cus_unpaid', 'golden_cus_unpaid','snow_cus_overdue', 'golden_cus_overdue', 'snow_product', 'golden_product', 'factory_no_work')
+                            seen boolean DEFAULT 0,
+                            entity_id INTEGER NOT NULL,
+                            message TEXT NOT NULL
+                        );
+                        ''')
+
             conn.commit()
 
         except sqlite3.Error as e:
@@ -199,5 +211,102 @@ class MainModel:
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
         finally:
-            # Close the connection
             conn.close()
+
+
+
+    def check_notifications(self,):
+        self.set_customer_not_paid()
+        self.set_facs_no_work()
+
+
+    def set_customer_not_paid(self):
+        cuss_not_paid = self.get_customer_not_paid()
+        for customer in cuss_not_paid:
+            if customer['resource_name'] == 'golden rose':
+                notification_type = 'golden_cus_unpaid'
+                
+            elif customer['resource_name'] == 'snow white':
+                notification_type = 'snow_cus_unpaid'
+            
+            self.cursor.execute("Select message FROM Notifications Where type = ? AND entity_id = ?", (notification_type, customer['customer_id'],)) # check if the notification already exists
+            message = self.cursor.fetchone()[0]
+            if message is None:
+                message = f"المكتب {self.get_cus_name_by_id(customer['customer_id'])} لم يدفع  ل {customer['resource_name']} لمدة {customer['difference']//7} اسبوع"
+                self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", (notification_type, 0, customer['customer_id'], message))
+                self.conn.commit()
+            else:
+                weeks_number = int(message.split(' ')[-2])
+                if customer['difference']//7 > weeks_number:
+                    message = f"المكتب {self.get_cus_name_by_id(customer['customer_id'])} لم يدفع  ل {customer['resource_name']} لمدة {customer['difference']//7} اسبوع"
+                    self.cursor.execute("UPDATE Notifications SET seen=0, message = ? WHERE type = ? AND entity_id = ?", (message, notification_type, customer['customer_id'],))
+                    self.conn.commit()
+
+
+    def get_cus_name_by_id(self, customer_id):
+        self.cursor.execute("SELECT name FROM Customers WHERE customer_id = ?", (customer_id,))
+        return self.cursor.fetchone()[0]
+
+
+    def get_customer_not_paid(self,):
+        self.cursor.execute('''SELECT customer_id, resource_name, MAX(date) AS last_payment_date FROM Cus_Pays GROUP BY customer_id, resource_name;''')
+        last_payment = self.cursor.fetchall() # for each customer and resource name, get the last payment date [(customer_id, resource_name, last_payment_date), ...]
+        today = datetime.strptime(datetime.now().strftime('%Y-%m-%d'), "%Y-%m-%d").date()
+        cuss_not_paid = []
+        for customer in last_payment:
+            pay_day = datetime.strptime(customer[2], "%Y-%m-%d %H:%M:%S").strftime('%Y-%m-%d').date() # convert to object and then to year-month-day
+            difference = today - pay_day
+
+            if difference.days >= 7:
+                cuss_not_paid.append(
+                    {
+                        'customer_id': customer[0],
+                        'resource_name': customer[1],
+                        'last_payment_date': customer[2],
+                        'difference': difference.days
+                    }
+                )
+        return cuss_not_paid
+
+
+    def set_facs_no_work(self):
+        facs_no_work = self.get_facs_no_work()
+        for fac in facs_no_work:
+
+            self.cursor.execute("Select message FROM Notifications Where type = 'factory_no_work' AND entity_id = ?", ( fac['factory_id'],)) # check if the notification already exists
+            message = self.cursor.fetchone()[0]
+            if message is None:
+                message = f"المصنع {self.get_factory_name_byid(fac['factory_id'])} لم يعمل لمدة {fac['difference']//7} اسبوع"
+                
+                self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", ('factory_no_work', 0, fac['factory_id'], message))
+                self.conn.commit()
+            else:
+                weeks_number = int(message.split(' ')[-2])
+                if fac['difference']//7 > weeks_number:
+                    message = f"المصنع {self.get_factory_name_byid(fac['factory_id'])} لم يعمل لمدة {fac['difference']//7} اسبوع"
+                    self.cursor.execute("UPDATE Notifications SET seen=0, message = ? WHERE type = 'factory_no_work' AND entity_id = ?", (message, fac['factory_id'],))
+                    self.conn.commit()
+
+    def get_factory_name_byid(self, factory_id):
+        self.cursor.execute("SELECT name FROM Factories WHERE factory_id = ?", (factory_id,))
+        return self.cursor.fetchone()[0]
+
+    def get_facs_no_work(self):
+        self.cursor.execute('''SELECT factory_id, MAX(purchas_date) AS last_payment_date FROM Fac_Purchases GROUP BY factory_id;''')
+        last_payment = self.cursor.fetchall() # for each factory and resource name, get the last payment date [(factory_id, last_payment_date), ...]
+        today = datetime.strptime(datetime.now().strftime('%Y-%m-%d'), "%Y-%m-%d").date()
+        facs_no_work = []
+        for factory in last_payment:
+            pay_day = datetime.strptime(factory[1], "%Y-%m-%d %H:%M:%S").strftime('%Y-%m-%d').date() # convert to object and then to year-month-day
+            difference = today - pay_day
+
+            if difference.days >= 7:
+                facs_no_work.append(
+                    {
+                        'factory_id': factory[0],
+                        'last_payment_date': factory[1],
+                        'difference': difference.days
+                    }
+                )
+        return facs_no_work
+

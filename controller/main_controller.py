@@ -6,7 +6,7 @@ from controller.inventory_controller import InventoryController
 from controller.navigator_controller import NavigatorController
 from controller.additional_costs_contorller import AdditionalCostsController
 from controller.safe_controller import SafeController
-
+from controller.notifications_controller import NotificationsController
 
 class MainController:
     def __init__(self, root_window):
@@ -15,7 +15,13 @@ class MainController:
         self.model = MainModel()
         self._bind_events()
         
+        self.root.after(1000, self.check_notifications)
         
+
+    def check_notifications(self,):
+        
+        self.root.after(10000000, self.check_notifications)
+
 
 
     def _bind_events(self):
@@ -51,6 +57,8 @@ class MainController:
             self.open_safe()
         elif index == 5:
             self.open_extra_costs()
+        elif index == 6:
+            self.open_notifications()
         else:
             self.root.destroy()
             exit()
@@ -81,3 +89,7 @@ class MainController:
     def open_extra_costs(self):
         extra_costs = AdditionalCostsController(self.root)
         self.view.Frames.append(extra_costs.view)
+    
+    def open_notifications(self):
+        notifications = NotificationsController(self.root)
+        self.view.Frames.append(notifications.view)

@@ -43,7 +43,7 @@ class FactoryAccountDetailsController:
 
     def report(self):
         from controller.Factory_compnents_controller.report_controller import ReportController
-        factory_accounts = ReportController( self.factory_name)
+        ReportController( self.model.get_fac_id_by_name(self.factory_name))
 
 
 

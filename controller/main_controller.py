@@ -1,5 +1,5 @@
-from view.main_view import MainView
 from model.main_model import MainModel
+from view.main_view import MainView
 from controller.dashboard_controller import DashboardController
 from controller.factory_controller import FactoryController
 from controller.inventory_controller import InventoryController
@@ -11,8 +11,8 @@ from controller.notifications_controller import NotificationsController
 class MainController:
     def __init__(self, root_window):
         self.root = root_window # this is the window
-        self.view = MainView(self.root) # this is the left slide with its buttons
         self.model = MainModel()
+        self.view = MainView(self.root) # this is the left slide with its buttons
         self._bind_events()
         
         self.root.after(1000, self.check_notifications)
@@ -27,7 +27,7 @@ class MainController:
     def _bind_events(self):
         for index, btn in enumerate(self.view.buttons):
             btn.configure(command= lambda i=index, button=btn: self._menu_buttons_switching(i, button))
-        self._menu_buttons_switching(1,self.view.buttons[1])
+        self._menu_buttons_switching(0,self.view.buttons[0])
     
 
     def _menu_buttons_switching(self, index, btn):

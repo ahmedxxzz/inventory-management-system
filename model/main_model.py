@@ -7,24 +7,24 @@ class MainModel:
 
     def __init__(self):
         db_file = "IMS.db"
-        self.conn = sqlite3.connect(db_file)
-        self.cursor = self.conn.cursor()
         if os.path.exists(db_file):
             print(f"Database {db_file} already exists. Skipping database setup.")
+            self.conn = sqlite3.connect(db_file)
+            self.cursor = self.conn.cursor()
         else :
             print(f"Database {db_file} isn't exists. Setting up database.")
-            self.create_tables(db_file)
-            # self.add_fake_data(db_file)
-
+            self.conn = sqlite3.connect(db_file)
+            self.cursor = self.conn.cursor()
+            self.create_tables()
     
 
 
-    def create_tables(self, filename):
+    def create_tables(self):
         try:
 
             # Connect to SQLite database
-            conn = sqlite3.connect(filename)
-            cursor = conn.cursor()
+            conn = self.conn
+            cursor = self.cursor
 
             # Enable foreign key constraints
             cursor.execute("PRAGMA foreign_keys = ON;")
@@ -211,7 +211,7 @@ class MainModel:
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
         finally:
-            conn.close()
+            self.conn.close()
 
 
 

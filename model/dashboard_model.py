@@ -77,7 +77,6 @@ class DashboardModel:
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
 
-        print(f"sales_data (inside function): {sales_data}")
         return sales_data
 
 

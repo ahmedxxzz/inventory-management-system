@@ -27,18 +27,11 @@ class PayModel:
 
     def get_pays_from_db(self ):
         date = datetime.now().strftime("%Y-%m-%d")
-        self.cursor.execute("SELECT * FROM Fac_Pays")
-        pays_data = self.cursor.fetchall() # [(pay_id, date, amount_money, factory_id, fac_money_before, safe_id), ...]
+        self.cursor.execute("SELECT F.name, FP.date, FP.amount_money, FP.fac_money_before, FP.fac_money_before-FP.amount_money AS fac_money_after   FROM Fac_Pays FP join Factories F on FP.factory_id = F.factory_id ")
+        pays_data = self.cursor.fetchall() 
         
-        final_data = []
-        for row in pays_data:
-            final_data.append([ self.get_factory_name_byid(row[3]), date, float(row[2]), float(row[4]), float(row[4] - float(row[2]))])
         
-        '''
-        returned data = [ [factory_name, date, amount_money, fac_money_before, fac_money_after] ]
-        '''
-        
-        return final_data
+        return pays_data
 
     
     def check_factory_name_exist(self, name):

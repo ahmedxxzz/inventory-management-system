@@ -1,6 +1,6 @@
 from view.Customer_compnents_view.returns_view import ReturnView
 from model.Customer_compnents_model.returns_model import ReturnModel
-from controller.Customer_compnents_controller.report_controller import ReportController
+from controller.Customer_compnents_controller.account_report_controller import AccountReportController
 
 
 class ReturnController:
@@ -60,7 +60,7 @@ class ReturnController:
         if self.model.save_return_to_db(data):
             self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الاسترجاع بنجاح')
             if self.view.message('yes_no', 'فاتورة', 'هل تريد طباعة الفاتورة ؟'):
-                ReportController(data , 'return')
+                AccountReportController(data , 'return')
             self.view.clear_inputs()
         self.view.populate_treeview(self.model.get_returns_from_db())
 

@@ -1,4 +1,4 @@
-from model.Factory_compnents_model.report_model import ReportModel
+from model.Customer_compnents_model.account_report_model import AccountReportModel
 import sys
 import os
 from datetime import datetime
@@ -12,24 +12,21 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.pagesizes import A4, letter, landscape 
 from reportlab.lib.units import cm # For margins/spacing if needed
-from reportlab.lib.enums import TA_RIGHT, TA_CENTER, TA_LEFT # For alignment constants
-from reportlab.lib import colors # Import colors for styling
+from reportlab.lib.enums import TA_RIGHT, TA_CENTER, TA_LEFT 
+from reportlab.lib import colors
 
 
 
 
-
-
-
-
-class ReportController:
-    def __init__(self, factory_id=None):
-        self.factory_data = {}
-        self.factory_data['factory_id'] = factory_id
+class AccountReportController:
+    def __init__(self, customer_id=None, supplier= None):
+        self.customer_data = {}
+        self.customer_data['customer_id'] = customer_id
+        self.customer_data['supplier'] = supplier
         self.pagesize = A4
         self.arabic_font_name = 'Helvetica' 
-        self.model = ReportModel(self.factory_data['factory_id'])
-        self.factory_data['fac_name'], self.factory_data['fac_amount_money'], self.factory_data['fac_quantity'] = self.model.get_factory_data()
+        self.model = AccountReportModel(self.customer_data['customer_id'], self.customer_data['supplier'])
+        self.customer_data['cus_name'], self.customer_data['cus_amount_money'], self.customer_data['cus_quantity'] = self.model.get_customer_data()
         self.define_data()
         self._register_arabic_font()
         self.structure_pdf()
@@ -165,15 +162,15 @@ class ReportController:
 
 
     def define_data(self):
-        self.factory_data["purchases_data"] = self.model.get_purchases_data() # returned data = [ (50010, '2022-01-01', 'buy'), (6014, '2022-01-02', 'buy') ]
-        self.factory_data["payments_data"] = self.model.get_payments_data() # returned data = [ (50010, '2022-01-01', 'pay'), (6014, '2022-01-02', 'pay') ]
-        self.factory_data["returns_data"] = self.model.get_returned_data() # returned data = [ (50010, '2022-01-01', 'return'), (6014, '2022-01-02', 'return') ]
+        self.customer_data["purchases_data"] = self.model.get_purchases_data() # returned data = [ (50010, '2022-01-01', 'buy'), (6014, '2022-01-02', 'buy') ]
+        self.customer_data["payments_data"] = self.model.get_payments_data() # returned data = [ (50010, '2022-01-01', 'pay'), (6014, '2022-01-02', 'pay') ]
+        self.customer_data["returns_data"] = self.model.get_returned_data() # returned data = [ (50010, '2022-01-01', 'return'), (6014, '2022-01-02', 'return') ]
         
         
-        self.factory_data["total_purchases"]= sum(float(p[0]) if p[0] is not None else 0 for p in self.factory_data["purchases_data"])
-        self.factory_data["total_payments"]  = sum(float(p[0]) if p[0] is not None else 0 for p in self.factory_data["payments_data"])
-        self.factory_data["total_returns"]  = sum(float(r[0]) if r[0] is not None else 0 for r in self.factory_data["returns_data"])
-        self.factory_data["total_balance"] = self.factory_data["total_purchases"] - (self.factory_data["total_payments"] + self.factory_data["total_returns"] )
+        self.customer_data["total_purchases"]= sum(float(p[0]) if p[0] is not None else 0 for p in self.customer_data["purchases_data"])
+        self.customer_data["total_payments"]  = sum(float(p[0]) if p[0] is not None else 0 for p in self.customer_data["payments_data"])
+        self.customer_data["total_returns"]  = sum(float(r[0]) if r[0] is not None else 0 for r in self.customer_data["returns_data"])
+        self.customer_data["total_balance"] = self.customer_data["total_purchases"] - (self.customer_data["total_payments"] + self.customer_data["total_returns"] )
 
 
     def structure_pdf(self):
@@ -183,7 +180,7 @@ class ReportController:
             header_style = self._get_rtl_style(alignment=TA_CENTER, fontSize=14, spaceAfter=10)
             subheader_style = self._get_rtl_style(alignment=TA_CENTER, fontSize=10, spaceBefore=2, spaceAfter=10)
             final_total_style = self._get_rtl_style(alignment=TA_CENTER, fontSize=12, spaceBefore=10, spaceAfter=10)
-            story.append(Paragraph(self._reshape_and_bidi(f"كشف حساب مصنع: {self.factory_data['fac_name']}"), header_style))
+            story.append(Paragraph(self._reshape_and_bidi(f"كشف حساب مصنع: {self.customer_data['cus_name']}"), header_style))
             story.append(Paragraph(self._reshape_and_bidi(f"تاريخ التقرير: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"), subheader_style))
             story.append(Spacer(1, 0.8*cm))
 
@@ -194,9 +191,9 @@ class ReportController:
             table_data.append(main_header)
 
             All_Data = []
-            All_Data.extend([item for item in self.factory_data["purchases_data"]]) # (amount, date, type)
-            All_Data.extend([item for item in self.factory_data["payments_data"]])
-            All_Data.extend([item for item in self.factory_data["returns_data"]])
+            All_Data.extend([item for item in self.customer_data["purchases_data"]]) # (amount, date, type)
+            All_Data.extend([item for item in self.customer_data["payments_data"]])
+            All_Data.extend([item for item in self.customer_data["returns_data"]])
 
             All_Data.sort(key=lambda item: item[1]) # Sort by date
 
@@ -220,9 +217,9 @@ class ReportController:
             total_label = self._reshape_and_bidi("الإجمالي")
             # الترتيب هنا لازم يطابق رؤوس الأعمدة: التاريخ، الفاتورة، الدفعة، المرتجع
             total_row = [total_label,
-                         f"{self.factory_data['total_purchases']:,.2f}",
-                         f"{self.factory_data['total_payments']:,.2f}",
-                         f"{self.factory_data['total_returns']:,.2f}"]
+                         f"{self.customer_data['total_purchases']:,.2f}",
+                         f"{self.customer_data['total_payments']:,.2f}",
+                         f"{self.customer_data['total_returns']:,.2f}"]
             table_data.append(total_row)
 
 
@@ -285,18 +282,18 @@ class ReportController:
 
             # --- Final Balance ---
             balance_desc = ""
-            if self.factory_data['total_balance'] > 0:
+            if self.customer_data['total_balance'] > 0:
                 balance_desc = self._reshape_and_bidi("الرصيد النهائي المستحق عليكم")
-            elif self.factory_data['total_balance'] < 0:
+            elif self.customer_data['total_balance'] < 0:
                 balance_desc = self._reshape_and_bidi("الرصيد النهائي المستحق لكم")
             else:
                 balance_desc = self._reshape_and_bidi("الرصيد النهائي صفر")
 
-            final_balance_text = f"{self._reshape_and_bidi('ج.م')} {abs(self.factory_data['total_balance']):,.2f} : {balance_desc}"
+            final_balance_text = f"{self._reshape_and_bidi('ج.م')} {abs(self.customer_data['total_balance']):,.2f} : {balance_desc}"
             story.append(Paragraph(final_balance_text, final_total_style))
 
             # --- Generate and Print PDF ---
-            self.create_and_print_pdf(story, f"factory_{self.factory_data['factory_id']}_statement_sidebyside", margin=margin_size)
+            self.create_and_print_pdf(story, f"customer_{self.customer_data['customer_id']}_statement_sidebyside", margin=margin_size)
 
         except Exception as e:
             messagebox.showerror("خطأ عام", f"حدث خطأ غير متوقع أثناء إنشاء الكشف: {e}")
@@ -318,9 +315,9 @@ class ReportController:
         
 
         try:
-            pdf_title = f"Account Statement - {self.factory_data['factory_id']}"
-            factory_name = "Unknown Factory"
-            pdf_title = self._reshape_and_bidi(f"كشف حساب مصنع: {self.factory_data['fac_name']}")
+            pdf_title = f"Account Statement - {self.customer_data['customer_id']}"
+            customer_name = "Unknown customer"
+            pdf_title = self._reshape_and_bidi(f"كشف حساب مصنع: {self.customer_data['cus_name']}")
       
             doc = SimpleDocTemplate(
                 self.pdf_filename,

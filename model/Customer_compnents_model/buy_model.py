@@ -133,71 +133,70 @@ class BuyModel:
                 totaldiscount+= float(item['discount'])
             total_discounts.append(totaldiscount)
 
-        try :
-            for buy in buys:                
-                self.cursor.execute('''
-                    INSERT INTO Cus_Purchases (
-                        customer_id,
-                        purchase_date,
-                        cus_money_before,
-                        discount_Total,
-                        resource_name
-                        )
-                        VALUES (?, ?, ?, ?, ?);
-                    ''',
-                    (buy[0]['cusname'], date, self.get_cus_money_by_id(buy[0]['cusname']), total_discounts[buys.index(buy)], self.supplier,)
+        for buy in buys:                
+            self.cursor.execute('''
+                INSERT INTO Cus_Purchases (
+                    customer_id,
+                    purchase_date,
+                    cus_money_before,
+                    discount_Total,
+                    resource_name
+                    )
+                    VALUES (?, ?, ?, ?, ?);
+                ''',
+                (buy[0]['cusname'], date, self.get_cus_money_by_id(buy[0]['cusname']), total_discounts[buys.index(buy)], self.supplier,)
+            )
+            purchase_id = self.cursor.lastrowid
+            
+            
+            total_price = 0
+            total_quantity = 0
+            for purchase in buy:
+                self.cursor.execute(
+                    '''
+                    INSERT INTO Cus_PurchaseItems (
+                            purchase_id,
+                            product_id,
+                            quantity,
+                            price_per_piece,
+                            discount_per_piece,
+                            paid)
+                            VALUES (?, ?, ?, ?, ?, ?);
+                    ''', (purchase_id, purchase['productcode'], purchase['quantity'],purchase['price'] ,purchase['discount'], purchase['paid'],)
                 )
-                purchase_id = self.cursor.lastrowid
-                
-                
-                total_price = 0
-                total_quantity = 0
-                for purchase in buy:
-                    self.cursor.execute(
-                        '''
-                        INSERT INTO Cus_PurchaseItems (
-                                purchase_id,
-                                product_id,
-                                quantity,
-                                price_per_piece,
-                                discount_per_piece,
-                                paid)
-                                VALUES (?, ?, ?, ?, ?, ?);
-                        ''', (purchase_id, purchase['productcode'], purchase['quantity'],purchase['price'] ,purchase['discount'], purchase['paid'],)
-                    )
 
-
-                    self.cursor.execute(
-                        '''
-                        UPDATE Products
-                        SET current_quantity = current_quantity - ?
-                        WHERE product_id = ? and resource_name = ?;
-                        '''
-                        , (int(purchase['quantity']), purchase['productcode'], self.supplier,)
-                    )
-                    
-                    
-                    if purchase['paid'] != 0:
-                        total_price+= (float(purchase['price'])-float(purchase['discount'])) * int(purchase['quantity'])
-                    total_quantity += int(purchase['quantity'])
 
                 self.cursor.execute(
                     '''
-                    UPDATE Cus_Purchases
-                    SET cost_money = ?
-                    WHERE purchase_id = ?;
-                    ''', (total_price, purchase_id, )
+                    UPDATE Products
+                    SET current_quantity = current_quantity - ?
+                    WHERE product_id = ? and resource_name = ?;
+                    '''
+                    , (int(purchase['quantity']), purchase['productcode'], self.supplier,)
                 )
                 
-                self.cursor.execute(
-                    f'''
-                    UPDATE Customers
-                    SET {'Golden_Rose_amount_money' if self.supplier == 'golden rose' else 'Snow_White_amount_money'} = {'Golden_Rose_amount_money' if self.supplier == 'golden rose' else 'Snow_White_amount_money'} + ?, {'Golden_Rose_current_quantity' if self.supplier == 'golden rose' else 'Snow_White_current_quantity'} = {'Golden_Rose_current_quantity' if self.supplier == 'golden rose' else 'Snow_White_current_quantity'} + ?
-                    WHERE customer_id = ?;
-                    ''', (total_price,total_quantity, buy[0]['cusname'], )
-                )
-                self.set_products_notification(buy) # [{product_id : quantity, product_id : quantity}, {product_id : quantity, product_id : quantity}]
-                self.set_cutomer_limit_notification(buy)
+                
+                if purchase['paid'] != 0:
+                    total_price+= (float(purchase['price'])-float(purchase['discount'])) * int(purchase['quantity'])
+                total_quantity += int(purchase['quantity'])
+
+            self.cursor.execute(
+                '''
+                UPDATE Cus_Purchases
+                SET cost_money = ?
+                WHERE purchase_id = ?;
+                ''', (total_price, purchase_id, )
+            )
+            
+            self.cursor.execute(
+                f'''
+                UPDATE Customers
+                SET {'Golden_Rose_amount_money' if self.supplier == 'golden rose' else 'Snow_White_amount_money'} = {'Golden_Rose_amount_money' if self.supplier == 'golden rose' else 'Snow_White_amount_money'} + ?, {'Golden_Rose_current_quantity' if self.supplier == 'golden rose' else 'Snow_White_current_quantity'} = {'Golden_Rose_current_quantity' if self.supplier == 'golden rose' else 'Snow_White_current_quantity'} + ?
+                WHERE customer_id = ?;
+                ''', (total_price,total_quantity, buy[0]['cusname'], )
+            )
+            self.set_products_notification(buy) # [{product_id : quantity, product_id : quantity}, {product_id : quantity, product_id : quantity}]
+            self.set_cutomer_limit_notification(buy)
             
                 
                 
@@ -206,9 +205,6 @@ class BuyModel:
 
             self.conn.commit()
             return True
-        except Exception as e:
-            print(f"there is an error in insert_buys_to_db: {e}")
-            return False
 
 
 
@@ -238,10 +234,16 @@ class BuyModel:
         else:
             cus_amount_money = self.cursor.execute('select Snow_White_amount_money from Customers where customer_id = ?;',(cutomer_id,)).fetchone()[0]
 
-
         if cus_amount_money //50000 >=1:
             if self.supplier == 'golden rose':
-                message, seen = self.cursor.execute('select message, seen from Notifications where type = ? AND entity_id = ?;', ("golden_cus_overdue",cutomer_id,)).fetchone()
+                # الحل هنا: تخزين النتيجة في متغير مؤقت والتحقق منه
+                result = self.cursor.execute('select message, seen from Notifications where type = ? AND entity_id = ?;', ("golden_cus_overdue",cutomer_id,)).fetchone()
+                if result is None: # لو مفيش نتيجة، يعني result هتكون None
+                    message = None # تعيين قيم ابتدائية عشان الكود اللي جاي ميضربش
+                    seen = 1 # افترض إنها 'شوهدت' أو عاملها كإنها مش موجودة عشان تدخل الـ if الأولى
+                else: # لو فيه نتيجة، فكها عادي
+                    message, seen = result
+
                 if message is None or seen == 1:
                     message = f"ديون المكتب {self.get_cus_name_by_id(cutomer_id)} ل {self.supplier} تجاوزت المبلغ : {cus_amount_money} جنيه"
                     self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", ("golden_cus_overdue", 0, cutomer_id, message))
@@ -249,10 +251,17 @@ class BuyModel:
                     if seen == 0:
                         last_noti_amount = float(message.split(' ')[-2])
                         if last_noti_amount//50000 != cus_amount_money//50000:
-                            message = f"ديون المكتب {self.get_cus_name_by_id(cutomer_id)} ل {self.supplier} تجاوزت المبلغ : {cus_amount_money} جنيه" 
+                            message = f"ديون المكتب {self.get_cus_name_by_id(cutomer_id)} ل {self.supplier} تجاوزت المبلغ : {cus_amount_money} جنيه"
                             self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", ("golden_cus_overdue", 0, cutomer_id, message))
-            else:
-                message, seen = self.cursor.execute('select message, seen from Notifications where type = ? AND entity_id = ?;', ("snow_cus_overdue",cutomer_id,)).fetchone()
+            else: # ده الجزء اللي كان فيه الخطأ
+                # الحل هنا: تخزين النتيجة في متغير مؤقت والتحقق منه
+                result = self.cursor.execute('select message, seen from Notifications where type = ? AND entity_id = ?;', ("snow_cus_overdue",cutomer_id,)).fetchone()
+                if result is None: # لو مفيش نتيجة، يعني result هتكون None
+                    message = None # تعيين قيم ابتدائية عشان الكود اللي جاي ميضربش
+                    seen = 1 # افترض إنها 'شوهدت' أو عاملها كإنها مش موجودة عشان تدخل الـ if الأولى
+                else: # لو فيه نتيجة، فكها عادي
+                    message, seen = result
+
                 if message is None or seen == 1:
                     message = f"ديون المكتب {self.get_cus_name_by_id(cutomer_id)} ل {self.supplier} تجاوزت المبلغ : {cus_amount_money} جنيه"
                     self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", ("snow_cus_overdue", 0, cutomer_id, message))
@@ -260,9 +269,8 @@ class BuyModel:
                     if seen == 0:
                         last_noti_amount = float(message.split(' ')[-2])
                         if last_noti_amount//50000 != cus_amount_money//50000:
-                            message = f"ديون المكتب {self.get_cus_name_by_id(cutomer_id)} ل {self.supplier} تجاوزت المبلغ : {cus_amount_money} جنيه" 
-                            self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", ("snow_cus_overdue", 0, cutomer_id, message))
-                        
+                            message = f"ديون المكتب {self.get_cus_name_by_id(cutomer_id)} ل {self.supplier} تجاوزت المبلغ : {cus_amount_money} جنيه"
+                            self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", ("snow_cus_overdue", 0, cutomer_id, message))                  
 
     def get_cus_name_by_id(self, id):
         self.cursor.execute("SELECT name FROM Customers WHERE customer_id = ?", (id,))

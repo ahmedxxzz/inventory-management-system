@@ -1,6 +1,6 @@
 import sqlite3
 
-class ReportModel:
+class AccountReportModel:
     def __init__(self, customer_id, supplier):
         self.conn = sqlite3.connect('IMS.db')
         self.cursor = self.conn.cursor()

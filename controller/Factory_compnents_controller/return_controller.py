@@ -1,6 +1,6 @@
 from view.Factory_compnents_view.returns_view import ReturnView
 from model.Factory_compnents_model.returns_model import ReturnModel
-from controller.Factory_compnents_controller.report_controller import ReportController 
+from controller.Factory_compnents_controller.account_report_controller import AccountReportController 
 
 
 class ReturnController:

@@ -1,6 +1,6 @@
 from view.Customer_compnents_view.buy_view import BuyView
 from model.Customer_compnents_model.buy_model import BuyModel
-from controller.Customer_compnents_controller.report_controller import ReportController
+from controller.Customer_compnents_controller.buy_report_contorller import BuyReportController
 
 class BuyController:
     def __init__(self, root, supplier):
@@ -32,20 +32,19 @@ class BuyController:
             self.view.message("عملية فاشلة", "لا توجد عمليات لحفظها")
             return
 
-
-        if self.model.insert_buys_to_db(self.view.temp_operations):
+        if self.model.insert_buys_to_db([row.copy() for row in self.view.temp_operations]):
 
             for btn in self.view.temp_operations_buttons:
                 btn.destroy()
                 btn = None
+            self.view.message("عملية ناجحة", "تم حفظ الفاتورة بنجاح")
+            if self.view.message('طباعة','هل تريد طباعة الفاتورة','yes_no'):
+                BuyReportController(self.supplier, [row.copy() for row in self.view.temp_operations])
             self.view.temp_operations_buttons = []
             self.view.temp_operations = []
             self.view.temp_operations_frame.configure(border_width=0, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
             self.view.populate_treeview(self.model.get_buys_from_db())
 
-            self.view.message("عملية ناجحة", "تم حفظ الفاتورة بنجاح")
-            if self.view.message('طباعة','هل تريد طباعة الفاتورة','yes_no'):
-                ReportController(self.view.temp_operations, 'buy')
         else:
             self.view.message("عملية فاشلة", "لم يتم حفظ الفاتورة")
 
@@ -57,7 +56,8 @@ class BuyController:
                         'productcode': self.view.product_code.get(),
                         'quantity': self.view.quantity.get(),
                         'discount': self.view.discount.get(),
-                        'paid': self.view.checkbox_var.get()
+                        'paid': self.view.checkbox_var.get(),
+                        'cus_money_before': self.model.get_cus_money_by_id(self.model.get_cus_id_from_name(self.view.cus_name.get())),
             }
             self.view.temp_operations.append(data)
 

@@ -1,6 +1,6 @@
 from view.Factory_compnents_view.buy_view import BuyView
 from model.Factory_compnents_model.buy_model import BuyModel
-from controller.Factory_compnents_controller.report_controller import ReportController
+from controller.Factory_compnents_controller.account_report_controller import AccountReportController
 
 
 class BuyController:

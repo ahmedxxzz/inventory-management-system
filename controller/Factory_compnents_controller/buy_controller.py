@@ -45,7 +45,7 @@ class BuyController:
             
             self.view.message("عملية ناجحة", "تم حفظ الفاتورة بنجاح")
             if self.view.message('طباعة','هل تريد طباعة الفاتورة','yes_no'):
-                ReportController(self.view.temp_operations, 'buy')
+                ReportController(self.view.temp_operations)
         else:
             self.view.message("عملية فاشلة", "لم يتم حفظ الفاتورة")
 

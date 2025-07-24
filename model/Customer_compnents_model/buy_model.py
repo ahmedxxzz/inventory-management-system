@@ -96,8 +96,11 @@ class BuyModel:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         for buy in buys:
             buy['cusname'] = self.get_cus_id_from_name(buy['cusname'])
+            print(f"buy['productcode'] :{buy['productcode'] }")
             buy['productcode'] = self.get_product_id_from_code(buy['productcode'])
+            print(f"buy['productcode'] :{buy['productcode'] }")
             buy['price'] = self.get_product_price_from_id(buy['productcode']) # price befor the discount
+            print(f"buy['price'] :{buy['price'] }")
 
         buys.sort(key=lambda x: x['cusname'])
         
@@ -217,7 +220,7 @@ class BuyModel:
             if product_quantity <= 12:
                 noti_type = "golden_product" if self.supplier== 'golden rose' else 'snow_product'
                 self.cursor.execute('select message from Notifications where type = ? AND entity_id = ?;', (noti_type,product_id,))
-                message  = self.cursor.fetchone()[0]
+                message  = self.cursor.fetchone()
                 if message is None:
                     message = f"الكمية المتوفرة من المنتج : {pro_type} = {product_quantity} قطعة"
                     self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", (noti_type, 0, product_id, message))

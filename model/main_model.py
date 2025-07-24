@@ -230,7 +230,7 @@ class MainModel:
                 notification_type = 'snow_cus_unpaid'
             
             self.cursor.execute("Select message FROM Notifications Where type = ? AND entity_id = ?", (notification_type, customer['customer_id'],)) # check if the notification already exists
-            message = self.cursor.fetchone()[0]
+            message = self.cursor.fetchone()
             if message is None:
                 message = f"المكتب {self.get_cus_name_by_id(customer['customer_id'])} لم يدفع  ل {customer['resource_name']} لمدة {customer['difference']//7} اسبوع"
                 self.cursor.execute("INSERT INTO Notifications (type, seen, entity_id, message) VALUES (?, ?, ?, ?)", (notification_type, 0, customer['customer_id'], message))
@@ -274,7 +274,7 @@ class MainModel:
         for fac in facs_no_work:
 
             self.cursor.execute("Select message FROM Notifications Where type = 'factory_no_work' AND entity_id = ?", ( fac['factory_id'],)) # check if the notification already exists
-            message = self.cursor.fetchone()[0]
+            message = self.cursor.fetchone()
             if message is None:
                 message = f"المصنع {self.get_factory_name_byid(fac['factory_id'])} لم يعمل لمدة {fac['difference']//7} اسبوع"
                 

@@ -43,7 +43,7 @@ class CustomerAccountDetailsController:
 
     def report(self):
         from controller.Customer_compnents_controller.report_controller import ReportController
-        customer_accounts = ReportController( self.customer_name)
+        ReportController(self.model.get_cus_id_by_name(self.customer_name), self.supplier)
 
 
     def tree_double_click(self, event):

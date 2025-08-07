@@ -1,6 +1,8 @@
 from view.Customer_compnents_view.pay_view import PayView
 from model.Customer_compnents_model.pay_model import PayModel
-from controller.Customer_compnents_controller.account_report_controller import AccountReportController
+# from controller.Customer_compnents_controller.account_report_controller import AccountReportController
+from datetime import datetime
+
 
 class PayController:
     def __init__(self, root, supplier):
@@ -27,10 +29,12 @@ class PayController:
     def save_pay(self):
 
         if self.check_inputs():
-            if self.model.save_pay_to_db(self.view.cus_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()):
+            current_time = datetime.now().strftime("%H:%M:%S")
+            date = f"{self.view.year_var.get()}-{self.view.month_var.get().zfill(2)}-{self.view.day_var.get().zfill(2)} {current_time}"
+            if self.model.save_pay_to_db(self.view.cus_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip(), date):
                 self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الدفع بنجاح')
-                if self.view.message('yes_no', 'فاتورة', 'هل تريد طباعة الفاتورة ؟'):
-                    AccountReportController([self.view.cus_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()], 'pay')
+                # if self.view.message('yes_no', 'فاتورة', 'هل تريد طباعة الفاتورة ؟'):
+                #     AccountReportController([self.view.cus_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()], 'pay')
                 self.view.clear_inputs()
                 self.view.populate_treeview(self.model.get_pays_from_db())
 
@@ -38,6 +42,9 @@ class PayController:
     def check_inputs(self):
         if self.view.cus_name.get().strip() == '' or self.view.money_amount.get().strip() == '':
             self.view.message('showinfo', ' خطأ', 'يرجى عدم ترك الحقول فارغة')
+            return False
+        if self.view.safe_type.get().strip() == 'اختار نوع الخزنة':
+            self.view.message('showinfo', ' خطاء', 'يرجى اختيار نوع الخزنة')
             return False
         
         if float(self.view.money_amount.get()) <= 0.0:

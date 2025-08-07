@@ -40,7 +40,7 @@ class ReturnModel:
         product_id = self.cursor.execute("SELECT product_id FROM Products WHERE type = ?", (data[1],)).fetchone()[0]
 
         price_per_piece = self.cursor.execute("SELECT fac_price_per_piece FROM Products WHERE type = ?", (data[1],)).fetchone()[0]
-        self.cursor.execute('''INSERT INTO Fac_Returned_Items (date, product_id, quantity, reason, price_per_piece,  factory_id)  VALUES (?, ?, ?, ?, ?, ?);''', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), product_id, int(data[2]), data[3],  price_per_piece, factory_id))
+        self.cursor.execute('''INSERT INTO Fac_Returned_Items (date, product_id, quantity, reason, price_per_piece,  factory_id)  VALUES (?, ?, ?, ?, ?, ?);''', (data[-1], product_id, int(data[2]), data[3],  price_per_piece, factory_id))
         self.cursor.execute("UPDATE Products SET current_quantity = current_quantity - ? WHERE product_id = ?", (int(data[2]), product_id))
         self.cursor.execute("UPDATE Factories SET amount_money = amount_money - ? ,current_quantity = current_quantity - ? WHERE factory_id = ?", (float(price_per_piece) * int(data[2]), int(data[2]), factory_id))
         
@@ -50,8 +50,6 @@ class ReturnModel:
 
 
     def get_returns_from_db(self):
-        
-        
         ''' 
         returned data = [ (facname, time, productcode,  quantity, reason), ()]
         '''

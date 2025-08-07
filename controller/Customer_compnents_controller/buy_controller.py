@@ -1,6 +1,8 @@
 from view.Customer_compnents_view.buy_view import BuyView
 from model.Customer_compnents_model.buy_model import BuyModel
 from controller.Customer_compnents_controller.buy_report_contorller import BuyReportController
+from datetime import datetime
+
 
 class BuyController:
     def __init__(self, root, supplier):
@@ -51,6 +53,8 @@ class BuyController:
 
     def cache_buy(self):
         if self.view.check_inputs_before_caching(customers_names = self.model.get_customer_names_and_money(),products_codes = self.model.get_products_codes()): # validation input 
+            current_time = datetime.now().strftime("%H:%M:%S")
+            
             data = {
                         'cusname': self.view.cus_name.get(),
                         'productcode': self.view.product_code.get(),
@@ -58,6 +62,7 @@ class BuyController:
                         'discount': self.view.discount.get(),
                         'paid': self.view.checkbox_var.get(),
                         'cus_money_before': self.model.get_cus_money_by_id(self.model.get_cus_id_from_name(self.view.cus_name.get())),
+                        'date': f"{self.view.year_var.get()}-{self.view.month_var.get().zfill(2)}-{self.view.day_var.get().zfill(2)} {current_time}"
             }
             self.view.temp_operations.append(data)
 

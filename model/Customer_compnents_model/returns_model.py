@@ -1,5 +1,4 @@
 import sqlite3
-from datetime import datetime
 
 class ReturnModel:
     def __init__(self, supplier):
@@ -50,7 +49,7 @@ class ReturnModel:
                                                                 ORDER BY
                                                                     CP.purchase_date DESC, CP.purchase_id DESC -- Order by date and then purchase_id for consistent "last"
                                                                 LIMIT 1;""", (customer_id,product_id )).fetchone()[0]
-        self.cursor.execute('''INSERT INTO Cus_Returned_Items (date, product_id, quantity, reason, price_per_piece,  customer_id, resource_name)  VALUES (?, ?, ?, ?, ?, ?, ?);''', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), product_id, int(data[2]), data[3],  price_per_piece_after_discount, customer_id, self.supplier))
+        self.cursor.execute('''INSERT INTO Cus_Returned_Items (date, product_id, quantity, reason, price_per_piece,  customer_id, resource_name)  VALUES (?, ?, ?, ?, ?, ?, ?);''', (data[-1], product_id, int(data[2]), data[3],  price_per_piece_after_discount, customer_id, self.supplier))
         self.cursor.execute("UPDATE Products SET current_quantity = current_quantity + ? WHERE product_id = ?", (int(data[2]), product_id))
         if self.supplier == 'golden rose':
             self.cursor.execute("UPDATE Customers SET Golden_Rose_amount_money = Golden_Rose_amount_money - ? ,Golden_Rose_current_quantity = Golden_Rose_current_quantity - ? WHERE customer_id = ?", (float(price_per_piece_after_discount) * int(data[2]), int(data[2]), customer_id))

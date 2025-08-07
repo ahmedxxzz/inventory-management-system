@@ -1,6 +1,4 @@
 import sqlite3
-from sqlite3 import Error
-from datetime import datetime
 
 class PayModel:
     def __init__(self, supplier):
@@ -64,14 +62,14 @@ class PayModel:
         return self.cursor.fetchone()[0]
 
 
-    def save_pay_to_db(self, customer_name, amount_money, safe_type):
+    def save_pay_to_db(self, customer_name, amount_money, safe_type, date):
         try :
             safe_id, safe_money_before = self.cursor.execute("SELECT safe_id, amount_money FROM Safe WHERE type = ?", (safe_type,)).fetchone()
             if self.supplier == 'golden rose':
                 cus_id , cus_money_before = self.cursor.execute("SELECT customer_id, Golden_Rose_amount_money FROM Customers WHERE name = ?", (customer_name,)).fetchone()
             else:
                 cus_id , cus_money_before = self.cursor.execute("SELECT customer_id, Snow_White_amount_money FROM Customers WHERE name = ?", (customer_name,)).fetchone()
-            date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            date = date
 
             self.cursor.execute("INSERT INTO Cus_Pays (customer_id, customer_money_before, customer_money_after, date, amount_money, safe_id, resource_name, safe_money_before) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (cus_id, cus_money_before, float(cus_money_before) - float(amount_money) , date, amount_money, safe_id, self.supplier, safe_money_before))        
             if self.supplier == 'golden rose':

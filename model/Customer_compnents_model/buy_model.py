@@ -1,6 +1,4 @@
 import sqlite3
-from sqlite3 import Error
-from datetime import datetime
 
 
 class BuyModel:
@@ -85,15 +83,7 @@ class BuyModel:
 
 
     def insert_buys_to_db(self, buys):
-        '''
-        buys = [
-            {'cusname' : cusname, 'productcode' : productcode, 'quantity' : quantity, 'discount' : discount, 'paid' : yes(1) or not(0)},
-            {'cusname' : cusname, 'productcode' : productcode, 'quantity' : quantity, 'discount' : discount, 'paid' : yes(1) or not(0)},
-        ]
-        '''
         
-        
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         for buy in buys:
             buy['cusname'] = self.get_cus_id_from_name(buy['cusname'])
             print(f"buy['productcode'] :{buy['productcode'] }")
@@ -144,7 +134,7 @@ class BuyModel:
                     )
                     VALUES (?, ?, ?, ?, ?);
                 ''',
-                (buy[0]['cusname'], date, self.get_cus_money_by_id(buy[0]['cusname']), total_discounts[buys.index(buy)], self.supplier,)
+                (buy[0]['cusname'], buy[0]['date'], self.get_cus_money_by_id(buy[0]['cusname']), total_discounts[buys.index(buy)], self.supplier,)
             )
             purchase_id = self.cursor.lastrowid
             

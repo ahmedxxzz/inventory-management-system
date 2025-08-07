@@ -28,7 +28,8 @@ class BuyReportController:
         #                 'productcode': self.view.product_code.get(),
         #                 'quantity': self.view.quantity.get(),
         #                 'discount': self.view.discount.get(),
-        #                 'paid': self.view.checkbox_var.get()
+        #                 'paid': self.view.checkbox_var.get()و
+        #                 'date': 
         #     }, ]
         self.buys_operations = buys_operations
         self.supplier = supplier
@@ -42,11 +43,9 @@ class BuyReportController:
         # for row in self.buys_operations:
         #     self.run(cus_name= self.buys_operations["cus_name"], purchase_id= purchase_id, purchase_date = purchase_date,  total_discount = total_discount, old_account= old_account,data = preprocessed_data)
         # preprocessed data = [ total price = quantity * price_per_piece , price_per_piece, quantity, product_type ]
-        date = datetime.now().strftime("%Y-%m-%d")
         print(f"self.buys_operations = {self.buys_operations}")
         for index, all_data in enumerate(all_processed_data):
-            print("self.buys_operations[index][0]", self.buys_operations[index][0])
-            self.run(cus_name= self.buys_operations[index][0]["cusname"],  purchase_date = date,  total_discount = all_data[0], old_account= self.buys_operations[index][0]["cus_money_before"],data = all_data[1])
+            self.run(cus_name= self.buys_operations[index][0]["cusname"],  purchase_date = self.buys_operations[index][0]["date"],  total_discount = all_data[0], old_account= self.buys_operations[index][0]["cus_money_before"],data = all_data[1])
 
 
     def _handle_bold_font_fallback(self, original_bold_name):

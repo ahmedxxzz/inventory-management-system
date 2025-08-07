@@ -52,11 +52,11 @@ class PayModel:
         return self.cursor.fetchone()[0]
 
 
-    def save_pay_to_db(self, factory_name, amount_money, safe_type):
+    def save_pay_to_db(self, factory_name, amount_money, safe_type, date):
         try :
             safe_id = self.cursor.execute("SELECT safe_id FROM Safe WHERE type = ?", (safe_type,)).fetchone()[0]
             fac_id , fac_money_before = self.cursor.execute("SELECT factory_id, amount_money FROM Factories WHERE name = ?", (factory_name,)).fetchone()
-            date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            date = date
             
             self.cursor.execute("INSERT INTO Fac_Pays (factory_id, fac_money_before, date, amount_money, safe_id) VALUES (?, ?, ?, ?, ?)", (fac_id, fac_money_before, date, amount_money, safe_id))        
 

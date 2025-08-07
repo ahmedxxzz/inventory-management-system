@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import StringVar, ttk , messagebox
-
+from datetime import datetime
 
 class BuyView(ctk.CTkFrame):
     def __init__(self, root):
@@ -20,52 +20,90 @@ class BuyView(ctk.CTkFrame):
         self.discount = StringVar()
         self.checkbox_var = StringVar(value="0")
 
+        self.year_var = StringVar()
+        self.month_var = StringVar()
+        self.day_var = StringVar()
 
         
         self.create_upper_frame()
         self.create_bottom_frame()
-
 
     def create_upper_frame(self):
         
         upper_frame = ctk.CTkFrame(self, corner_radius=5,border_width=5,border_color='yellow')
         upper_frame.pack(side='top', padx=10, fill='x')
 
-        
         entry_frame = ctk.CTkFrame(upper_frame, border_width=2)
         entry_frame.pack(side='left', padx=10,pady=10,)
         
-         
-        inputs_lbls_frame = ctk.CTkFrame(entry_frame)
-        inputs_lbls_frame.pack(side='left', fill='y')
-        lbls_names = ['اسم المكتب', 'كود القطعة', 'عدد القطع', 'الخصم', 'تم الدفع']
-        
-        for lbl in lbls_names:
-            lbl = ctk.CTkLabel(inputs_lbls_frame, text=lbl, font=("Arial", 14, "bold"), text_color='white',width=200, height=40)
-            lbl.pack(side='top', padx=10, pady=10)
-        
-        
-        inputs_entries_frame = ctk.CTkFrame(entry_frame)
-        inputs_entries_frame.pack(side='right', fill='y')
-        
-        
+        # --- CONVERTED TO GRID ---
+        # Configure the grid layout for the entry_frame
+        entry_frame.grid_columnconfigure(0, weight=1) # Column for labels
+        entry_frame.grid_columnconfigure(1, weight=1) # Column for entries
+
+        # --- Labels and Entries placed on the grid ---
+        # The list for labels now excludes 'تم الدفع' which is handled separately
+        lbls_names = ['اسم المكتب', 'كود القطعة', 'عدد القطع', 'الخصم']
         entry_variables = [self.cus_name, self.product_code, self.quantity, self.discount]
-        for var in entry_variables:
-            cus_entry = ctk.CTkEntry(inputs_entries_frame, textvariable=var, font=("Arial", 18, "bold"),width=200, height=40, justify='right' if var ==self.cus_name else 'left', )
-            cus_entry.pack(side='top', padx=10, pady=10)
-            self.Entries.append(cus_entry)
+
+        for i, (text, var) in enumerate(zip(lbls_names, entry_variables)):
+            # Create and place label in column 0
+            lbl = ctk.CTkLabel(entry_frame, text=text, font=("Arial", 14, "bold"), text_color='white', width=200, height=40)
+            lbl.grid(row=i, column=0, padx=10, pady=10, sticky="w")
+
+            # Create and place entry in column 1
+            entry = ctk.CTkEntry(entry_frame, textvariable=var, font=("Arial", 18, "bold"), width=200, height=40, justify='right' if var == self.cus_name else 'left')
+            entry.grid(row=i, column=1, padx=10, pady=10, sticky="ew")
             
-            if var != self.cus_name and var != self.product_code :
-                cus_entry.configure(validate="key", validatecommand = (cus_entry.register(self.validate_Entry), '%P', 'float' if var !=self.quantity else 'integer'))
-                
-        self.save_buys_button = ctk.CTkButton(inputs_lbls_frame, text='حفظ الفاتورة', font=("Arial", 18, "bold"),width=200, height=40,)
-        self.save_buys_button.pack(side='top', padx=10, pady=10)
+            self.Entries.append(entry)
+            if var != self.cus_name and var != self.product_code:
+                entry.configure(validate="key", validatecommand=(entry.register(self.validate_Entry), '%P', 'float' if var != self.quantity else 'integer'))
+
+        # --- NEW ROW FOR DATE SELECTION (under الخصم) ---
+        # 1. Add the Date Label in the next row (row=4)
+        date_label = ctk.CTkLabel(entry_frame, text="التاريخ", font=("Arial", 14, "bold"), text_color='white', width=200, height=40)
+        date_label.grid(row=4, column=0, padx=10, pady=10, sticky="w")
         
-        self.checkbox= ctk.CTkCheckBox( inputs_entries_frame, text='',  variable=self.checkbox_var, onvalue="1", offvalue="0" )
-        self.checkbox.pack(side='top', padx=10, pady=17)
-        self.cache_buy_button = ctk.CTkButton(inputs_entries_frame, text='اضافة الى الفاتورة', font=("Arial", 18, "bold"),width=200, height=40,)
-        self.cache_buy_button.pack(side='top', padx=10, pady=10)
+        # 2. Create a frame to hold the 3 option menus in a single grid cell
+        date_options_frame = ctk.CTkFrame(entry_frame, fg_color="transparent")
+        date_options_frame.grid(row=4, column=1, padx=10, pady=10, sticky="ew")
+
+        # 3. Create the Year, Month, and Day Option Menus
+        current_date = datetime.now()
+        years = [str(y) for y in range(current_date.year - 5, current_date.year + 2)]
+        months = [f"{m:02d}" for m in range(1, 13)] # Formatted with leading zero
+        days = [f"{d:02d}" for d in range(1, 32)]   # Formatted with leading zero
         
+        # Using local variables as requested (not changing self)
+        self.year_var.set(str(current_date.year))
+        self.month_var.set(f"{current_date.month:02d}")
+        self.day_var.set(f"{current_date.day:02d}")
+
+        # Pack menus inside their container frame (right-to-left for Arabic UI)
+        day_menu = ctk.CTkOptionMenu(date_options_frame, values=days, variable=self.day_var, width=60, height=40, font=("Arial", 14))
+        day_menu.pack(side='right', padx=(2,0), fill='x', expand=True)
+
+        month_menu = ctk.CTkOptionMenu(date_options_frame, values=months, variable=self.month_var, width=60, height=40, font=("Arial", 14))
+        month_menu.pack(side='right', padx=2, fill='x', expand=True)
+        
+        year_menu = ctk.CTkOptionMenu(date_options_frame, values=years, variable=self.year_var, width=80, height=40, font=("Arial", 14))
+        year_menu.pack(side='right', padx=(0,2), fill='x', expand=True)
+        # --- END OF NEW ROW ---
+
+        # --- Row for 'تم الدفع' and Checkbox ---
+        paid_label = ctk.CTkLabel(entry_frame, text='تم الدفع', font=("Arial", 14, "bold"), text_color='white', width=200, height=40)
+        paid_label.grid(row=5, column=0, padx=10, pady=10, sticky="w")
+        
+        self.checkbox= ctk.CTkCheckBox(entry_frame, text='', variable=self.checkbox_var, onvalue="1", offvalue="0")
+        self.checkbox.grid(row=5, column=1, padx=10, pady=10)
+        
+        # --- Row for the Buttons ---
+        self.save_buys_button = ctk.CTkButton(entry_frame, text='حفظ الفاتورة', font=("Arial", 18, "bold"), width=200, height=40)
+        self.save_buys_button.grid(row=6, column=0, padx=10, pady=10)
+
+        self.cache_buy_button = ctk.CTkButton(entry_frame, text='اضافة الى الفاتورة', font=("Arial", 18, "bold"), width=200, height=40)
+        self.cache_buy_button.grid(row=6, column=1, padx=10, pady=10)
+
         ###### Recommendation frame
         self.recommended_frame = ctk.CTkScrollableFrame(upper_frame, width=200,height=300 ,corner_radius=5, border_width=0, fg_color='transparent',scrollbar_button_color='#2b2b2b', scrollbar_button_hover_color='#2b2b2b', scrollbar_fg_color='#2b2b2b')
         self.recommended_frame.pack(side='left', padx=10,pady=30)
@@ -73,6 +111,9 @@ class BuyView(ctk.CTkFrame):
         ##### Temp Operations Frame
         self.temp_operations_frame = ctk.CTkScrollableFrame(upper_frame, width=170,height=400 ,corner_radius=5, border_width=0, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
         self.temp_operations_frame.pack(side='right', padx=10,pady=30)
+        # ==============================================================================
+        # >>>>>>>> MODIFIED FUNCTION ENDS HERE <<<<<<<<
+        # ==============================================================================
 
 
     def create_bottom_frame(self):

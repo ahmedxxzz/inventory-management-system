@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from tkinter import StringVar, ttk , messagebox
+from datetime import datetime
 
 class PayView(ctk.CTkFrame):
     def __init__(self, root):
@@ -7,9 +8,11 @@ class PayView(ctk.CTkFrame):
         self.pack(fill='both', padx=10,expand=True)
         self.cus_name = StringVar()
         self.safe_type = StringVar()
-        self.safe_type.set('cash')
+        self.safe_type.set('اختار نوع الخزنة')
         self.money_amount = StringVar()
-        
+        self.day_var = StringVar()
+        self.month_var = StringVar()
+        self.year_var = StringVar()
         self.recommendation_frames = []
         self.recommendations = []
         
@@ -17,7 +20,6 @@ class PayView(ctk.CTkFrame):
         
         self.create_upper_frame()
         self.create_bottom_frame()
-
 
     def create_upper_frame(self):
         upper_frame = ctk.CTkFrame(self, corner_radius=5,border_width=5,border_color='yellow',height=450)
@@ -32,29 +34,64 @@ class PayView(ctk.CTkFrame):
         upper_input_frame = ctk.CTkFrame(inputs_frame, border_width=2)
         upper_input_frame.pack(side='top', padx=10,pady=10,)
         
-        inputs_lbls_frame = ctk.CTkFrame(upper_input_frame,  fg_color='#333333')
-        inputs_lbls_frame.pack(side='left', fill='y')
-        lbls_names = ['اسم المكتب', 'نوع الخزنة', 'مبلغ الدفع']
+        # --- CONVERTED TO GRID ---
+        # Configure the grid layout for the upper_input_frame
+        upper_input_frame.grid_columnconfigure(0, weight=1) # Column for labels
+        upper_input_frame.grid_columnconfigure(1, weight=2) # Column for entries
 
-        for lbl in lbls_names:
-            lbl = ctk.CTkLabel(inputs_lbls_frame, text=lbl, font=("Arial", 14, "bold"), text_color='white',width=200, height=40)
-            lbl.pack(side='top', padx=10, pady=10)
+        # --- Row 0: Customer Name ---
+        lbl_cus_name = ctk.CTkLabel(upper_input_frame, text='اسم المكتب', font=("Arial", 14, "bold"), text_color='white',width=200, height=40)
+        lbl_cus_name.grid(row=0, column=0, padx=10, pady=10, sticky="w")
         
-        inputs_entries_frame = ctk.CTkFrame(upper_input_frame, fg_color='#333333')
-        inputs_entries_frame.pack(side='right', fill='y')
+        self.cus_name_entry = ctk.CTkEntry(upper_input_frame, textvariable=self.cus_name, font=("Arial", 18, "bold"),width=200, height=40, justify='right')
+        self.cus_name_entry.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+
+        # --- Row 1: Safe Type ---
+        lbl_safe_type = ctk.CTkLabel(upper_input_frame, text='نوع الخزنة', font=("Arial", 14, "bold"), text_color='white',width=200, height=40)
+        lbl_safe_type.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+
+        self.option_menu = ctk.CTkOptionMenu(upper_input_frame, variable=self.safe_type, font=("Arial", 18, "bold"),width=200, height=40, state='readonly')
+        self.option_menu.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
+
+        # --- Row 2: Payment Amount ---
+        lbl_money_amount = ctk.CTkLabel(upper_input_frame, text='مبلغ الدفع', font=("Arial", 14, "bold"), text_color='white',width=200, height=40)
+        lbl_money_amount.grid(row=2, column=0, padx=10, pady=10, sticky="w")
         
-        entry_variables = [self.cus_name, self.money_amount]
-        for var in entry_variables:
-            cus_entry = ctk.CTkEntry(inputs_entries_frame, textvariable=var, font=("Arial", 18, "bold"),width=200, height=40, justify='right' if var ==self.cus_name else 'left', )
-            cus_entry.pack(side='top', padx=10, pady=10)
-            if var == self.cus_name:
-                self.cus_name_entry = cus_entry
-                self.option_menu = ctk.CTkOptionMenu(inputs_entries_frame,variable=self.safe_type , font=("Arial", 18, "bold"),width=200, height=40, state='readonly')
-                self.option_menu.pack(side='top', padx=10, pady=10)
-            
-            if var == self.money_amount:
-                cus_entry.configure(validate="key", validatecommand = (cus_entry.register(self.validate_Entry), '%P', 'float'))
+        money_amount_entry = ctk.CTkEntry(upper_input_frame, textvariable=self.money_amount, font=("Arial", 18, "bold"),width=200, height=40, justify='left')
+        money_amount_entry.configure(validate="key", validatecommand = (money_amount_entry.register(self.validate_Entry), '%P', 'float'))
+        money_amount_entry.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
         
+        # --- NEW ROW FOR DATE SELECTION (under مبلغ الدفع) ---
+        # 1. Add the Date Label in the next row (row=3)
+        date_label = ctk.CTkLabel(upper_input_frame, text="التاريخ", font=("Arial", 14, "bold"), text_color='white', width=200, height=40)
+        date_label.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+        
+        # 2. Create a frame to hold the 3 option menus in a single grid cell
+        date_options_frame = ctk.CTkFrame(upper_input_frame, fg_color="transparent")
+        date_options_frame.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
+
+        # 3. Create the Year, Month, and Day Option Menus
+        current_date = datetime.now()
+        years = [str(y) for y in range(current_date.year, current_date.year - 10, -1)]
+        months = [f"{m:02d}" for m in range(1, 13)]
+        days = [f"{d:02d}" for d in range(1, 32)]
+        
+        # Using local variables as requested (not changing self)
+        self.year_var.set(str(current_date.year))
+        self.month_var.set(f"{current_date.month:02d}")
+        self.day_var.set(f"{current_date.day:02d}")
+
+        # Pack menus inside their container frame (right-to-left for Arabic UI)
+        day_menu = ctk.CTkOptionMenu(date_options_frame, values=days, variable=self.day_var, width=60, height=40, font=("Arial", 14))
+        day_menu.pack(side='right', padx=(2,0), fill='x', expand=True)
+
+        month_menu = ctk.CTkOptionMenu(date_options_frame, values=months, variable=self.month_var, width=60, height=40, font=("Arial", 14))
+        month_menu.pack(side='right', padx=2, fill='x', expand=True)
+        
+        year_menu = ctk.CTkOptionMenu(date_options_frame, values=years, variable=self.year_var, width=80, height=40, font=("Arial", 14))
+        year_menu.pack(side='right', padx=(0,2), fill='x', expand=True)
+        # --- END OF NEW ROW ---
+
         
         frame_pay_button = ctk.CTkFrame(inputs_frame, fg_color='#333333')
         frame_pay_button.pack(side='top', padx=10,pady=10,)
@@ -66,7 +103,9 @@ class PayView(ctk.CTkFrame):
         ######## recommendation frame 
         self.recommended_frame = ctk.CTkScrollableFrame(sub_upper_frame, width=200,height=250,border_width=5, border_color='#333333' ,corner_radius=5, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
         self.recommended_frame.pack(side='left', padx=10,pady=30)
-
+        # ==============================================================================
+        # >>>>>>>> MODIFIED FUNCTION ENDS HERE <<<<<<<<
+        # ==============================================================================
 
 
     def create_bottom_frame(self):
@@ -218,5 +257,5 @@ class PayView(ctk.CTkFrame):
     def clear_inputs(self):
         self.cus_name.set('')
         self.money_amount.set('')
-        self.safe_type.set('cash')
+        self.safe_type.set('اختار نوع الخزنة')
         

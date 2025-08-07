@@ -1,6 +1,4 @@
 import sqlite3
-from sqlite3 import Error
-from datetime import datetime
 
 
 class BuyModel:
@@ -73,41 +71,17 @@ class BuyModel:
     def get_fac_money_by_id(self, id):
         self.cursor.execute("SELECT amount_money FROM Factories WHERE factory_id = ?", (id,))
         return self.cursor.fetchone()[0]
-    
+
 
     def insert_buys_to_db(self, buys):
-        '''
-        buys = [
-            {
-                'facname': 'facname',
-                'productcode': 'productcode',
-                'price': 0,
-                'quantity': 0,
-                'discount': 0,
-                'supplier': 'golden rose',
-                'paid': 'paid or not',
-            },
-            {
-                'facname': 'facname',
-                'productcode': 'productcode',
-                'price': 0,
-                'quantity': 0,
-                'discount': 0,
-                'supplier': 'golden rose',
-                'paid': 'paid or not',
-            },
-        ]
-        '''
-        
-        
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         for buy in buys:
             buy['facname'] = self.get_fac_id_from_name(buy['facname'])
-            
+
             buy['productcode'] = self.get_product_id_from_code(buy['productcode'])
         buys.sort(key=lambda x: x['facname'])
-        
-        
+
+
         def group_by_factory(buys):
             fac_grouped_lists = []
             current_group = [buys[0]] 
@@ -115,7 +89,7 @@ class BuyModel:
                 if buys[i]['facname'] == current_group[0]['facname']:
                     current_group.append(buys[i])
                 else:
-                    
+
                     fac_grouped_lists.append(current_group)
                     current_group = [buys[i]]
             fac_grouped_lists.append(current_group) 
@@ -142,7 +116,7 @@ class BuyModel:
                         )
                         VALUES (?, ?, ?);
                     ''',
-                    (buy[0]['facname'], date, self.get_fac_money_by_id(buy[0]['facname']))
+                    (buy[0]['facname'], buy[0]['date'], self.get_fac_money_by_id(buy[0]['facname']))
                 )
                 purchase_id = self.cursor.lastrowid
                 

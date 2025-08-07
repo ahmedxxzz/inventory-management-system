@@ -1,6 +1,7 @@
 from view.Customer_compnents_view.returns_view import ReturnView
 from model.Customer_compnents_model.returns_model import ReturnModel
-from controller.Customer_compnents_controller.account_report_controller import AccountReportController
+# from controller.Customer_compnents_controller.account_report_controller import AccountReportController
+from datetime import datetime
 
 
 class ReturnController:
@@ -36,8 +37,9 @@ class ReturnController:
 
         '''
         
-        
-        data = [self.view.cus_name.get(),self.view.product_code.get(),self.view.quantity.get(),self.view.reason.get()]
+        current_time = datetime.now().strftime("%H:%M:%S")
+        date = f"{self.view.year_var.get()}-{self.view.month_var.get().zfill(2)}-{self.view.day_var.get().zfill(2)} {current_time}"
+        data = [self.view.cus_name.get(),self.view.product_code.get(),self.view.quantity.get(),self.view.reason.get(), date]
         for item in data:
             if item == '':
                 self.view.message('showinfo', 'عملية فاشلة', 'يرجى عدم ترك الحقول فارغة')
@@ -59,8 +61,8 @@ class ReturnController:
         
         if self.model.save_return_to_db(data):
             self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الاسترجاع بنجاح')
-            if self.view.message('yes_no', 'فاتورة', 'هل تريد طباعة الفاتورة ؟'):
-                AccountReportController(data , 'return')
+            # if self.view.message('yes_no', 'فاتورة', 'هل تريد طباعة الفاتورة ؟'):
+            #     AccountReportController(data , 'return')
             self.view.clear_inputs()
         self.view.populate_treeview(self.model.get_returns_from_db())
 

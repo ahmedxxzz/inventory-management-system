@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from tkinter import StringVar, ttk , messagebox
+from datetime import datetime
 
 class ReturnView(ctk.CTkFrame):
     def __init__(self, root):
@@ -12,7 +13,9 @@ class ReturnView(ctk.CTkFrame):
         self.product_code = StringVar()
         self.quantity = StringVar()
         self.reason = StringVar()
-        
+        self.year_var = StringVar()
+        self.month_var = StringVar()
+        self.day_var = StringVar()
         
         self.recommendation_frames = []
         self.recommendations = []
@@ -21,6 +24,7 @@ class ReturnView(ctk.CTkFrame):
         
         self.create_upper_frame()
         self.create_bottom_frame()
+
 
 
     def create_upper_frame(self):
@@ -36,29 +40,59 @@ class ReturnView(ctk.CTkFrame):
         upper_input_frame = ctk.CTkFrame(inputs_frame, border_width=2)
         upper_input_frame.pack(side='top', padx=10,pady=10,)
         
-        inputs_lbls_frame = ctk.CTkFrame(upper_input_frame,  fg_color='#333333')
-        inputs_lbls_frame.pack(side='left', fill='y')
-        lbls_names = ['اسم المصنع', 'كود القطعة', 'عدد القطعة', 'سبب الاسترجاع']
+        # --- CONVERTED TO GRID ---
+        # Configure the grid layout for the upper_input_frame
+        upper_input_frame.grid_columnconfigure(0, weight=1) # Column for labels
+        upper_input_frame.grid_columnconfigure(1, weight=2) # Column for entries
 
-        for lbl in lbls_names:
-            lbl = ctk.CTkLabel(inputs_lbls_frame, text=lbl, font=("Arial", 14, "bold"), text_color='white',width=200, height=40)
-            lbl.pack(side='top', padx=10, pady=10)
-        
-        inputs_entries_frame = ctk.CTkFrame(upper_input_frame, fg_color='#333333')
-        inputs_entries_frame.pack(side='right', fill='y')
-        
+        # --- Labels and Entries placed on the grid ---
+        lbls_names = ['اسم المصنع', 'كود القطعة', 'عدد القطعة', 'سبب الاسترجاع']
         entry_variables = [self.fac_name, self.product_code, self.quantity, self.reason]
 
+        for i, (text, var) in enumerate(zip(lbls_names, entry_variables)):
+            # Create and place label in column 0
+            lbl = ctk.CTkLabel(upper_input_frame, text=text, font=("Arial", 14, "bold"), text_color='white', width=200, height=40)
+            lbl.grid(row=i, column=0, padx=10, pady=10, sticky="w")
 
-
-        for var in entry_variables:
-            fac_entry = ctk.CTkEntry(inputs_entries_frame, textvariable=var, font=("Arial", 18, "bold"),width=200, height=40, justify='right' if var in [self.fac_name ,self.reason] else 'left', )
-            fac_entry.pack(side='top', padx=10, pady=10)
-            self.Entries.append(fac_entry)
+            # Create and place entry in column 1
+            entry = ctk.CTkEntry(upper_input_frame, textvariable=var, font=("Arial", 18, "bold"), width=200, height=40, justify='right' if var in [self.fac_name, self.reason] else 'left')
+            entry.grid(row=i, column=1, padx=10, pady=10, sticky="ew")
             
+            self.Entries.append(entry)
             if var == self.quantity:
-                fac_entry.configure(validate="key", validatecommand = (fac_entry.register(self.validate_Entry), '%P', 'integer'))
+                entry.configure(validate="key", validatecommand=(entry.register(self.validate_Entry), '%P', 'integer'))
+
+        # --- NEW ROW FOR DATE SELECTION ---
+        # 1. Add the Date Label in the next row (row=4)
+        date_label = ctk.CTkLabel(upper_input_frame, text="التاريخ", font=("Arial", 14, "bold"), text_color='white', width=200, height=40)
+        date_label.grid(row=4, column=0, padx=10, pady=10, sticky="w")
         
+        # 2. Create a frame to hold the 3 option menus in a single grid cell
+        date_options_frame = ctk.CTkFrame(upper_input_frame, fg_color="transparent")
+        date_options_frame.grid(row=4, column=1, padx=10, pady=10, sticky="ew")
+
+        # 3. Create the Year, Month, and Day Option Menus
+        current_date = datetime.now()
+        years = [str(y) for y in range(current_date.year - 5, current_date.year + 2)]
+        months = [str(m) for m in range(1, 13)]
+        days = [str(d) for d in range(1, 32)]
+        
+        # Using local variables as requested (not changing self)
+        self.year_var.set(str(current_date.year))
+        self.month_var.set(str(current_date.month))
+        self.day_var.set(str(current_date.day))
+
+        # Pack menus from right-to-left for standard date format (YYYY-MM-DD) in an RTL UI
+        day_menu = ctk.CTkOptionMenu(date_options_frame, values=days, variable=self.day_var, width=60, height=40, font=("Arial", 14))
+        day_menu.pack(side='right', padx=(2,0), fill='x', expand=True)
+
+        month_menu = ctk.CTkOptionMenu(date_options_frame, values=months, variable=self.month_var, width=60, height=40, font=("Arial", 14))
+        month_menu.pack(side='right', padx=2, fill='x', expand=True)
+        
+        year_menu = ctk.CTkOptionMenu(date_options_frame, values=years, variable=self.year_var, width=80, height=40, font=("Arial", 14))
+        year_menu.pack(side='right', padx=(0,2), fill='x', expand=True)
+        # --- END OF NEW ROW ---
+
         
         frame_pay_button = ctk.CTkFrame(inputs_frame, fg_color='#333333')
         frame_pay_button.pack(side='top', padx=10,pady=10,)
@@ -70,6 +104,11 @@ class ReturnView(ctk.CTkFrame):
         ######## recommendation frame 
         self.recommended_frame = ctk.CTkScrollableFrame(sub_upper_frame, width=200,height=250,border_width=5, border_color='#333333' ,corner_radius=5, fg_color='transparent',scrollbar_button_color='#333333', scrollbar_button_hover_color='#333333', scrollbar_fg_color='#333333')
         self.recommended_frame.pack(side='left', padx=10,pady=30)
+    # ==============================================================================
+    # >>>>>>>> MODIFIED FUNCTION ENDS HERE <<<<<<<<
+    # ==============================================================================
+
+
 
 
 

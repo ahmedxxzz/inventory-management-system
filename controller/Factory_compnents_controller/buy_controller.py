@@ -1,7 +1,7 @@
 from view.Factory_compnents_view.buy_view import BuyView
 from model.Factory_compnents_model.buy_model import BuyModel
-from controller.Factory_compnents_controller.account_report_controller import AccountReportController
-
+# from controller.Factory_compnents_controller.account_report_controller import AccountReportController
+from datetime import datetime
 
 class BuyController:
     def __init__(self, root):
@@ -13,9 +13,11 @@ class BuyController:
         self._bind_events()
         self.view.populate_treeview(self.model.get_buys_from_db())
 
-
+    def view_destroy(self, event=None):
+        self.model.conn.close()
 
     def _bind_events(self):
+        self.view.bind('<Destroy>', self.view_destroy)
 
         for ent in [self.view.Entries[0], self.view.Entries[1]]:
             ent.bind('<FocusIn>', lambda event,var = ent.cget("textvariable"), ent = ent: self.recommendation_focusIn(ent, var))
@@ -24,6 +26,8 @@ class BuyController:
     
         self.view.save_buys_button.configure(command=self.save_buys)
         self.view.cache_buy_button.configure(command=self.cache_buy)
+    
+    
     
 
 
@@ -44,14 +48,15 @@ class BuyController:
             self.view.populate_treeview(self.model.get_buys_from_db())
             
             self.view.message("عملية ناجحة", "تم حفظ الفاتورة بنجاح")
-            if self.view.message('طباعة','هل تريد طباعة الفاتورة','yes_no'):
-                ReportController(self.view.temp_operations)
+            # if self.view.message('طباعة','هل تريد طباعة الفاتورة','yes_no'):
+            #     ReportController(self.view.temp_operations)
         else:
             self.view.message("عملية فاشلة", "لم يتم حفظ الفاتورة")
 
 
     def cache_buy(self):
         if self.view.check_inputs_before_caching(factory_names = self.model.get_factory_names_and_money(),products_codes = self.model.get_products_codes()): # validation input 
+            current_time = datetime.now().strftime("%H:%M:%S")
             data = {
                         'facname': self.view.fac_name.get(),
                         'productcode': self.view.product_code.get(),
@@ -59,7 +64,8 @@ class BuyController:
                         'quantity': self.view.quantity.get(),
                         'discount': self.view.discount.get(),
                         'supplier': self.model.get_supplier_from_procode(self.view.product_code.get().strip()),
-                        'paid': self.view.checkbox_var.get()
+                        'paid': self.view.checkbox_var.get(),
+                        'date': f"{self.view.year_var.get()}-{self.view.month_var.get().zfill(2)}-{self.view.day_var.get().zfill(2)} {current_time}"
                     }
             self.view.temp_operations.append(data)
             

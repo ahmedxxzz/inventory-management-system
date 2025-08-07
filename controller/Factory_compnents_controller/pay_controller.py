@@ -1,6 +1,7 @@
 from view.Factory_compnents_view.pay_view import PayView
 from model.Factory_compnents_model.pay_model import PayModel
-from controller.Factory_compnents_controller.account_report_controller import AccountReportController
+# from controller.Factory_compnents_controller.account_report_controller import AccountReportController
+from datetime import datetime
 
 class PayController:
     def __init__(self, root):
@@ -9,9 +10,9 @@ class PayController:
         self.model = PayModel()
         self._bind_events()
         self.view.populate_treeview(self.model.get_pays_from_db())
-        
-    
-    
+
+
+
     def _bind_events(self):
         self.view.fac_name_entry.bind('<FocusIn>', lambda event, ent = self.view.fac_name_entry: self.recommendation_focusIn(ent, ent.cget("textvariable")))
         self.view.fac_name_entry.bind('<KeyRelease>', lambda event, ent = self.view.fac_name_entry: self.recommendation_KeyRelease(ent,  ent.cget("textvariable")))
@@ -27,11 +28,13 @@ class PayController:
 
         if self.check_inputs():
             data = [self.view.fac_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()]
-            if self.model.save_pay_to_db(self.view.fac_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip()):
+            current_time = datetime.now().strftime("%H:%M:%S")
+            date = f"{self.view.year_var.get()}-{self.view.month_var.get().zfill(2)}-{self.view.day_var.get().zfill(2)} {current_time}"
+            if self.model.save_pay_to_db(self.view.fac_name.get().strip(), float(self.view.money_amount.get()), self.view.safe_type.get().strip(), date):
                 self.view.message('showinfo', 'عملية ناجحة', 'تمت عملية الدفع بنجاح')
-                if self.view.message('yes_no', 'فاتورة', 'هل تريد طباعة الفاتورة ؟'):
-                    AccountReportController(data, 'pay')
-                
+                # if self.view.message('yes_no', 'فاتورة', 'هل تريد طباعة الفاتورة ؟'):
+                #     AccountReportController(data, 'pay')
+
                 self.view.clear_inputs()
                 self.view.populate_treeview(self.model.get_pays_from_db())
 
@@ -39,16 +42,18 @@ class PayController:
         if self.view.fac_name.get().strip() == '' or self.view.money_amount.get().strip() == '':
             self.view.message('showinfo', ' خطأ', 'يرجى عدم ترك الحقول فارغة')
             return False
-        
+        if self.view.safe_type.get().strip() == 'اختار نوع الخزنة':
+            self.view.message('showinfo', ' خطاء', 'يرجى اختيار نوع الخزنة')
+            return False
         if float(self.view.money_amount.get()) <= 0.0:
             self.view.message('showinfo', 'عملية فاشلة', 'مبلغ الدفع يجب ان يكون اكبر من 0')
             return False
-        
+
         if not self.model.check_factory_name_exist(self.view.fac_name.get().strip()):
             self.view.message('showinfo', 'عملية فاشلة', 'اسم المصنع غير موجود')
             return False
-        
-        
+
+
         if self.model.check_factory_money(self.view.fac_name.get().strip()) < float(self.view.money_amount.get()):
             self.view.message('showinfo', 'عملية فاشلة', 'المبلغ المدفوع اكبر من المبلغ المستحق')
             return False

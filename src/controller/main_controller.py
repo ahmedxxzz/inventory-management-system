@@ -1,8 +1,15 @@
 from view.main_view import MainView
 from model.main_model import MainModel
+from controller.Factory.factory_controller import FactoryController
+from controller.Customer.customer_controller import CustomerController
 
 class MainController:
     def __init__(self, root):
+        """connect the view and model to control the navigation between main frames
+
+        Args:
+            root (ctk.CTk): this is the root window of the application
+        """
         self.root = root
         self.model = MainModel()
         self.view = MainView(self.root)
@@ -15,6 +22,7 @@ class MainController:
         """
         for button in self.view.buttons:
             button.configure(command= lambda button_obj=button: self._menu_buttons_switching(title = button_obj.cget("text"), button = button_obj))
+        self._menu_buttons_switching(self.view.buttons[0].cget("text"),self.view.buttons[0])
 
 
     def _menu_buttons_switching(self, title, button):
@@ -26,10 +34,10 @@ class MainController:
             # add the frame of clicked button
             # append the frame to the self.view.frames
         '''
-        for button in self.view.buttons:
+        for btn in self.view.buttons:
             if title == 'الاشعارات':
                 continue
-            button.configure(fg_color='black', state='normal', cursor="hand2")
+            btn.configure(fg_color='black', state='normal', cursor="hand2")
         if title != 'الاشعارات':
             button.configure(fg_color='green', state='disabled', cursor="arrow")
             
@@ -43,6 +51,7 @@ class MainController:
             'المخزن': self.open_inventory,
             'الخزنة': self.open_safe,
             'المصاريف': self.open_extra_costs,
+            'الموزعين': self.open_suppliers,
             'الاشعارات': self.open_notifications,
             'الخروج': self.root.destroy
         }
@@ -50,15 +59,22 @@ class MainController:
         
 
     def open_factory(self):
-        pass
+        factory = FactoryController(root = self.root, db_conn = self.model.conn)
+        self.view.Frames.append(factory.view)
+
+
     def open_customer(self):
-        pass
+        customer = CustomerController(root = self.root, db_conn = self.model.conn)
+        self.view.Frames.append(customer.view)
+
+
     def open_inventory(self):
         pass
     def open_safe(self):
         pass
     def open_extra_costs(self):
         pass
+    def open_suppliers(self):
+        pass
     def open_notifications(self):
         pass
-    

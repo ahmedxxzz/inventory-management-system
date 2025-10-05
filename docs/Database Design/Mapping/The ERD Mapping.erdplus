@@ -208,6 +208,18 @@
               "type": "VARCHAR(n)",
               "position": 0,
               "size": "5"
+            },
+            {
+              "id": "78921778-04c2-4cbf-b6ce-1625bfa5943f",
+              "name": "money_after",
+              "type": "FLOAT",
+              "position": 0
+            },
+            {
+              "id": "dcffe4a5-9d23-4ad1-a3aa-8679bbcbc174",
+              "name": "money_before",
+              "type": "FLOAT",
+              "position": 0
             }
           ],
           "numberOfGroups": 0,
@@ -215,7 +227,7 @@
         },
         "measured": {
           "width": 240,
-          "height": 150
+          "height": 200
         },
         "selected": false,
         "dragging": false
@@ -366,6 +378,18 @@
                   }
                 ]
               }
+            },
+            {
+              "id": "a923bf18-c1e8-4e4f-8bb9-d43888607164",
+              "name": "money_after",
+              "type": "FLOAT",
+              "position": 0
+            },
+            {
+              "id": "23356ac4-750c-4f73-8ca0-f2b49e3cb5cd",
+              "name": "money_before",
+              "type": "FLOAT",
+              "position": 0
             }
           ],
           "numberOfGroups": 0,
@@ -373,7 +397,7 @@
         },
         "measured": {
           "width": 240,
-          "height": 151
+          "height": 201
         },
         "selected": false,
         "dragging": false
@@ -526,6 +550,18 @@
                   }
                 ]
               }
+            },
+            {
+              "id": "5283dbfe-14fc-4dc3-9e69-f984a00d2a17",
+              "name": "money_after",
+              "type": "FLOAT",
+              "position": 0
+            },
+            {
+              "id": "bb8a9f2f-eb30-4e32-88d3-83d7a21a48b7",
+              "name": "money_before",
+              "type": "FLOAT",
+              "position": 0
             }
           ],
           "numberOfGroups": 0,
@@ -533,7 +569,7 @@
         },
         "measured": {
           "width": 240,
-          "height": 126
+          "height": 176
         },
         "selected": false,
         "dragging": false
@@ -782,6 +818,18 @@
               "type": "VARCHAR(n)",
               "position": 0,
               "size": "5"
+            },
+            {
+              "id": "5f05a32c-f374-4b6f-b495-5f098ede1fc1",
+              "name": "money_after",
+              "type": "FLOAT",
+              "position": 0
+            },
+            {
+              "id": "26d90c78-4c40-450b-b39d-7b35a68b7df0",
+              "name": "money_before",
+              "type": "FLOAT",
+              "position": 0
             }
           ],
           "numberOfGroups": 0,
@@ -789,7 +837,7 @@
         },
         "measured": {
           "width": 240,
-          "height": 151
+          "height": 201
         },
         "selected": false,
         "dragging": false
@@ -957,6 +1005,18 @@
                   }
                 ]
               }
+            },
+            {
+              "id": "d4d9d2ef-a39c-43ab-b73f-c8e420e57003",
+              "name": "money_after",
+              "type": "FLOAT",
+              "position": 0
+            },
+            {
+              "id": "20d43a9e-0dff-476f-bc2e-c80603fb7fb9",
+              "name": "money_before",
+              "type": "FLOAT",
+              "position": 0
             }
           ],
           "numberOfGroups": 0,
@@ -964,7 +1024,7 @@
         },
         "measured": {
           "width": 240,
-          "height": 176
+          "height": 226
         },
         "selected": false,
         "dragging": false
@@ -1034,6 +1094,18 @@
                   }
                 ]
               }
+            },
+            {
+              "id": "a8f15219-b092-4960-9f02-7109aaf3208c",
+              "name": "money_after",
+              "type": "FLOAT",
+              "position": 0
+            },
+            {
+              "id": "a8497bb1-b8f1-421f-8e9a-e8c506cea35a",
+              "name": "money_before",
+              "type": "FLOAT",
+              "position": 0
             }
           ],
           "numberOfGroups": 0,
@@ -1041,7 +1113,7 @@
         },
         "measured": {
           "width": 240,
-          "height": 151
+          "height": 201
         },
         "selected": false,
         "dragging": false
@@ -1737,9 +1809,9 @@
       }
     ],
     "viewport": {
-      "x": 777.4590244019558,
-      "y": 1368.9146200181517,
-      "zoom": 0.8705505528331089
+      "x": 324.5472300022509,
+      "y": 877.3710435724118,
+      "zoom": 0.5
     }
   },
   "name": "inventory management system schema",
@@ -1756,5 +1828,5 @@
     "id": 55197
   },
   "id": 51696,
-  "updatedAtTimestamp": 1759234268
+  "updatedAtTimestamp": 1759672327
 }

@@ -38,10 +38,9 @@ class MainView(ctk.CTkFrame):
     def create_buttons(self):
         """create buttons to navigate between main frames
         """
-        titles  = ['المصانع', 'المكاتب', 'المخزن', 'الخزنة', 'المصاريف', 'الاشعارات', 'الخروج']
+        titles  = ['المصانع', 'المكاتب', 'المخزن', 'الخزنة', 'المصاريف','الموزعين', 'الاشعارات', 'الخروج']
         for title in titles:
             button = ctk.CTkButton(self, text=title, state='normal', fg_color='black', text_color='yellow',font=ctk.CTkFont(size=20, weight='bold'),corner_radius=20, cursor="hand2", hover_color='red' ,height=50,)
             button.pack(side='top', fill='x',pady=10,padx=10)
-            print(f"button {title} created")
             self.buttons.append(button)
 

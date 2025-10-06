@@ -2,6 +2,7 @@ from view.main_view import MainView
 from model.main_model import MainModel
 from controller.Factory.factory_controller import FactoryController
 from controller.Customer.customer_controller import CustomerController
+from controller.Inventory.inventory_controller import InventoryController
 
 class MainController:
     def __init__(self, root):
@@ -51,7 +52,7 @@ class MainController:
             'المخزن': self.open_inventory,
             'الخزنة': self.open_safe,
             'المصاريف': self.open_extra_costs,
-            'الموزعين': self.open_suppliers,
+            'الموزعين': self.open_distributors,
             'الاشعارات': self.open_notifications,
             'الخروج': self.root.destroy
         }
@@ -69,12 +70,14 @@ class MainController:
 
 
     def open_inventory(self):
-        pass
+        inventory = InventoryController(root = self.root, db_conn = self.model.conn)
+        self.view.Frames.append(inventory.view)
+
     def open_safe(self):
         pass
     def open_extra_costs(self):
         pass
-    def open_suppliers(self):
+    def open_distributors(self):
         pass
     def open_notifications(self):
         pass

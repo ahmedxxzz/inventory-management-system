@@ -4,11 +4,13 @@ import sqlite3, os
 class MainModel:
     def __init__(self):
         db_file = "IMS.db"
-        self.conn = sqlite3.connect(db_file)
-        self.cursor = self.conn.cursor()
+        is_exist = False
         if os.path.exists(db_file):
             print(f"Database {db_file} already exists. Skipping database setup.......")
-        else :
+            is_exist = True
+        self.conn = sqlite3.connect(db_file)
+        self.cursor = self.conn.cursor()
+        if not is_exist:
             print(f"Database {db_file} isn't exists. Setting up database........")
             self.create_tables()
 
@@ -16,7 +18,7 @@ class MainModel:
     def create_tables(self):
         try:
 
-            self.cursor.execute('''
+            self.cursor.executescript('''
                     -- #####################################################################
                     -- #      SQLite3 Database Schema - Final Version with AUTOINCREMENT     #
                     -- #####################################################################

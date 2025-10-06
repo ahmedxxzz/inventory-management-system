@@ -2,7 +2,7 @@ import customtkinter as ctk
 
 class FactoryView(ctk.CTkFrame):
     def __init__(self, root):
-        """create the factory main frame 
+        """create the factory main frame and adding navigation buttons
 
         Args:
             root (ctk.CTk): this is the root window of the application but contains the side bar frame

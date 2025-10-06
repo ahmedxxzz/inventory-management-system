@@ -36,7 +36,7 @@ class MainController:
             # append the frame to the self.view.frames
         '''
         for btn in self.view.buttons:
-            if title == 'الاشعارات':
+            if btn.cget("text") == 'الاشعارات':
                 continue
             btn.configure(fg_color='black', state='normal', cursor="hand2")
         if title != 'الاشعارات':
@@ -50,9 +50,9 @@ class MainController:
             'المصانع': self.open_factory,
             'المكاتب': self.open_customer,
             'المخزن': self.open_inventory,
+            'الموزعين': self.open_distributors,
             'الخزنة': self.open_safe,
             'المصاريف': self.open_extra_costs,
-            'الموزعين': self.open_distributors,
             'الاشعارات': self.open_notifications,
             'الخروج': self.root.destroy
         }
@@ -73,11 +73,11 @@ class MainController:
         inventory = InventoryController(root = self.root, db_conn = self.model.conn)
         self.view.Frames.append(inventory.view)
 
+    def open_distributors(self):
+        pass
     def open_safe(self):
         pass
     def open_extra_costs(self):
-        pass
-    def open_distributors(self):
         pass
     def open_notifications(self):
         pass

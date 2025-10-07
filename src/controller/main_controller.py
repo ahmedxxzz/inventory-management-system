@@ -4,6 +4,7 @@ from controller.Factory.factory_controller import FactoryController
 from controller.Customer.customer_controller import CustomerController
 from controller.Inventory.inventory_controller import InventoryController
 from controller.distributor_controller import DistributorController
+from controller.wallet_controller import WalletController
 
 class MainController:
     def __init__(self, root):
@@ -81,7 +82,10 @@ class MainController:
 
 
     def open_safe(self):
-        pass
+        wallet = WalletController(root = self.root, db_conn = self.model.conn)
+        self.view.Frames.append(wallet.view)
+
+
     def open_extra_costs(self):
         pass
     def open_notifications(self):

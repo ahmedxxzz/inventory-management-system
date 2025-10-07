@@ -7,6 +7,7 @@ class DistributorController:
         self.db_conn = db_conn
         self.model = DistributorModel(self.db_conn)
         self.view = DistributorView(root)
+        self.distributer_id = None
         self._bind_events()
     
     

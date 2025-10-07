@@ -1,17 +1,17 @@
 import customtkinter as ctk
-from tkinter import StringVar, ttk , messagebox
+from tkinter import StringVar, DoubleVar, ttk , messagebox 
 
-
-class DistributorView(ctk.CTkFrame):
+class WalletView(ctk.CTkFrame):
     def __init__(self, root):
-        """create the distributor main frame
+        """create the wallet main frame
 
         Args:
             root (ctk.CTk): this is the root window of the application but contains the side bar frame
         """
         super().__init__(root, fg_color="transparent")
         self.pack(fill="both", expand=True, padx=20, pady=20)
-        self.distributor_name_var = StringVar()
+        self.wallet_name_var = StringVar()
+        self.wallet_money_var = DoubleVar()
         self.buttons = []
 
 
@@ -26,16 +26,22 @@ class DistributorView(ctk.CTkFrame):
         
         #########################################
 
-        adding_distributor_frame = ctk.CTkFrame(upper_frame,)
-        adding_distributor_frame.pack(side='top', pady=10, padx=10, fill='x')
+        adding_wallet_frame = ctk.CTkFrame(upper_frame,)
+        adding_wallet_frame.pack(side='top', pady=10, padx=10, fill='x')
         
 
         
         
-        lbl = ctk.CTkLabel(adding_distributor_frame, text='اسم الموزع', font=("Arial", 16, "bold"), text_color='white',width=200, height=40)
+        lbl = ctk.CTkLabel(adding_wallet_frame, text='اسم الخزنة', font=("Arial", 16, "bold"), text_color='white',width=200, height=40)
         lbl.pack(side='right', pady=10)
         
-        ent = ctk.CTkEntry(adding_distributor_frame, textvariable=self.distributor_name_var, font=("Arial", 16, "bold"), height= 40, justify='right')
+        ent = ctk.CTkEntry(adding_wallet_frame, textvariable=self.wallet_name_var, font=("Arial", 16, "bold"), height= 40, justify='right')
+        ent.pack(side='right',  padx=10, pady=10, fill='x', expand=True)
+        
+        lbl = ctk.CTkLabel(adding_wallet_frame, text='المبلغ', font=("Arial", 16, "bold"), text_color='white',width=200, height=40)
+        lbl.pack(side='right', pady=10)
+        
+        ent = ctk.CTkEntry(adding_wallet_frame, textvariable=self.wallet_money_var, font=("Arial", 16, "bold"), height= 40, justify='right', validate='key', validatecommand=(self.register(self.validate_Entry), '%P', 'float'))
         ent.pack(side='right',  padx=10, pady=10, fill='x', expand=True)
 
 
@@ -69,8 +75,8 @@ class DistributorView(ctk.CTkFrame):
         style.map("Treeview.Heading",background=[('active', '#3484F0')])
 
         # --- Create Treeview Widget ---
-        self.tree_columns = ('distributor_name',)
-        self.tree_headers = ['اسم الموزع']
+        self.tree_columns = ('wallet_name','wallet_money',)
+        self.tree_headers = ['اسم الخزنة', 'المبلغ']
 
         self.tree = ttk.Treeview(bottom_frame, columns=self.tree_columns, show='headings', selectmode="extended")
         
@@ -80,7 +86,8 @@ class DistributorView(ctk.CTkFrame):
         
         
         # Define column widths (adjust as needed)
-        self.tree.column('distributor_name',  anchor='center')
+        self.tree.column('wallet_name',  anchor='center')
+        self.tree.column('wallet_money',  anchor='center')
         
 
         # --- Add Scrollbars ---
@@ -153,7 +160,7 @@ class DistributorView(ctk.CTkFrame):
             
             
             if selected_item_id:
-                row_values = self.tree.item(selected_item_id, 'values') # return (distributor_name coulmn value, )
+                row_values = self.tree.item(selected_item_id, 'values') # return (wallet_name value, wallet_money value ,...)
                 func(row_values)
 
 
@@ -163,4 +170,26 @@ class DistributorView(ctk.CTkFrame):
         elif mstype == "showinfo":
             messagebox.showinfo(info_text, text)
 
+
+
+    def validate_Entry(self, value, op_type):
+        """Validate amount entry to allow only numbers and decimals."""
+        if op_type == "integer":
+            if value == "":
+                return True
+            try:
+                int(value)
+                return True
+            except ValueError:
+                return False
+        elif op_type == "float":
+            if value == "":
+                return True
+            try:
+                float(value)
+                return True
+            except ValueError:
+                return False
+        elif op_type == "":
+            return True
 

@@ -37,9 +37,11 @@ class FactoryController:
             btn.configure(fg_color='#206ca4', state='normal', cursor="hand2")
         button.configure(fg_color='yellow', state='disabled', cursor="arrow")    
         
-        for frame in self.view.Frames:
-            frame.destroy()
-        self.view.Frames = []
+        # in gactory accounts , we need to check password before destroy frames
+        if title != 'حسابات المصانع':
+            for frame in self.view.Frames:
+                frame.destroy()
+            self.view.Frames = []
         
         factory_menu_button_map ={
             'فاتورة': self.open_buy,
@@ -57,4 +59,14 @@ class FactoryController:
     def open_return(self):
         pass
     def open_account(self):
-        pass
+        from main import PASSWORD
+        password = self.view.create_password_popup()
+        if password == PASSWORD:
+            for frame in self.view.Frames:
+                frame.destroy()
+            self.view.Frames = []
+            from controller.Factory.factory_account_controller import FactoryAccountController
+            factory_account = FactoryAccountController(self.root, self.db_conn)
+            self.view.Frames.append(factory_account.view)
+        elif password !=PASSWORD  and password is not None :
+            self.view.message("showinfo", "خطأ", "كلمة المرور غير صحيحة")

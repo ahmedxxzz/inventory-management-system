@@ -33,6 +33,10 @@ class CustomerController:
             # add the frame of clicked button
             # append the frame to the self.view.frames
         """
+        # in gactory accounts , we need to check password before destroy frames
+        if title == 'حسابات المكاتب':
+            if not self.check_password():
+                return 
         for btn in self.view.buttons:
             btn.configure(fg_color='#206ca4', state='normal', cursor="hand2")
         button.configure(fg_color='yellow', state='disabled', cursor="arrow")    
@@ -56,5 +60,22 @@ class CustomerController:
         pass
     def open_return(self):
         pass
+
+
     def open_account(self):
-        pass
+        from controller.Customer.customer_account_controller import CustomerAccountController
+        customer_account = CustomerAccountController(self.root, self.db_conn)
+        # self.view.Frames.append(customer_account.view)
+
+
+    def check_password(self):
+        from main import PASSWORD
+        password = self.view.create_password_popup()
+        if password == PASSWORD:
+            return True
+        elif password !=PASSWORD  and password is not None :
+            self.view.message("showinfo", "خطأ", "كلمة المرور غير صحيحة")
+            return self.check_password()
+        if password is None:
+            return False
+

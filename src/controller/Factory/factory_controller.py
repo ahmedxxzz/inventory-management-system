@@ -33,15 +33,17 @@ class FactoryController:
             # add the frame of clicked button
             # append the frame to the self.view.frames
         """
+        # in factory accounts , we need to check password before destroy frames
+        if title == 'حسابات المصانع':
+            if not self.check_password():
+                return 
         for btn in self.view.buttons:
             btn.configure(fg_color='#206ca4', state='normal', cursor="hand2")
         button.configure(fg_color='yellow', state='disabled', cursor="arrow")    
-        
-        # in gactory accounts , we need to check password before destroy frames
-        if title != 'حسابات المصانع':
-            for frame in self.view.Frames:
-                frame.destroy()
-            self.view.Frames = []
+    
+        for frame in self.view.Frames:
+            frame.destroy()
+        self.view.Frames = []
         
         factory_menu_button_map ={
             'فاتورة': self.open_buy,
@@ -58,15 +60,22 @@ class FactoryController:
         pass
     def open_return(self):
         pass
+
+
     def open_account(self):
+        from controller.Factory.factory_account_controller import FactoryAccountController
+        factory_account = FactoryAccountController(self.root, self.db_conn)
+        # self.view.Frames.append(factory_account.view)
+
+    
+    def check_password(self):
         from main import PASSWORD
         password = self.view.create_password_popup()
         if password == PASSWORD:
-            for frame in self.view.Frames:
-                frame.destroy()
-            self.view.Frames = []
-            from controller.Factory.factory_account_controller import FactoryAccountController
-            factory_account = FactoryAccountController(self.root, self.db_conn)
-            self.view.Frames.append(factory_account.view)
+            return True
         elif password !=PASSWORD  and password is not None :
             self.view.message("showinfo", "خطأ", "كلمة المرور غير صحيحة")
+            return self.check_password()
+        if password is None:
+            return False
+

@@ -3,6 +3,7 @@ from model.main_model import MainModel
 from controller.Factory.factory_controller import FactoryController
 from controller.Customer.customer_controller import CustomerController
 from controller.Inventory.inventory_controller import InventoryController
+from controller.distributor_controller import DistributorController
 
 class MainController:
     def __init__(self, root):
@@ -73,8 +74,12 @@ class MainController:
         inventory = InventoryController(root = self.root, db_conn = self.model.conn)
         self.view.Frames.append(inventory.view)
 
+
     def open_distributors(self):
-        pass
+        distributor = DistributorController(root = self.root, db_conn = self.model.conn)
+        self.view.Frames.append(distributor.view)
+
+
     def open_safe(self):
         pass
     def open_extra_costs(self):

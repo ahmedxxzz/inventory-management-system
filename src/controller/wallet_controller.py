@@ -40,7 +40,7 @@ class WalletController:
             # show success message
         """
         wallet_name = self.view.wallet_name_var.get()
-        wallet_money = self.view.wallet_money_var.get()
+        wallet_money = float(self.view.wallet_money_var.get()) if self.view.wallet_money_var.get() != '' else 0
         if wallet_name == '' or wallet_money <= 0:
             return self.view.message("showinfo", "خطأ", "يرجى إدخال اسم الخزنة والمبلغ بشكل صحيح")
         
@@ -53,7 +53,7 @@ class WalletController:
         self.view.populate_treeview(self.model.get_wallets())
         if is_true:
             self.view.wallet_name_var.set('')
-            self.view.wallet_money_var.set(0)
+            self.view.wallet_money_var.set('')
             self.wallet_id = None
 
 
@@ -76,7 +76,7 @@ class WalletController:
                 self.view.populate_treeview(self.model.get_wallets())
                 if is_true:
                     self.view.wallet_name_var.set('')
-                    self.view.wallet_money_var.set(0)
+                    self.view.wallet_money_var.set('')
                     self.wallet_id = None
         else:
             return self.view.message("showinfo", "خطأ", "يرجى اختيار الخزنة المراد حذفه")
@@ -97,7 +97,7 @@ class WalletController:
         """
         if self.wallet_id:
             new_wallet_name = self.view.wallet_name_var.get()
-            new_wallet_money = self.view.wallet_money_var.get()
+            new_wallet_money = float(self.view.wallet_money_var.get()) if self.view.wallet_money_var.get() != '' else 0
             if new_wallet_name == '':
                 return self.view.message("showinfo", "خطأ", "يرجى إدخال اسم الخزنة الجديد")
             
@@ -110,7 +110,7 @@ class WalletController:
             self.view.populate_treeview(self.model.get_wallets())
             if is_true:
                 self.view.wallet_name_var.set('')
-                self.view.wallet_money_var.set(0)
+                self.view.wallet_money_var.set('')
                 self.wallet_id = None
         else:
             return self.view.message("showinfo", "خطأ", "يرجى اختيار الخزنة المراد تعديلها")
@@ -118,7 +118,7 @@ class WalletController:
 
     def clear_inputs(self):
         self.view.wallet_name_var.set('')
-        self.view.wallet_money_var.set(0)
+        self.view.wallet_money_var.set('')
         self.wallet_id = None
         self.view.message("showinfo", "نجاح", "تم تنظيف المدخلات ")
         self.view.populate_treeview(self.model.get_wallets())
@@ -127,6 +127,6 @@ class WalletController:
     def get_selected_wallet(self, row_values):
         if row_values:
             self.view.wallet_name_var.set(row_values[0])
-            self.view.wallet_money_var.set(row_values[1])
+            self.view.wallet_money_var.set(f"{row_values[1]}")
             self.wallet_id = self.model.get_wallet_id(wallet_name= row_values[0])[0]
 

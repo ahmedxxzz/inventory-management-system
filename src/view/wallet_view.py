@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import StringVar, DoubleVar, ttk , messagebox 
+from tkinter import StringVar, ttk , messagebox 
 
 class WalletView(ctk.CTkFrame):
     def __init__(self, root):
@@ -11,7 +11,7 @@ class WalletView(ctk.CTkFrame):
         super().__init__(root, fg_color="transparent")
         self.pack(fill="both", expand=True, padx=20, pady=20)
         self.wallet_name_var = StringVar()
-        self.wallet_money_var = DoubleVar()
+        self.wallet_money_var = StringVar()
         self.buttons = []
 
 

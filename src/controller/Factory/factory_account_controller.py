@@ -29,7 +29,7 @@ class FactoryAccountController:
                 self.factory_id = self.model.get_factory_id(row_values[0])
                 for frame in self.Frames:
                     frame.destroy()
-                self.Frames = []
+                self.Frames.clear()
                 
                 from controller.Factory.factory_account_details_controller import FactoryAccountDetailsController
                 factor_account_details = FactoryAccountDetailsController(self.root, self.db_conn, self.factory_id, self.Frames)

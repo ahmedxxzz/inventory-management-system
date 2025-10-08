@@ -47,7 +47,7 @@ class MainController:
         
         for frame in self.view.Frames:
             frame.destroy()
-        self.view.Frames = []
+        self.view.Frames.clear()
         main_menu_button_map ={
             'المصانع': self.open_factory,
             'المكاتب': self.open_customer,

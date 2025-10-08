@@ -43,7 +43,7 @@ class InventoryController:
         
         for frame in self.view.Frames:
             frame.destroy()
-        self.view.Frames = []
+        self.view.Frames.clear()
         
         self.open_inventory_option(title)
 

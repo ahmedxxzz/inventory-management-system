@@ -43,7 +43,7 @@ class FactoryController:
     
         for frame in self.view.Frames:
             frame.destroy()
-        self.view.Frames = []
+        self.view.Frames.clear()
         
         factory_menu_button_map ={
             'فاتورة': self.open_buy,

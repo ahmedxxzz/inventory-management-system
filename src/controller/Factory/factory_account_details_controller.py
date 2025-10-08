@@ -44,7 +44,6 @@ class FactoryAccountDetailsController:
 
 
     def report(self):
-        pass
-        # from controller.Factory_compnents_controller.account_report_controller import AccountReportController
-        # AccountReportController( self.factory_id)
+        from controller.Factory.account_report_controller import AccountReportController
+        AccountReportController( self.factory_id, self.db_conn)
 

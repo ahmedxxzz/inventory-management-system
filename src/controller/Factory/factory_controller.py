@@ -64,7 +64,7 @@ class FactoryController:
 
     def open_account(self):
         from controller.Factory.factory_account_controller import FactoryAccountController
-        factory_account = FactoryAccountController(self.view, self.db_conn)
+        factory_account = FactoryAccountController(self.view, self.db_conn, self.view.Frames)
         self.view.Frames.append(factory_account.view)
 
     

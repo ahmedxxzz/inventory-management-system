@@ -6,7 +6,7 @@ class FactoryAccountView(ctk.CTkFrame):
         """create the factory account frame and its commponents inside the factory main frame 
 
         Args:
-            root (ctk.CTkFrame): the factory main frame that contains the navigation buttons  
+            root (ctk.CTkFrame): the factory main frame that contains a frame for the navigation buttons  
         """
         self.root = root
         super().__init__(self.root)

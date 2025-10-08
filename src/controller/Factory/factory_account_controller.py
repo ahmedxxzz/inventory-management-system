@@ -2,9 +2,10 @@ from view.Factory.factory_account_view import FactoryAccountView
 from model.Factory.factory_account_model import FactoryAccountModel
 
 class FactoryAccountController:
-    def __init__(self, root, db_conn):
+    def __init__(self, root, db_conn, factory_frames_list):
         self.root = root
         self.db_conn = db_conn
+        self.Frames = factory_frames_list
         self.view = FactoryAccountView(self.root)
         self.model = FactoryAccountModel(self.db_conn)
         self.factory_id = None
@@ -26,10 +27,13 @@ class FactoryAccountController:
         if row_values:
             if self.view.message("yes_no", "تأكيد", "هل تريد عرض تفاصيل المصنع؟"):
                 self.factory_id = self.model.get_factory_id(row_values[0])
-                for widget in self.view.winfo_children():
-                    widget.destroy()
+                for frame in self.Frames:
+                    frame.destroy()
+                self.Frames = []
+                
                 from controller.Factory.factory_account_details_controller import FactoryAccountDetailsController
-                FactoryAccountDetailsController(self.view, self.db_conn, self.factory_id)
+                factor_account_details = FactoryAccountDetailsController(self.root, self.db_conn, self.factory_id, self.Frames)
+                self.Frames.append(factor_account_details.view)
 
 
     def adding_factory_account(self):

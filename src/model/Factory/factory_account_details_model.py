@@ -16,8 +16,8 @@ class FactoryAccountDetailsModel:
 
 
     def get_factor_transactions(self):
-        purchases_transactions = self.cursor.execute("SELECT date, 'فاتورة شراء', total_amount FROM Factory_Purchases_Bills WHERE factory_id = ?", (self.factory_id, )).fetchall()
-        pays_transactions = self.cursor.execute("SELECT date, 'دفعة', amount_paid FROM Factory_Pays WHERE factory_id = ?", (self.factory_id, )).fetchall()
-        returns_transactions = self.cursor.execute("SELECT date, 'مرتجع', total_amount FROM Factory_Returns WHERE factory_id = ?", (self.factory_id, )).fetchall()
+        purchases_transactions = self.cursor.execute("SELECT purchases_bill_id, date, 'فاتورة شراء', total_amount FROM Factory_Purchases_Bills WHERE factory_id = ?", (self.factory_id, )).fetchall()
+        pays_transactions = self.cursor.execute("SELECT pay_id, date, 'دفعة', amount_paid FROM Factory_Pays WHERE factory_id = ?", (self.factory_id, )).fetchall()
+        returns_transactions = self.cursor.execute("SELECT return_id, date, 'مرتجع', total_amount FROM Factory_Returns WHERE factory_id = ?", (self.factory_id, )).fetchall()
         all_transactions = purchases_transactions + pays_transactions + returns_transactions
-        return sorted(all_transactions, key=lambda t: t[0], reverse=True)
+        return sorted(all_transactions, key=lambda t: t[1], reverse=True)

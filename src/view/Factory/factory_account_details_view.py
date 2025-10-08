@@ -68,8 +68,8 @@ class FactoryAccountDetailsView(ctk.CTkFrame):
         style.map("Treeview.Heading",background=[('active', '#3484F0')])
 
         # --- Create Treeview Widget ---
-        self.tree_columns = ('date', 'transaction_type', 'transaction_money')
-        self.tree_headers = ['التاريخ', 'نوع المعاملة', 'المبلغ']
+        self.tree_columns = ('operation_id', 'date', 'transaction_type', 'transaction_money')
+        self.tree_headers = ['رقم المعاملة', 'التاريخ', 'نوع المعاملة', 'المبلغ']
 
         self.tree = ttk.Treeview(bottom_frame, columns=self.tree_columns, show='headings', selectmode="extended")
         
@@ -79,6 +79,7 @@ class FactoryAccountDetailsView(ctk.CTkFrame):
         
         
         # Define column widths (adjust as needed)
+        self.tree.column('operation_id',  anchor='center')
         self.tree.column('date',  anchor='center')
         self.tree.column('transaction_type',  anchor='center')
         self.tree.column('transaction_money',  anchor='center')

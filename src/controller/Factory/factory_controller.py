@@ -64,8 +64,8 @@ class FactoryController:
 
     def open_account(self):
         from controller.Factory.factory_account_controller import FactoryAccountController
-        factory_account = FactoryAccountController(self.root, self.db_conn)
-        # self.view.Frames.append(factory_account.view)
+        factory_account = FactoryAccountController(self.view, self.db_conn)
+        self.view.Frames.append(factory_account.view)
 
     
     def check_password(self):

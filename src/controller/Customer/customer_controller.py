@@ -1,7 +1,7 @@
 from view.Customer.customer_view import CustomerView
 
 class CustomerController:
-    def __init__(self, root, db_conn):
+    def __init__(self, root, db_conn, distributor = None):
         """create the customer main frame
 
         Args:
@@ -10,6 +10,7 @@ class CustomerController:
         """
         self.root = root
         self.db_conn = db_conn
+        self.distributor = distributor
         self.view = CustomerView(root)
         self._bind_events()
     
@@ -64,7 +65,7 @@ class CustomerController:
 
     def open_account(self):
         from controller.Customer.customer_account_controller import CustomerAccountController
-        customer_account = CustomerAccountController(self.root, self.db_conn)
+        customer_account = CustomerAccountController(self.root, self.db_conn, self.distributor)
         # self.view.Frames.append(customer_account.view)
 
 

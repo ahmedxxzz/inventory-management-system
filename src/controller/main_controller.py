@@ -37,6 +37,10 @@ class MainController:
             # add the frame of clicked button
             # append the frame to the self.view.frames
         '''
+        if title == 'المكاتب':
+            distributor = self.choose_customer_distributor()
+            if not distributor:
+                return None
         for btn in self.view.buttons:
             if btn.cget("text") == 'الاشعارات':
                 continue
@@ -58,7 +62,10 @@ class MainController:
             'الاشعارات': self.open_notifications,
             'الخروج': self.root.destroy
         }
-        main_menu_button_map[title]()
+        if title == 'المكاتب':
+            main_menu_button_map[title](distributor)
+        else:
+            main_menu_button_map[title]()
         
 
     def open_factory(self):
@@ -66,8 +73,8 @@ class MainController:
         self.view.Frames.append(factory.view)
 
 
-    def open_customer(self):
-        customer = CustomerController(root = self.root, db_conn = self.model.conn)
+    def open_customer(self, distributor = None):
+        customer = CustomerController(root = self.root, db_conn = self.model.conn, distributor = distributor)
         self.view.Frames.append(customer.view)
 
 
@@ -90,3 +97,7 @@ class MainController:
         pass
     def open_notifications(self):
         pass
+
+
+    def choose_customer_distributor(self):
+        return self.view.create_distributor_popup(self.model.get_distributors())

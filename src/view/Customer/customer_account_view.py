@@ -1,12 +1,12 @@
 import customtkinter as ctk
 from tkinter import StringVar, messagebox, ttk
 
-class FactoryAccountView(ctk.CTkFrame):
+class CustomerAccountView(ctk.CTkFrame):
     def __init__(self, root):
-        """create the factory account frame and its commponents inside the factory main frame 
+        """create the customer account frame and its commponents inside the customer main frame 
 
         Args:
-            root (ctk.CTkFrame): the factory main frame that contains a frame for the navigation buttons  
+            root (ctk.CTkFrame): the customer main frame that contains a frame for the navigation buttons  
         """
         self.root = root
         super().__init__(self.root)
@@ -14,7 +14,7 @@ class FactoryAccountView(ctk.CTkFrame):
         
         
         self.search_var = StringVar()
-        self.fac_name = StringVar()
+        self.customer_name = StringVar()
         self.amount_money = StringVar()
         self.product_quantity = StringVar()
         
@@ -40,20 +40,20 @@ class FactoryAccountView(ctk.CTkFrame):
 
         #########################################
 
-        adding_fac_frame = ctk.CTkFrame(upper_frame,)
-        adding_fac_frame.pack(side='top', pady=10, padx=10, fill='x')
+        adding_customer_frame = ctk.CTkFrame(upper_frame,)
+        adding_customer_frame.pack(side='top', pady=10, padx=10, fill='x')
         
-        self.adding_btn = ctk.CTkButton(adding_fac_frame, text='اضافة مصنع جديد', font=("Arial", 16, "bold"), text_color='white',width=200, height=40, fg_color='green',)
+        self.adding_btn = ctk.CTkButton(adding_customer_frame, text='اضافة مكتب جديد', font=("Arial", 16, "bold"), text_color='white',width=200, height=40, fg_color='green',)
         self.adding_btn.pack(side='right', padx=10, pady=10)
         
         
-        lbls = ['اسم المصنع', 'المبلغ المستحق', 'كمية القطع']
-        ents = [self.fac_name, self.amount_money, self.product_quantity]
+        lbls = ['اسم المكتب', 'المبلغ المستحق', 'كمية القطع']
+        ents = [self.customer_name, self.amount_money, self.product_quantity]
         for i in range(0, len(lbls)):
-            lbl = ctk.CTkLabel(adding_fac_frame, text=lbls[i], font=("Arial", 16, "bold"), text_color='white',width=200, height=40)
+            lbl = ctk.CTkLabel(adding_customer_frame, text=lbls[i], font=("Arial", 16, "bold"), text_color='white',width=200, height=40)
             lbl.pack(side='right', pady=10)
             
-            ent = ctk.CTkEntry(adding_fac_frame, textvariable=ents[i], font=("Arial", 16, "bold"), height= 40, justify='right')
+            ent = ctk.CTkEntry(adding_customer_frame, textvariable=ents[i], font=("Arial", 16, "bold"), height= 40, justify='right')
             ent.pack(side='right',  padx=10, pady=10, fill='x', expand=True)
             if i != 0:
                 ent.configure(validate = 'key', validatecommand=(ent.register(self.validate_Entry), '%P', 'float' if ents[i] ==self.amount_money else 'integer'))
@@ -79,8 +79,8 @@ class FactoryAccountView(ctk.CTkFrame):
         style.map("Treeview.Heading",background=[('active', '#3484F0')])
 
         # --- Create Treeview Widget ---
-        self.tree_columns = ('factory_name', 'factory_money', 'factory_quantity')
-        self.tree_headers = ['اسم المصنع', 'المبلغ المستحق', 'كمية القطع']
+        self.tree_columns = ('customer_name', 'customer_money', 'customer_quantity')
+        self.tree_headers = ['اسم المكتب', 'المبلغ المستحق', 'كمية القطع']
 
         self.tree = ttk.Treeview(bottom_frame, columns=self.tree_columns, show='headings', selectmode="extended")
         
@@ -90,9 +90,9 @@ class FactoryAccountView(ctk.CTkFrame):
         
         
         # Define column widths (adjust as needed)
-        self.tree.column('factory_name',  anchor='center')
-        self.tree.column('factory_money',  anchor='center')
-        self.tree.column('factory_quantity',  anchor='center')
+        self.tree.column('customer_name',  anchor='center')
+        self.tree.column('customer_money',  anchor='center')
+        self.tree.column('customer_quantity',  anchor='center')
         
 
         # --- Add Scrollbars ---
@@ -165,7 +165,7 @@ class FactoryAccountView(ctk.CTkFrame):
             
             
             if selected_item_id:
-                row_values = self.tree.item(selected_item_id, 'values') # return (factory_name value, factory_money value ,...)
+                row_values = self.tree.item(selected_item_id, 'values') # return (customer_name value, customer_money value ,...)
                 func(row_values)
 
 

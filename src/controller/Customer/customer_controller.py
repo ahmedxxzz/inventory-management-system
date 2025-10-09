@@ -1,12 +1,13 @@
 from view.Customer.customer_view import CustomerView
 
 class CustomerController:
-    def __init__(self, root, db_conn, distributor = None):
+    def __init__(self, root, db_conn, distributor):
         """create the customer main frame
 
         Args:
             root (ctk.CTk): this is the root window of the application but contains the side bar frame
             db_conn (sqlite3.Connection): database connection, that is the connection object to the database
+            distributor (str): distributor name
         """
         self.root = root
         self.db_conn = db_conn
@@ -65,8 +66,8 @@ class CustomerController:
 
     def open_account(self):
         from controller.Customer.customer_account_controller import CustomerAccountController
-        customer_account = CustomerAccountController(self.root, self.db_conn, self.distributor)
-        # self.view.Frames.append(customer_account.view)
+        customer_account = CustomerAccountController(self.view, self.db_conn, self.distributor, self.view.Frames)
+        self.view.Frames.append(customer_account.view)
 
 
     def check_password(self):

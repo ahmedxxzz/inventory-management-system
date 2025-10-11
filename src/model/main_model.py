@@ -123,6 +123,7 @@ class MainModel:
                     balance_before NUMERIC NOT NULL,
                     balance_after NUMERIC NOT NULL,
                     factory_id INTEGER NOT NULL,
+                    reason TEXT DEFAULT NULL,
                     FOREIGN KEY (factory_id) REFERENCES Factories(factory_id)
                     );
 
@@ -186,6 +187,7 @@ class MainModel:
                     balance_after NUMERIC NOT NULL,
                     customer_id INTEGER NOT NULL,
                     distributor_id INTEGER NOT NULL,
+                    reason TEXT DEFAULT NULL,
                     FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
                     FOREIGN KEY (distributor_id) REFERENCES Distributor(distributor_id)
                     );

@@ -31,6 +31,25 @@ class AccountReportModel:
                         FP.date
                     ''', (self.factory_id,)).fetchall()
 
+
+
+    def get_paid_purchases_data(self):
+        self.cursor.execute(
+                    '''SELECT 
+                        SUM(FP.total_amount)
+                    FROM 
+                        Factory_Purchases_Bills FP 
+                    WHERE 
+                        FP.factory_id = ? AND FP.is_paid = 1
+                    ''', (self.factory_id,))
+        result = self.cursor.fetchone()
+
+        if result and result[0] is not None:
+            return result[0]
+        else:
+            return 0.00
+
+
     def get_payments_data(self):
         return self.cursor.execute('''SELECT amount_paid, date, 'pay' AS net_amount FROM Factory_Pays WHERE factory_id = ? ORDER BY date''',(self.factory_id,)).fetchall()
 

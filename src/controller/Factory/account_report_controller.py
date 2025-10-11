@@ -166,6 +166,7 @@ class AccountReportController:
 
     def define_data(self):
         self.factory_data["purchases_data"] = self.model.get_purchases_data() # returned data = [ (50010, '2022-01-01', 'buy'), (6014, '2022-01-02', 'buy') ]
+        self.factory_data["paid_purchases_data"] = self.model.get_paid_purchases_data() # returned data = 150 
         self.factory_data["payments_data"] = self.model.get_payments_data() # returned data = [ (50010, '2022-01-01', 'pay'), (6014, '2022-01-02', 'pay') ]
         self.factory_data["returns_data"] = self.model.get_returned_data() # returned data = [ (50010, '2022-01-01', 'return'), (6014, '2022-01-02', 'return') ]
         
@@ -173,7 +174,7 @@ class AccountReportController:
         self.factory_data["total_purchases"]= sum(float(p[0]) if p[0] is not None else 0 for p in self.factory_data["purchases_data"])
         self.factory_data["total_payments"]  = sum(float(p[0]) if p[0] is not None else 0 for p in self.factory_data["payments_data"])
         self.factory_data["total_returns"]  = sum(float(r[0]) if r[0] is not None else 0 for r in self.factory_data["returns_data"])
-        self.factory_data["total_balance"] = self.factory_data["total_purchases"] - (self.factory_data["total_payments"] + self.factory_data["total_returns"] )
+        self.factory_data["total_balance"] = self.factory_data["total_purchases"] - (self.factory_data["total_payments"] + self.factory_data["total_returns"] + self.factory_data["paid_purchases_data"])
 
 
     def structure_pdf(self):
@@ -284,16 +285,12 @@ class AccountReportController:
             story.append(Spacer(1, 0.8*cm))
 
             # --- Final Balance ---
-            balance_desc = ""
-            if self.factory_data['total_balance'] > 0:
-                balance_desc = self._reshape_and_bidi("الرصيد النهائي المستحق عليكم")
-            elif self.factory_data['total_balance'] < 0:
-                balance_desc = self._reshape_and_bidi("الرصيد النهائي المستحق لكم")
-            else:
-                balance_desc = self._reshape_and_bidi("الرصيد النهائي صفر")
+            balance_desc = self._reshape_and_bidi("الرصيد النهائي المستحق عليكم")
 
-            final_balance_text = f"{self._reshape_and_bidi('ج.م')} {abs(self.factory_data['total_balance']):,.2f} : {balance_desc}"
-            story.append(Paragraph(final_balance_text, final_total_style))
+            final_balance_text1 = f"{self._reshape_and_bidi('ج.م')} {abs(self.factory_data['paid_purchases_data']):,.2f} : {self._reshape_and_bidi("اجمالى المدفوع مسبقا اثناء الشراء")}"
+            final_balance_text2 = f"{self._reshape_and_bidi('ج.م')} {abs(self.factory_data['total_balance']):,.2f} : {balance_desc}"
+            story.append(Paragraph(final_balance_text1, final_total_style))
+            story.append(Paragraph(final_balance_text2, final_total_style))
 
             # --- Generate and Print PDF ---
             self.create_and_print_pdf(story, f"factory_{self.factory_data['factory_id']}_statement_sidebyside", margin=margin_size)

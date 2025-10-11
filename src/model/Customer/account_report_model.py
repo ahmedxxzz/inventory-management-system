@@ -5,7 +5,7 @@ class AccountReportModel:
         self.cursor = self.conn.cursor()
         self.customer_id = customer_id
         self.distributor_id = self.get_distributor_id(distributor)
-        
+
 
     def get_distributor_id(self, distributor_name):
         self.cursor.execute("SELECT distributor_id FROM Distributor WHERE name = ?", (distributor_name,))
@@ -31,7 +31,6 @@ class AccountReportModel:
         return self.cursor.fetchone()
 
 
-
     def get_purchases_data(self):
         self.cursor.execute(
                     '''SELECT 
@@ -52,6 +51,27 @@ class AccountReportModel:
                     ''', (self.customer_id, self.distributor_id))
         return self.cursor.fetchall() # returned data = [ (50010, '2022-01-01', 'buy'), (6014, '2022-01-02', 'buy') ]
 
+
+    def get_paid_purchases_data(self):
+        self.cursor.execute(
+            '''SELECT 
+                    SUM(CS.total_amount)
+                FROM 
+                    Customer_Sales_Bills CS 
+                WHERE 
+                    CS.customer_id = ? 
+                    AND CS.distributor_id = ? 
+                    AND CS.is_paid = 1
+            ''', (self.customer_id, self.distributor_id))
+            
+        result = self.cursor.fetchone()
+        
+        if result and result[0] is not None:
+            return result[0]
+        else:
+            return 0.00
+
+
     def get_payments_data(self):
         return self.cursor.execute('''SELECT 
                                         amount_paid AS net_amount, 
@@ -64,7 +84,6 @@ class AccountReportModel:
                                     ORDER BY 
                                         date
                                     ''',(self.customer_id, self.distributor_id)).fetchall()
-
 
 
     def get_returned_data(self):
@@ -84,3 +103,4 @@ class AccountReportModel:
                                     ORDER 
                                         BY CR.date
                                         ''',(self.customer_id, self.distributor_id)).fetchall()
+

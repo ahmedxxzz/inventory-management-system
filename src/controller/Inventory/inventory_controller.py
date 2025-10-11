@@ -16,8 +16,8 @@ class InventoryController:
         self.model = InventoryModel(self.db_conn)
         self.view = InventoryView(root, self.model.get_distributors)
         self._bind_events()
-    
-    
+
+
     def _bind_events(self):
         for button in self.view.buttons:
             button.configure(command= lambda button_obj=button: self._menu_buttons_switching(title = button_obj.cget("text"), button = button_obj))
@@ -37,6 +37,9 @@ class InventoryController:
             # add the frame of clicked button
             # append the frame to the self.view.frames
         """
+        if title == 'الرئيسية':
+            if not self.check_password():
+                return 
         for btn in self.view.buttons:
             btn.configure(fg_color='#206ca4', state='normal', cursor="hand2")
         button.configure(fg_color='yellow', state='disabled', cursor="arrow")    
@@ -50,3 +53,16 @@ class InventoryController:
 
     def open_inventory_option(self, title):
         pass
+
+
+    def check_password(self):
+        from main import PASSWORD
+        password = self.view.create_password_popup()
+        if password == PASSWORD:
+            return True
+        elif password !=PASSWORD  and password is not None :
+            self.view.message("showinfo", "خطأ", "كلمة المرور غير صحيحة")
+            return self.check_password()
+        if password is None:
+            return False
+

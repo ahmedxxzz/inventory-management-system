@@ -58,7 +58,7 @@ class MainController:
             'المكاتب': self.open_customer,
             'المخزن': self.open_inventory,
             'الموزعين': self.open_distributors,
-            'الخزنة': self.open_safe,
+            'الخزنة': self.open_wallet,
             'المصاريف': self.open_extra_costs,
             'الاشعارات': self.open_notifications,
             'الخروج': self.root.destroy
@@ -89,7 +89,7 @@ class MainController:
         self.view.Frames.append(distributor.view)
 
 
-    def open_safe(self):
+    def open_wallet(self):
         wallet = WalletController(root = self.root, db_conn = self.model.conn)
         self.view.Frames.append(wallet.view)
 

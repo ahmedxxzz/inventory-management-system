@@ -52,7 +52,12 @@ class InventoryController:
 
 
     def open_inventory_option(self, title):
-        pass
+        if title == 'الرئيسية':
+            pass
+        else:
+            from controller.Inventory.inventory_details_controller import InventoryDetailsController
+            inv_details = InventoryDetailsController(self.view, self.db_conn, title)
+            self.view.Frames.append(inv_details.view)
 
 
     def check_password(self):

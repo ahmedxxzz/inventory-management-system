@@ -43,9 +43,10 @@ class CustomerAccountDetailsController:
     def get_selected_transaction(self, row_values):
         if row_values:
             from controller.Customer.show_details_popup_controller import ShowDetailsPopupController
-            popup = ShowDetailsPopupController(self.root, row_values[0], row_values[2], self.db_conn, self.distributor, self.customer_id)
+            popup = ShowDetailsPopupController(self.root, row_values[0], row_values[2], self.db_conn)
 
 
     def report(self):
-        pass
+        from controller.Customer.account_report_controller import AccountReportController
+        AccountReportController( self.customer_id, self.distributor, self.db_conn)
 

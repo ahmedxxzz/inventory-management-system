@@ -3,7 +3,7 @@ from model.Customer.show_details_popup_model import ShowDetailsPopupModel
 
 
 class ShowDetailsPopupController:
-    def __init__(self, root, operation_id, operation_type, db_conn, distributor_name, customer_id):
+    def __init__(self, root, operation_id, operation_type, db_conn):
         self.root = root
         self.view = ShowDetailsPopupView(self.root,  operation_type)
         self.model = ShowDetailsPopupModel(operation_id, db_conn)

@@ -53,7 +53,9 @@ class InventoryController:
 
     def open_inventory_option(self, title):
         if title == 'الرئيسية':
-            pass
+            from controller.Inventory.inventory_dashboard_controller import InventoryDashboardController
+            inv_dashboard = InventoryDashboardController(self.view, self.db_conn)
+            self.view.Frames.append(inv_dashboard.view)
         else:
             from controller.Inventory.inventory_details_controller import InventoryDetailsController
             inv_details = InventoryDetailsController(self.view, self.db_conn, title)

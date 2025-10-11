@@ -5,6 +5,7 @@ from controller.Customer.customer_controller import CustomerController
 from controller.Inventory.inventory_controller import InventoryController
 from controller.distributor_controller import DistributorController
 from controller.wallet_controller import WalletController
+from controller.extra_costs_controller import ExtraCostController
 
 class MainController:
     def __init__(self, root):
@@ -94,10 +95,14 @@ class MainController:
 
 
     def open_extra_costs(self):
-        pass
+        costs = ExtraCostController(root = self.root, db_conn = self.model.conn)
+        self.view.Frames.append(costs.view)
+
+
     def open_notifications(self):
         pass
 
 
     def choose_customer_distributor(self):
         return self.view.create_distributor_popup(self.model.get_distributors())
+

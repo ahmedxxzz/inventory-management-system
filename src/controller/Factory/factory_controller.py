@@ -55,7 +55,11 @@ class FactoryController:
 
 
     def open_buy(self):
-        pass
+        from controller.Factory.factory_buy_controller import FactoryBuyController
+        factory_buy = FactoryBuyController(self.view, self.db_conn)
+        self.view.Frames.append(factory_buy.view)
+
+
     def open_pay(self):
         pass
     def open_return(self):

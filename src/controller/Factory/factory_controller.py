@@ -61,7 +61,11 @@ class FactoryController:
 
 
     def open_pay(self):
-        pass
+        from controller.Factory.factory_pay_controller import FactoryPayController
+        factory_pay = FactoryPayController(self.view, self.db_conn)
+        self.view.Frames.append(factory_pay.view)
+
+
     def open_return(self):
         pass
 

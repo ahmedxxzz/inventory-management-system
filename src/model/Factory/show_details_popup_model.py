@@ -47,12 +47,15 @@ class ShowDetailsPopupModel:
                         FRI.quantity ,
                         FRI.price_at_return ,
                         FRI.quantity  * FRI.price_at_return as total_price,
-                        FRI.reason 
+                        FR.reason 
                     FROM 
                         Factory_Return_Items  AS FRI
                     Join 
                         Product AS P
                         ON FRI.product_id = P.product_id
+                    Join 
+                        Factory_Returns AS FR
+                        ON FRI.return_id = FR.return_id
                     WHERE 
                         FRI.return_id  = ?;
                     

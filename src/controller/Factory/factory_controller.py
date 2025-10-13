@@ -67,7 +67,9 @@ class FactoryController:
 
 
     def open_return(self):
-        pass
+        from controller.Factory.factory_return_controller import FactoryReturnController
+        factory_return = FactoryReturnController(self.view, self.db_conn)
+        self.view.Frames.append(factory_return.view)
 
 
     def open_account(self):

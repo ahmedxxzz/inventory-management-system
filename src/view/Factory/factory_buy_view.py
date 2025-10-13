@@ -278,10 +278,10 @@ class FactoryBuyView(ctk.CTkFrame):
         self.set_default_date() # Reset date to today
 
     def show_error(self, title, message):
-        messagebox.showerror(self._rtl_text(title), self._rtl_text(message))
+        messagebox.showerror(title, message)
 
     def show_info(self, title, message):
-        messagebox.showinfo(self._rtl_text(title), self._rtl_text(message))
+        messagebox.showinfo(title, message)
 
     def ask_yes_no(self, title, message):
-        return messagebox.askyesno(self._rtl_text(title), self._rtl_text(message))
+        return messagebox.askyesno(title, message)

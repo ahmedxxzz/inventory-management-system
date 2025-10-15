@@ -28,7 +28,7 @@ class ShowDetailsPopupModel:
                     Product AS P
                     ON CSI.product_id = P.product_id
                 WHERE 
-                    CSI.bill_item_id  = ?;
+                    CS.sales_bill_id= ?;
                 
                 ''', (self.operation_id,))
         

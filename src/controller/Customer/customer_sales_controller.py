@@ -103,8 +103,20 @@ class CustomerSalesController:
             self.view.show_info("نجاح", "تم حفظ الفاتورة بنجاح.")
             # <<< MODIFICATION: Use self.view.ask_yes_no for the print dialog
             if self.view.ask_yes_no("طباعة", "هل تريد طباعة الفاتورة؟"):
+                report_data = {
+                    'sales_bill_id': result['sales_bill_id'],
+                    'customer_name': customer_name,
+                    'distributor_name': self.distributor_name,
+                    'date': bill_date,
+                    'items': self.bill_items,
+                    'is_paid': data_to_save['is_paid'],
+                    'balance_before': result['balance_before'],
+                    'balance_after': result['balance_after']
+                }
                 # You would call the report generator here
-                print("Printing bill with data:", result)
+                from controller.Customer.sales_report_controller import SalesReportController
+                report_generator = SalesReportController(report_data)
+                report_generator.generate_pdf()
             self.clear_form()
         else:
             self.view.show_error("فشل الحفظ", result)

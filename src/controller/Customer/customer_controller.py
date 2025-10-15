@@ -57,7 +57,11 @@ class CustomerController:
 
 
     def open_buy(self):
-        pass
+        from controller.Customer.customer_sales_controller import CustomerSalesController
+        customer_sales = CustomerSalesController(self.view, self.db_conn, self.distributor)
+        self.view.Frames.append(customer_sales.view)
+
+
     def open_pay(self):
         pass
     def open_return(self):

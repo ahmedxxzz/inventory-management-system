@@ -7,6 +7,7 @@ class CustomerPayController:
     def __init__(self, root, db_conn, distributor_name):
         self.root = root
         self.model = CustomerPayModel(db_conn)
+        self.distributor_name = distributor_name
         self.distributor_id = self.model.get_distributor_id_by_name(distributor_name)
         self.view = CustomerPayView(self.root, distributor_name)
 
@@ -64,7 +65,22 @@ class CustomerPayController:
         if success:
             self.view.show_info("نجاح", "تم تسجيل الدفعة بنجاح.")
             if self.view.ask_yes_no("طباعة", "هل تريد طباعة إيصال استلام نقدية؟"):
-                print("Printing payment receipt with data:", result) # Placeholder for report
+                from controller.Customer.customer_pay_report_controller import CustomerPayReportController
+                report_data = {
+                    'pay_id': result['pay_id'],
+                    'customer_name': customer_name,
+                    'distributor_name': self.distributor_name,
+                    'date': payment_date,
+                    'amount_paid': amount_paid,
+                    'balance_before': result['balance_before'],
+                    'balance_after': result['balance_after']
+                }
+                # 2. Generate the report
+                try:
+                    report_generator = CustomerPayReportController(report_data)
+                    report_generator.generate_pdf()
+                except Exception as e:
+                    self.view.show_error("خطأ في الطباعة", f"فشل إنشاء التقرير:\n{e}")
             self._load_initial_data() # Refresh data
         else:
             self.view.show_error("فشل الحفظ", result)

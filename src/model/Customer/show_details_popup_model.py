@@ -47,14 +47,17 @@ class ShowDetailsPopupModel:
                         CRI.quantity ,
                         CRI.price_at_return ,
                         CRI.quantity  * CRI.price_at_return as total_price,
-                        CRI.reason
+                        CR.reason
                     FROM 
                         Customer_Return_Items  AS CRI
                     Join 
                         Product AS P
                         ON CRI.product_id = P.product_id
+                    Join
+                        Customer_Returns AS CR
+                        ON CRI.return_id = CR.return_id
                     WHERE 
-                        CRI.return_id  = ?;
+                        CR.return_id  = ?;
                     
                     ''', (self.operation_id,))
         return self.cursor.fetchall()

@@ -1,17 +1,17 @@
 import sqlite3, os
-
+from datetime import datetime, timedelta
 
 class MainModel:
     def __init__(self):
-        db_file = "IMS.db"
+        self.db_file = "IMS.db"
         is_exist = False
-        if os.path.exists(db_file):
-            print(f"Database {db_file} already exists. Skipping database setup.......")
+        if os.path.exists(self.db_file):
+            print(f"Database {self.db_file} already exists. Skipping database setup.......")
             is_exist = True
-        self.conn = sqlite3.connect(db_file)
+        self.conn = sqlite3.connect(self.db_file, check_same_thread=False)
         self.cursor = self.conn.cursor()
         if not is_exist:
-            print(f"Database {db_file} isn't exists. Setting up database........")
+            print(f"Database {self.db_file} isn't exists. Setting up database........")
             self.create_tables()
 
     
@@ -241,3 +241,87 @@ class MainModel:
         distributors = self.cursor.fetchall() # = [(name1,), (name2,), ...]
         distributors_list_names = [distributor[0] for distributor in distributors]
         return distributors_list_names # = [name1, name2, ...]
+
+
+    def generate_all_notifications(self):
+        """
+        Master function to generate all types of notifications.
+        This version is THREAD-SAFE as it creates its own database connection.
+        """
+        conn = None  # Ensure conn is defined in case the try block fails early
+        try:
+            # Create a NEW connection specifically for this thread's execution
+            conn = sqlite3.connect(self.db_file)
+            cursor = conn.cursor()
+
+            # Call the helper methods, but pass the new cursor to them
+            self._check_stale_factories(cursor)
+            self._check_late_customer_payments(cursor)
+            self._check_low_stock(cursor)
+            
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error during notification generation in thread: {e}")
+        finally:
+            # CRITICAL: Always close the connection for this thread when done
+            if conn:
+                conn.close()
+
+    def _check_stale_factories(self, cursor):
+        """Generates notifications for stale factories using the provided cursor."""
+        one_week_ago = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+        # Use the passed cursor, NOT self.cursor
+        cursor.execute("SELECT factory_id, name FROM Factories WHERE last_purchase_date < ?", (one_week_ago,))
+        stale_factories = cursor.fetchall()
+        for factory_id, name in stale_factories:
+            cursor.execute("SELECT 1 FROM Notifications WHERE type = 'stale_factory' AND reference_id = ? AND status = 'unseen'", (factory_id,))
+            if cursor.fetchone() is None:
+                message = f"لم تتم أي عملية شراء من مصنع '{name}' منذ أكثر من أسبوع."
+                cursor.execute("INSERT INTO Notifications (date, message, type, reference_id) VALUES (?, ?, 'stale_factory', ?)", (datetime.now().strftime('%Y-%m-%d %H:%M'), message, factory_id))
+
+    def _check_late_customer_payments(self, cursor):
+        """Generates notifications for late payments using the provided cursor."""
+        cursor.execute("""
+            SELECT cda.account_id, c.name, d.name, cda.last_payment_date
+            FROM Customer_Distributor_Accounts cda
+            JOIN Customer c ON c.customer_id = cda.customer_id
+            JOIN Distributor d ON d.distributor_id = cda.distributor_id
+            WHERE cda.current_balance > 0 AND cda.last_payment_date IS NOT NULL
+        """)
+        late_accounts = cursor.fetchall()
+        for account_id, customer_name, dist_name, last_payment_str in late_accounts:
+            weeks_late = (datetime.now() - datetime.strptime(last_payment_str, '%Y-%m-%d')).days // 7
+            if weeks_late > 0:
+                cursor.execute("SELECT notification_id FROM Notifications WHERE type = 'late_payment' AND reference_id = ? AND status = 'unseen'", (account_id,))
+                existing_notification = cursor.fetchone()
+                message = f"العميل '{customer_name}' (موزع: {dist_name}) لم يدفع منذ {weeks_late} أسابيع."
+                if existing_notification:
+                    cursor.execute("UPDATE Notifications SET message = ? WHERE notification_id = ?", (message, existing_notification[0]))
+                else:
+                    cursor.execute("SELECT message FROM Notifications WHERE type = 'late_payment' AND reference_id = ? ORDER BY notification_id DESC LIMIT 1", (account_id,))
+                    last_msg = cursor.fetchone()
+                    if not last_msg or f"منذ {weeks_late} أسابيع" not in last_msg[0]:
+                         cursor.execute("INSERT INTO Notifications (date, message, type, reference_id) VALUES (?, ?, 'late_payment', ?)", (datetime.now().strftime('%Y-%m-%d %H:%M'), message, account_id))
+
+    def _check_low_stock(self, cursor):
+        """Generates notifications for low stock using the provided cursor."""
+        cursor.execute("SELECT product_id, name, available_quantity FROM Product WHERE available_quantity < low_stock_threshold")
+        low_stock_products = cursor.fetchall()
+        for product_id, name, qty in low_stock_products:
+            cursor.execute("SELECT 1 FROM Notifications WHERE type = 'low_stock' AND reference_id = ? AND status = 'unseen'", (product_id,))
+            if cursor.fetchone() is None:
+                message = f"تنبيه نقص مخزون: الصنف '{name}' لديه {qty} قطعة متبقية فقط."
+                cursor.execute("INSERT INTO Notifications (date, message, type, reference_id) VALUES (?, ?, 'low_stock', ?)", (datetime.now().strftime('%Y-%m-%d %H:%M'), message, product_id))
+
+    # --- Functions below will still use self.cursor as they are called from the main thread ---
+    def get_unseen_notification_count(self):
+        self.cursor.execute("SELECT COUNT(*) FROM Notifications WHERE status = 'unseen'")
+        return self.cursor.fetchone()[0]
+
+    def get_unseen_notifications(self):
+        self.cursor.execute("SELECT date, message FROM Notifications WHERE status = 'unseen' ORDER BY notification_id DESC")
+        return self.cursor.fetchall()
+
+    def mark_all_as_seen(self):
+        self.cursor.execute("UPDATE Notifications SET status = 'seen' WHERE status = 'unseen'")
+        self.conn.commit()

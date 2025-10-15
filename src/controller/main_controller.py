@@ -6,6 +6,7 @@ from controller.Inventory.inventory_controller import InventoryController
 from controller.distributor_controller import DistributorController
 from controller.wallet_controller import WalletController
 from controller.extra_costs_controller import ExtraCostController
+import threading
 
 class MainController:
     def __init__(self, root):
@@ -18,9 +19,10 @@ class MainController:
         self.model = MainModel()
         self.view = MainView(self.root)
         self._bind_events()
-    
-    
-    
+        initial_check_thread = threading.Thread(target=self.check_for_notifications, daemon=True)
+        initial_check_thread.start()
+
+
     def _bind_events(self):
         """bind each main side bar buttons to its frame
         """
@@ -100,9 +102,44 @@ class MainController:
 
 
     def open_notifications(self):
-        pass
+        """Opens the full notification history page with filtering capabilities."""
+        def on_notifications_updated():
+            # This will be called by the notification controller to update the count
+            count = self.model.get_unseen_notification_count()
+            self.view.update_notification_count(count)
+
+        # We need the list of distributors for the filter
+        distributors = self.model.get_distributors()
+        from controller.notification_controller import NotificationController
+
+        notifications_page = NotificationController(
+            root=self.root, 
+            db_conn=self.model.conn,
+            on_close_callback=on_notifications_updated,
+            distributors=distributors # Pass the list to the controller
+        )
+        self.view.Frames.append(notifications_page.view)
 
 
     def choose_customer_distributor(self):
         return self.view.create_distributor_popup(self.model.get_distributors())
 
+
+    def check_for_notifications(self):
+        """
+        Generates new notifications, updates the count on the view,
+        and schedules itself to run again.
+        """
+        print("Checking for new notifications...")
+        # 1. Generate new notifications in the database
+        self.model.generate_all_notifications()
+        
+        # 2. Get the count of unseen notifications
+        count = self.model.get_unseen_notification_count()
+        
+        # 3. Update the view with the new count
+        self.view.update_notification_count(count)
+        
+        # 4. Schedule this check to run again after 1 hour (3,600,000 milliseconds)
+        # For testing, you can set it to a shorter time, e.g., 30000 for 30 seconds.
+        self.root.after(3600000, self.check_for_notifications)

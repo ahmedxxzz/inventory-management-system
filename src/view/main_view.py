@@ -44,6 +44,8 @@ class MainView(ctk.CTkFrame):
             button = ctk.CTkButton(self, text=title, state='normal', fg_color='black', text_color='yellow',font=ctk.CTkFont(size=20, weight='bold'),corner_radius=20, cursor="hand2", hover_color='red' ,height=50,)
             button.pack(side='top', fill='x',pady=10,padx=10)
             self.buttons.append(button)
+            if title == 'الاشعارات':
+                self.notification_button = button
 
 
     def create_distributor_popup(self, distributors):
@@ -83,3 +85,11 @@ class MainView(ctk.CTkFrame):
             self.distributor_var.set('')
         return self.distributor_var.get()
 
+
+
+    def update_notification_count(self, count):
+        """Updates the notification button text with the count of unseen notifications."""
+        if count > 0:
+            self.notification_button.configure(text=f"الاشعارات ({count})", fg_color="red")
+        else:
+            self.notification_button.configure(text="الاشعارات", fg_color="black")

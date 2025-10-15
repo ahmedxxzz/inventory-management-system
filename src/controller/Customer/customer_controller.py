@@ -63,7 +63,11 @@ class CustomerController:
 
 
     def open_pay(self):
-        pass
+        from controller.Customer.customer_pay_controller import CustomerPayController
+        customer_return = CustomerPayController(self.view, self.db_conn, self.distributor)
+        self.view.Frames.append(customer_return.view)
+
+
     def open_return(self):
         from controller.Customer.customer_return_controller import CustomerReturnController
         customer_return = CustomerReturnController(self.view, self.db_conn, self.distributor)

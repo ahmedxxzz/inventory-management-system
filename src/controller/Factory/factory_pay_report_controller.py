@@ -83,7 +83,7 @@ class FactoryPayReportController:
 
         # 3. السطر الثالث (رقم العملية، التاريخ، المدينة)
         pdf.set_font("SegoeUI", "", 12)
-        pdf.cell(cell_width, 10, txt=self.handle_arabic("القاهرة"), align="L")
+        pdf.cell(cell_width, 10, txt=self.handle_arabic(self.data['wallet_name']), align="L")
         pdf.cell(spacer_width, 10, txt="", border=0)
         pdf.cell(cell_width, 10, txt=self.handle_arabic(f"تاريخ العملية: {self.data['payment_date']}"), align="C")
         pdf.cell(spacer_width, 10, txt="", border=0)

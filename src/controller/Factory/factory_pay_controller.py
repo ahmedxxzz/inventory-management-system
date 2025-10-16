@@ -94,7 +94,8 @@ class FactoryPayController:
                     'amount_paid': amount_paid,
                     'payment_date': payment_date_str,
                     'balance_before': result['balance_before'],
-                    'balance_after': result['balance_after']
+                    'balance_after': result['balance_after'],
+                    'wallet_name': wallet_name
                 }
                 # <<< --- END OF CHANGE --- >>>
                 self._generate_report(payment_details_for_report)

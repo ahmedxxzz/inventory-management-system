@@ -45,10 +45,10 @@ class MainController:
             if not distributor:
                 return None
         for btn in self.view.buttons:
-            if btn.cget("text") == 'الاشعارات':
+            if 'الاشعارات' in btn.cget("text") :
                 continue
             btn.configure(fg_color='black', state='normal', cursor="hand2")
-        if title != 'الاشعارات':
+        if 'الاشعارات' not in title:
             button.configure(fg_color='green', state='disabled', cursor="arrow")
             
         
@@ -68,7 +68,10 @@ class MainController:
         if title == 'المكاتب':
             main_menu_button_map[title](distributor)
         else:
-            main_menu_button_map[title]()
+            if 'الاشعارات' in title:
+                main_menu_button_map['الاشعارات']()
+            else:
+                main_menu_button_map[title]()
         
 
     def open_factory(self):

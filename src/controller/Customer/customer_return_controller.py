@@ -1,18 +1,13 @@
 from datetime import date, datetime
-
 from view.Customer.customer_return_view import CustomerReturnView, END
 from model.Customer.customer_return_model import CustomerReturnModel
-from model.Customer.customer_sales_model import CustomerSalesModel
 
 class CustomerReturnController:
     def __init__(self, root, db_conn, distributor_name):
         self.root = root
         self.model = CustomerReturnModel(db_conn)
         self.distributor_name = distributor_name
-        
-        temp_sales_model = CustomerSalesModel(db_conn)
-        self.distributor_id = temp_sales_model.get_distributor_id_by_name(distributor_name)
-        del temp_sales_model
+        self.distributor_id = self.model.get_distributor_id_by_name(distributor_name)
 
         self.view = CustomerReturnView(self.root, self.distributor_name)
 
@@ -25,7 +20,6 @@ class CustomerReturnController:
         self._bind_events()
 
     def _load_initial_data(self):
-        # <<< MODIFICATION: We ONLY load customers here. Products will be loaded later.
         customers = self.model.get_customers_by_distributor(self.distributor_id)
         self.customers_data = {name: cust_id for cust_id, name in customers}
         self.view.customer_combobox.configure(values=list(self.customers_data.keys()))
@@ -147,7 +141,8 @@ class CustomerReturnController:
                     'date': return_date,
                     'items': self.return_items,
                     'balance_before': result['balance_before'],
-                    'balance_after': result['balance_after']
+                    'balance_after': result['balance_after'],
+                    'logo_path': self.model.get_distributor_logo_by_name(self.distributor_name),
                 }
                 # 2. Generate the report
                 try:

@@ -111,7 +111,8 @@ class CustomerSalesController:
                     'items': self.bill_items,
                     'is_paid': data_to_save['is_paid'],
                     'balance_before': result['balance_before'],
-                    'balance_after': result['balance_after']
+                    'balance_after': result['balance_after'],
+                    'logo_path': self.model.get_distributor_logo_by_name(self.distributor_name)
                 }
                 # You would call the report generator here
                 from controller.Customer.sales_report_controller import SalesReportController

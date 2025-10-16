@@ -33,7 +33,8 @@ class MainModel:
 
                     CREATE TABLE Distributor (
                     distributor_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL UNIQUE
+                    name TEXT NOT NULL UNIQUE,
+                    logo_path TEXT 
                     );
 
                     CREATE TABLE Wallets (

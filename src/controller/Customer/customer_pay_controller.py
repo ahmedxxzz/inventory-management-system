@@ -73,7 +73,8 @@ class CustomerPayController:
                     'date': payment_date,
                     'amount_paid': amount_paid,
                     'balance_before': result['balance_before'],
-                    'balance_after': result['balance_after']
+                    'balance_after': result['balance_after'],
+                    'logo_path': self.model.get_distributor_logo_by_name(self.distributor_name)
                 }
                 # 2. Generate the report
                 try:

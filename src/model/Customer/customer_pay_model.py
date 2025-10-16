@@ -85,3 +85,11 @@ class CustomerPayModel:
             print(f"Database error in get_distributor_id_by_name: {e}")
             return None
 
+    def get_distributor_logo_by_name(self, distributor_name):
+        try:
+            self.cursor.execute("SELECT logo_path FROM Distributor WHERE name = ?", (distributor_name,))
+            result = self.cursor.fetchone()
+            return result[0] if result and result[0] else None
+        except Exception as e:
+            print(f"Error fetching logo path: {e}")
+            return None

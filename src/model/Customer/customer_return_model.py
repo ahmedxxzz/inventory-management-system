@@ -63,3 +63,23 @@ class CustomerReturnModel:
         except sqlite3.Error as e:
             self.conn.rollback()
             return False, f"حدث خطأ أثناء حفظ المرتجع: {e}"
+
+    def get_distributor_id_by_name(self, distributor_name):
+        """Fetches the ID of a distributor by their name."""
+        try:
+            self.cursor.execute("SELECT distributor_id FROM Distributor WHERE name = ?", (distributor_name,))
+            result = self.cursor.fetchone()
+            return result[0] if result else None
+        except sqlite3.Error as e:
+            print(f"Database error in get_distributor_id_by_name: {e}")
+            return None
+
+
+    def get_distributor_logo_by_name(self, distributor_name):
+        try:
+            self.cursor.execute("SELECT logo_path FROM Distributor WHERE name = ?", (distributor_name,))
+            result = self.cursor.fetchone()
+            return result[0] if result and result[0] else None
+        except Exception as e:
+            print(f"Error fetching logo path: {e}")
+            return None

@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import ttk, messagebox ,END
+from tkinter import ttk, messagebox, END
 from datetime import date
 
 class CustomerSalesView(ctk.CTkFrame):
@@ -28,43 +28,67 @@ class CustomerSalesView(ctk.CTkFrame):
         self.paid_switch.pack(side="right", padx=10)
         date_frame = ctk.CTkFrame(right_frame, fg_color="transparent")
         date_frame.pack(side="right", padx=20)
-        year_list = [str(y) for y in range(date.today().year - 5, date.today().year + 1)]
+        year_list = [str(y) for y in range(date.today().year - 5, date.today().year + 2)]
         self.year_menu = ctk.CTkOptionMenu(date_frame, values=year_list, font=self.main_font)
-        self.month_menu = ctk.CTkOptionMenu(date_frame, values=[str(m) for m in range(1, 13)], font=self.main_font)
-        self.day_menu = ctk.CTkOptionMenu(date_frame, values=[str(d) for d in range(1, 32)], font=self.main_font)
+        self.month_menu = ctk.CTkOptionMenu(date_frame, values=[f"{m:02d}" for m in range(1, 13)], font=self.main_font)
+        self.day_menu = ctk.CTkOptionMenu(date_frame, values=[f"{d:02d}" for d in range(1, 32)], font=self.main_font)
         self.year_menu.pack(side="right", padx=2); self.month_menu.pack(side="right", padx=2); self.day_menu.pack(side="right", padx=2)
         ctk.CTkLabel(top_frame, text=":التاريخ والحالة", font=self.main_font).grid(row=1, column=1, padx=10, pady=10, sticky="e")
         
         add_item_frame = ctk.CTkFrame(self)
         add_item_frame.pack(fill='x', padx=20, pady=10)
-        add_item_frame.grid_columnconfigure(7, weight=1)
-        ctk.CTkLabel(add_item_frame, text=":الصنف", font=self.main_font).grid(row=0, column=8, padx=(5,0), pady=10)
+        add_item_frame.grid_columnconfigure(5, weight=1)
+        ctk.CTkLabel(add_item_frame, text=":الصنف", font=self.main_font).grid(row=0, column=6, padx=(5,0), pady=10)
         self.product_combobox = ctk.CTkComboBox(add_item_frame, state="readonly", justify='right', font=self.main_font)
-        self.product_combobox.grid(row=0, column=7, padx=5, pady=10, sticky="ew")
-        ctk.CTkLabel(add_item_frame, text=":السعر", font=self.main_font).grid(row=0, column=6, padx=5, pady=10)
-        self.price_entry = ctk.CTkEntry(add_item_frame, width=80, justify='center', font=self.main_font)
-        self.price_entry.grid(row=0, column=5, padx=5, pady=10)
-        ctk.CTkLabel(add_item_frame, text=":الخصم", font=self.main_font).grid(row=0, column=4, padx=5, pady=10)
-        self.discount_entry = ctk.CTkEntry(add_item_frame, width=80, justify='center', font=self.main_font, placeholder_text="0.00")
-        self.discount_entry.grid(row=0, column=3, padx=5, pady=10)
+        self.product_combobox.grid(row=0, column=5, padx=5, pady=10, sticky="ew")
+        ctk.CTkLabel(add_item_frame, text=":السعر", font=self.main_font).grid(row=0, column=4, padx=5, pady=10)
+        self.price_entry = ctk.CTkEntry(add_item_frame, width=100, justify='center', font=self.main_font)
+        self.price_entry.grid(row=0, column=3, padx=5, pady=10)
         ctk.CTkLabel(add_item_frame, text=":الكمية", font=self.main_font).grid(row=0, column=2, padx=5, pady=10)
-        self.quantity_entry = ctk.CTkEntry(add_item_frame, width=80, justify='center', font=self.main_font)
+        self.quantity_entry = ctk.CTkEntry(add_item_frame, width=100, justify='center', font=self.main_font)
         self.quantity_entry.grid(row=0, column=1, padx=5, pady=10)
         self.add_item_button = ctk.CTkButton(add_item_frame, text="إضافة صنف", font=self.bold_font, width=110)
         self.add_item_button.grid(row=0, column=0, padx=(10,5), pady=10)
 
+        # --- REQUIREMENT 1: Discount frame moved ABOVE the table ---
+        discount_outer_frame = ctk.CTkFrame(self)
+        discount_outer_frame.pack(fill='x', padx=20, pady=(5,0))
+        
+        discount_frame = ctk.CTkFrame(discount_outer_frame)
+        discount_frame.pack(side='right', padx=10, pady=5)
+        
+        self.discount_percentage_entry = ctk.CTkEntry(discount_frame, width=60, justify='center', font=self.main_font, placeholder_text="0")
+        self.discount_percentage_entry.pack(side='right')
+        ctk.CTkLabel(discount_frame, text="% خصم نسبة", font=self.main_font).pack(side='right', padx=(5, 15))
+        
+        self.discount_value_entry = ctk.CTkEntry(discount_frame, width=60, justify='center', font=self.main_font, placeholder_text="0.00")
+        self.discount_value_entry.pack(side='right')
+        ctk.CTkLabel(discount_frame, text="خصم قيمة (للقطعة)", font=self.main_font).pack(side='right', padx=5)
+
         table_frame = ctk.CTkFrame(self)
         table_frame.pack(fill='both', expand=True, padx=20, pady=5)
-        self.tree = ttk.Treeview(table_frame, columns=("total", "discount", "price", "quantity", "product"), show="headings")
-        self.tree.heading("product", text="الصنف", anchor='center'); self.tree.heading("quantity", text="الكمية", anchor='center'); self.tree.heading("price", text="السعر", anchor='center'); self.tree.heading("discount", text="الخصم", anchor='center'); self.tree.heading("total", text="الإجمالي", anchor='center')
-        self.tree.column("product", anchor='center', width=200); self.tree.column("quantity", anchor='center', width=80); self.tree.column("price", anchor='center', width=80); self.tree.column("discount", anchor='center', width=80); self.tree.column("total", anchor='center', width=100)
+        
+        # --- REQUIREMENT 3: Reordered columns to put '#' at the end ---
+        self.tree = ttk.Treeview(table_frame, columns=("total", "price", "quantity", "product", "#"), show="headings")
+        self.tree.heading("total", text="الإجمالي", anchor='center')
+        self.tree.heading("price", text="السعر", anchor='center')
+        self.tree.heading("quantity", text="الكمية", anchor='center')
+        self.tree.heading("product", text="الصنف", anchor='center')
+        self.tree.heading("#", text="#", anchor='center')
+        
+        self.tree.column("total", anchor='center', width=100)
+        self.tree.column("price", anchor='center', width=80)
+        self.tree.column("quantity", anchor='center', width=80)
+        self.tree.column("product", anchor='e', width=250)
+        self.tree.column("#", anchor='center', width=30, stretch=False)
         self.tree.pack(side="right", fill="both", expand=True)
         
         bottom_frame = ctk.CTkFrame(self, fg_color="transparent")
         bottom_frame.pack(fill='x', padx=20, pady=10)
         self.remove_item_button = ctk.CTkButton(bottom_frame, text="حذف الصنف المحدد", fg_color="red", font=self.bold_font)
         self.remove_item_button.pack(side="right", padx=10)
-        self.total_value_label = ctk.CTkLabel(bottom_frame, text="إجمالي الفاتورة: 0.00", font=self.bold_font)
+        # --- REQUIREMENT 3: Total label moved to the bottom frame ---
+        self.total_value_label = ctk.CTkLabel(bottom_frame, text="الإجمالي: 0.00", font=self.bold_font, justify='left')
         self.total_value_label.pack(side="left", padx=10)
 
         action_buttons_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -74,20 +98,23 @@ class CustomerSalesView(ctk.CTkFrame):
         self.clear_button = ctk.CTkButton(action_buttons_frame, text="فاتورة جديدة", fg_color="gray", font=self.bold_font)
         self.clear_button.pack(side="left", padx=10)
 
+    # --- NEW: Methods to control discount widgets ---
+    def lock_discount_widgets(self):
+        self.discount_value_entry.configure(state='disabled')
+        self.discount_percentage_entry.configure(state='disabled')
 
-    # <<< --- NEW METHODS TO HANDLE ALL GUI INTERACTIONS --- START --->
+    def unlock_discount_widgets(self):
+        self.discount_value_entry.configure(state='normal')
+        self.discount_percentage_entry.configure(state='normal')
+
     def show_error(self, title, message):
-        """Displays an error message box."""
         messagebox.showerror(title, message, parent=self)
 
     def show_warning(self, title, message):
-        """Displays a warning message box."""
         messagebox.showwarning(title, message, parent=self)
 
     def show_info(self, title, message):
-        """Displays an info message box."""
         messagebox.showinfo(title, message, parent=self)
 
     def ask_yes_no(self, title, message):
-        """Displays a yes/no question box and returns the boolean result."""
         return messagebox.askyesno(title, message, parent=self)

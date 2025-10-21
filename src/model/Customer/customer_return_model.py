@@ -20,24 +20,63 @@ class CustomerReturnModel:
             print(f"Database error in get_customers_by_distributor: {e}")
             return []
 
-    def get_products_purchased_by_customer(self, customer_id, distributor_id):
+    def get_product_by_name_and_distributor(self, product_name, distributor_id):
         """
-        Fetches all unique products a specific customer has ever purchased from a specific distributor.
-        This is the core of the new requirement.
+        Fetches a product's ID and selling price by its name, ensuring it belongs to the specified distributor.
         """
         try:
             self.cursor.execute("""
-                SELECT DISTINCT p.product_id, p.name, p.selling_price
-                FROM Product p
-                JOIN Customer_Sales_Bill_Items csbi ON p.product_id = csbi.product_id
-                JOIN Customer_Sales_Bills csb ON csbi.sales_bill_id = csb.sales_bill_id
-                WHERE csb.customer_id = ? AND csb.distributor_id = ?
-                ORDER BY p.name
-            """, (customer_id, distributor_id))
-            return self.cursor.fetchall()
+                SELECT product_id, name, selling_price
+                FROM Product
+                WHERE name = ? AND distributor_id = ?
+            """, (product_name, distributor_id))
+            return self.cursor.fetchone() # Returns (product_id, name, selling_price) or None
         except sqlite3.Error as e:
-            print(f"Database error in get_products_purchased_by_customer: {e}")
-            return []
+            print(f"Database error in get_product_by_name_and_distributor: {e}")
+            return None
+
+    def check_if_customer_purchased_product(self, customer_id, product_id, distributor_id):
+        """
+        Checks if a specific customer has ever purchased a specific product from a distributor.
+        Returns True if a purchase history exists, False otherwise.
+        """
+        try:
+            self.cursor.execute("""
+                SELECT 1
+                FROM Customer_Sales_Bill_Items csbi
+                JOIN Customer_Sales_Bills csb ON csbi.sales_bill_id = csb.sales_bill_id
+                WHERE csb.customer_id = ? 
+                  AND csb.distributor_id = ? 
+                  AND csbi.product_id = ?
+                LIMIT 1
+            """, (customer_id, distributor_id, product_id))
+            return self.cursor.fetchone() is not None # Returns True if a row is found
+        except sqlite3.Error as e:
+            print(f"Database error in check_if_customer_purchased_product: {e}")
+            return False
+
+    # <<< --- NEW FUNCTION TO GET LAST PURCHASE PRICE --- START --->
+    def get_last_purchase_price(self, customer_id, product_id, distributor_id):
+        """
+        Fetches the most recent price a customer paid for a specific product from a distributor.
+        """
+        try:
+            self.cursor.execute("""
+                SELECT csbi.price_per_item
+                FROM Customer_Sales_Bill_Items csbi
+                JOIN Customer_Sales_Bills csb ON csbi.sales_bill_id = csb.sales_bill_id
+                WHERE csb.customer_id = ? 
+                  AND csb.distributor_id = ? 
+                  AND csbi.product_id = ?
+                ORDER BY csb.date DESC, csb.sales_bill_id DESC
+                LIMIT 1
+            """, (customer_id, distributor_id, product_id))
+            result = self.cursor.fetchone()
+            return result[0] if result else None
+        except sqlite3.Error as e:
+            print(f"Database error in get_last_purchase_price: {e}")
+            return None
+    # <<< --- NEW FUNCTION --- END --->
 
     def add_return_transaction(self, data):
         """
@@ -46,8 +85,19 @@ class CustomerReturnModel:
         """
         try:
             self.cursor.execute("BEGIN TRANSACTION")
+            # Ensure the account exists before trying to fetch from it
+            self.cursor.execute("SELECT COUNT(*) FROM Customer_Distributor_Accounts WHERE customer_id = ? AND distributor_id = ?", (data['customer_id'], data['distributor_id']))
+            if self.cursor.fetchone()[0] == 0:
+                # This is a safeguard, though the UI flow should prevent this.
+                raise sqlite3.Error(f"Account for customer_id {data['customer_id']} and distributor_id {data['distributor_id']} does not exist.")
+
             self.cursor.execute("SELECT current_balance, current_quantity FROM Customer_Distributor_Accounts WHERE customer_id = ? AND distributor_id = ?", (data['customer_id'], data['distributor_id']))
-            balance_before, quantity_before = self.cursor.fetchone()
+            
+            result = self.cursor.fetchone()
+            if result is None:
+                raise sqlite3.Error("Failed to fetch customer account balances.")
+            
+            balance_before, quantity_before = result
             balance_after = balance_before - data['total_amount']
             self.cursor.execute("INSERT INTO Customer_Returns (date, total_amount, balance_before, balance_after, customer_id, distributor_id, reason) VALUES (?, ?, ?, ?, ?, ?, ?)", (data['date'], data['total_amount'], balance_before, balance_after, data['customer_id'], data['distributor_id'], data['reason']))
             return_id = self.cursor.lastrowid
@@ -73,7 +123,6 @@ class CustomerReturnModel:
         except sqlite3.Error as e:
             print(f"Database error in get_distributor_id_by_name: {e}")
             return None
-
 
     def get_distributor_logo_by_name(self, distributor_name):
         try:

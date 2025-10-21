@@ -14,24 +14,27 @@ class FactoryReturnModel:
             print(f"Database error: {e}")
             return []
 
-    def get_products_by_factory(self, factory_id):
+    # <<<--- NEW, MORE SPECIFIC FUNCTION FOR VALIDATION --- START --->
+    def get_purchased_product_by_name(self, product_name, factory_id):
         """
-        Retrieves all unique products ever purchased from a specific factory.
-        (This fulfills requirement #1)
+        Checks if a product exists AND has been purchased by the specified factory.
+        Returns the product_id if valid, otherwise None.
         """
         try:
             self.cursor.execute("""
-                SELECT DISTINCT p.product_id, p.name
+                SELECT p.product_id
                 FROM Product p
                 JOIN Factory_Purchases_Bill_Items fpi ON p.product_id = fpi.product_id
                 JOIN Factory_Purchases_Bills fpb ON fpi.purchases_bill_id = fpb.purchases_bill_id
-                WHERE fpb.factory_id = ?
-                ORDER BY p.name
-            """, (factory_id,))
-            return self.cursor.fetchall()
+                WHERE p.name = ? AND fpb.factory_id = ?
+                LIMIT 1
+            """, (product_name, factory_id))
+            result = self.cursor.fetchone()
+            return result[0] if result else None
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
-            return []
+            print(f"Database error in get_purchased_product_by_name: {e}")
+            return None
+    # <<<--- NEW, MORE SPECIFIC FUNCTION FOR VALIDATION --- END --->
 
     def get_last_purchase_price(self, factory_id, product_id):
         """
@@ -55,10 +58,6 @@ class FactoryReturnModel:
     def add_return_transaction(self, factory_id, return_date, reason, items_list, total_amount):
         """
         Adds a return bill and its items, and updates factory and product balances in a single transaction.
-        Args:
-            items_list: A list of dictionaries, each with {'product_id', 'quantity', 'price_at_return'}
-        Returns:
-            Tuple (success_boolean, message_or_data)
         """
         try:
             self.cursor.execute("BEGIN TRANSACTION")
@@ -102,4 +101,3 @@ class FactoryReturnModel:
             self.conn.rollback()
             print(f"Transaction failed: {e}")
             return False, f"حدث خطأ أثناء حفظ البيانات: {e}"
-

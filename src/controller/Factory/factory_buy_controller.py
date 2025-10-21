@@ -29,14 +29,30 @@ class FactoryBuyController:
         self.view.distributor_combobox.set("")
 
     def _bind_events(self):
+        # Button commands
         self.view.add_item_button.configure(command=self._on_add_item)
         self.view.update_item_button.configure(command=self._on_update_item)
         self.view.delete_item_button.configure(command=self._on_delete_item)
         self.view.clear_selection_button.configure(command=self._on_clear_selection)
         self.view.save_bill_button.configure(command=self._on_save_bill)
         self.view.cancel_bill_button.configure(command=self._on_cancel_bill)
+        
+        # Widget events
         self.view.product_name_entry.bind("<FocusOut>", self._check_product_status)
         self.view.bill_items_table.bind("<<TreeviewSelect>>", self._on_table_row_select)
+
+        # <<< --- NEW: Add Enter key bindings for navigation --- >>>
+        self.view.product_name_entry.bind("<Return>", self._handle_product_enter)
+        self.view.quantity_entry.bind("<Return>", lambda event: self.view.price_entry.focus())
+        self.view.price_entry.bind("<Return>", lambda event: self.view.discount_entry.focus())
+        self.view.discount_entry.bind("<Return>", lambda event: self._on_add_item())
+
+    # <<< --- NEW: Helper function to handle Enter key on product entry --- >>>
+    def _handle_product_enter(self, event=None):
+        """Checks product status and moves focus to the quantity field."""
+        self._check_product_status()
+        self.view.quantity_entry.focus()
+        return "break" # Prevents the default Enter key behavior
 
     def _on_cancel_bill(self):
         if not self.current_bill_items:
@@ -154,7 +170,6 @@ class FactoryBuyController:
             
         header_data = self.view.get_bill_header_data()
         
-        # ... (منطق تأكيد تغيير السعر يبقى كما هو) ...
         for item in self.current_bill_items:
             details = self.model.get_product_details_for_purchase(item['product_name'], header_data['factory_name'])
             last_price = details.get('last_price') if details else None
@@ -175,21 +190,17 @@ class FactoryBuyController:
         }
         
         try:
-            # --- MODIFIED: Capture the returned dictionary from the model ---
             save_result = self.model.save_purchase_bill(full_bill_data)
             self.view.show_info("نجاح", "تم حفظ الفاتورة بنجاح!")
             
             if self.view.ask_yes_no("طباعة الفاتورة", "هل تريد طباعة الفاتورة الآن؟"):
-                # --- MODIFIED: Add all new info to the dictionary before printing ---
                 full_bill_data['purchases_bill_id'] = save_result['id']
                 full_bill_data['balance_before'] = save_result['balance_before']
                 full_bill_data['balance_after'] = save_result['balance_after']
                 
-                # Generate the report with the complete data
                 report_generator = BuyReportController(full_bill_data)
                 report_generator.generate_pdf()
 
-            # Reset the form for the next bill
             self.current_bill_items = []
             self.total_amount = 0.0
             self.view.clear_bill_form()

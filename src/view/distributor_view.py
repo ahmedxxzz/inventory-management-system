@@ -30,6 +30,7 @@ class DistributorView(ctk.CTkFrame):
         lbl_logo.pack(side='right', pady=5, padx=10)
         self.logo_path_entry = ctk.CTkEntry(logo_frame, textvariable=self.logo_path_var, font=("Arial", 12), height=40, justify='left', state='readonly') # Read-only
         self.logo_path_entry.pack(side='right', padx=10, pady=5, fill='x', expand=True)
+        # <<< MODIFICATION: Removed the delete button >>>
         self.browse_button = ctk.CTkButton(logo_frame, text="اختر صورة...", font=("Arial", 14, "bold"), width=120)
         self.browse_button.pack(side='right', padx=10)
         
@@ -50,16 +51,16 @@ class DistributorView(ctk.CTkFrame):
         style = ttk.Style() 
         style.theme_use("default"); style.configure("Treeview",background="#2b2b2b",foreground="white",rowheight=25,fieldbackground="#2b2b2b",bordercolor="#343638",borderwidth=0); style.map('Treeview', background=[('selected', '#8B0000')], foreground=[('selected', 'white')]); style.configure("Treeview.Heading",background="#565b5e",foreground="white",relief="flat",font=('Arial', 12, 'bold')); style.map("Treeview.Heading",background=[('active', '#3484F0')])
 
-        # ADD 'logo_path' to columns
         self.tree_columns = ('logo_path', 'distributor_name')
         self.tree_headers = ['مسار اللوجو', 'اسم الموزع']
-        self.tree = ttk.Treeview(bottom_frame, columns=self.tree_columns, show='headings', selectmode="extended")
+        # <<< MODIFICATION: Set selectmode to 'browse' for single selection >>>
+        self.tree = ttk.Treeview(bottom_frame, columns=self.tree_columns, show='headings', selectmode="browse")
         
         for i, col in enumerate(self.tree_columns):
             self.tree.heading(col, text=self.tree_headers[i], anchor='center')
         
+        self.tree.column('logo_path', anchor='w', width=400)
         self.tree.column('distributor_name', anchor='center')
-        self.tree.column('logo_path', anchor='w', width=400) # 'w' = west (left)
 
         v_scrollbar = ttk.Scrollbar(bottom_frame, orient="vertical", command=self.tree.yview)
         h_scrollbar = ttk.Scrollbar(bottom_frame, orient="horizontal", command=self.tree.xview)
@@ -70,16 +71,17 @@ class DistributorView(ctk.CTkFrame):
         """Opens a file dialog to select an image and returns the path."""
         file_path = filedialog.askopenfilename(
             title="اختر صورة اللوجو",
-            filetypes=[("Image Files", "*.png *.jpg *.jpeg")]
+            filetypes=[("Image Files", "*.png *.jpg *.jpeg *.gif")]
         )
-        if file_path:
-            self.logo_path_var.set(file_path)
-            return file_path
-        return None
+        # <<< MODIFICATION: Doesn't set the var directly, just returns the path >>>
+        return file_path
 
     def populate_treeview(self, data):
         for item in self.tree.get_children(): self.tree.delete(item)
-        for row_data in data: self.tree.insert("", "end", values=row_data)
+        # Handle None values gracefully for display
+        cleaned_data = [(row[0] or '', row[1]) for row in data]
+        for row_data in cleaned_data:
+            self.tree.insert("", "end", values=row_data)
         
     def bind_table(self, function=None):
         self.tree.bind('<<TreeviewSelect>>', lambda e, func=function: self.on_row_select(e, func))
@@ -91,4 +93,3 @@ class DistributorView(ctk.CTkFrame):
     def message(self, mstype, info_text, text):
         if mstype == "yes_no": return messagebox.askyesno(info_text, text)
         elif mstype == "showinfo": messagebox.showinfo(info_text, text)
-

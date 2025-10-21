@@ -7,7 +7,7 @@ from tkinter import messagebox
 from datetime import datetime
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Paragraph
@@ -107,56 +107,83 @@ class SalesReportController:
             ]
             table_data.append(row)
             
-        # --- MODIFICATION: Restructured summary rows ---
         net_total = grand_total_before_discount - total_discount_amount
         
-        # Row 1: Total Before Discount & Total Quantity
         summary_row_1 = [f"{grand_total_before_discount:,.2f}", "", str(total_quantity), self._reshape("الإجمالي"), ""]
         table_data.append(summary_row_1)
         
-        # Row 2: Total Discount & Net Total (in the same row)
         final_summary_row = [f"{net_total:,.2f}", self._reshape("صافي الفاتورة:"), f"{total_discount_amount:,.2f}", self._reshape("مجموع الخصم:"), ""]
         table_data.append(final_summary_row)
         
-        # Adjusted column widths
-        items_table = Table(table_data, colWidths=[3.5*cm, 3*cm, 2*cm, 8*cm, 1.5*cm])
+        items_table_col_widths = [3.5*cm, 3*cm, 2*cm, 8*cm, 1.5*cm]
+        items_table = Table(table_data, colWidths=items_table_col_widths)
         items_table.setStyle(TableStyle([
             ('FONTNAME', (0,0), (-1,-1), self.arabic_font_name),
             ('FONTSIZE', (0,0), (-1,-1), 10),
             ('ALIGN', (0,0), (-1,-1), 'CENTER'),
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('INNERGRID', (0,0), (-1,-3), 0.25, colors.grey), # Grid for items only
+            ('INNERGRID', (0,0), (-1,-3), 0.25, colors.grey),
             ('BOX', (0,0), (-1,-1), 1, colors.black),
-            # Header Style
             ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#4F81BD")),
-            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('TEXTCOLOR', (0,0), (-1,-0), colors.white),
             ('FONTNAME', (0,0), (-1,0), self.bold_arabic_font_name),
-            
-            # --- MODIFIED STYLES FOR SUMMARY ROWS ---
-            # Style for Summary Row 1 (at index -2)
             ('BACKGROUND', (0,-2), (-1,-2), colors.lightgrey),
             ('FONTNAME', (0,-2), (-1,-2), self.bold_arabic_font_name),
-            ('SPAN', (3, -2), (4, -2)),  # Span "الإجمالي" over two cells
-            
-            # Style for Final Summary Row (at index -1)
+            ('SPAN', (3, -2), (4, -2)),
             ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#4F81BD")),
             ('TEXTCOLOR', (0,-1), (-1,-1), colors.white),
             ('FONTNAME', (0,-1), (-1,-1), self.bold_arabic_font_name),
-            ('ALIGN', (1, -1), (1, -1), 'RIGHT'), # Align "صافي الفاتورة" to the right
-            ('ALIGN', (3, -1), (3, -1), 'RIGHT'), # Align "مجموع الخصم" to the right
+            ('ALIGN', (1, -1), (1, -1), 'RIGHT'),
+            ('ALIGN', (3, -1), (3, -1), 'RIGHT'),
         ]))
         elements.append(items_table)
-        elements.append(Spacer(1, 1*cm))
+        elements.append(Spacer(1, 0.2*cm))
 
+        # --- START OF MODIFICATION ---
         # 4. Add Footer with account details
-        status = "آجل" if self.bill_data['is_paid'] == 0 else "نقدي (مدفوعة)"
-        footer_text = f"""
-        <b>{status} :حالة الفاتورة</b> <br/>
-        <b>{self._reshape("ج.م")} {self.bill_data['balance_before']:,.2f} : الحساب قبل الفاتورة</b>  <br/>
-        <b>{self._reshape("ج.م") } {self.bill_data['balance_after']:,.2f} : الحساب بعد الفاتورة</b> 
-        """
-        style = ParagraphStyle(name='Footer', fontName=self.arabic_font_name, fontSize=12, alignment=TA_CENTER, leading=18)
-        elements.append(Paragraph(self._reshape(footer_text), style))
+        status = self._reshape("آجل") if self.bill_data['is_paid'] == 0 else self._reshape("نقدي (مدفوعة)")
+        currency = self._reshape("ج.م")
+        
+        footer_data = [
+            [f"{grand_total_before_discount:,.2f} {currency}", self._reshape("الفاتورة قبل الخصم")],
+            [f"{total_discount_amount:,.2f} {currency}", self._reshape("الخصم")],
+            [f"{net_total:,.2f} {currency}", self._reshape("صافى الفاتورة بعد الخصم")],
+            [f"{self.bill_data['balance_after']:,.2f} {currency}", self._reshape("الحساب عليكم بعد الفاتورة")],
+        ]
+        
+        footer_table = Table(footer_data, colWidths=[5*cm, 7*cm])
+        
+        footer_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), self.bold_arabic_font_name),
+            ('FONTSIZE', (0, 0), (-1, -1), 11),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('TOPPADDING', (0,0), (-1,-1), 5),
+            # Apply inner grid to all, which draws the line between columns and rows
+            ('INNERGRID', (0,0), (-1,-1), 0.25, colors.grey),
+            # Apply the outer BOX only to the first column (index 0)
+            ('BOX', (0, 0), (0, -1), 1, colors.black),
+            ('BACKGROUND', (0,-1), (-1,-1), colors.lightgrey),
+        ]))
+        
+        items_table_total_width = sum(items_table_col_widths)
+        
+        footer_wrapper = Table([[footer_table]], colWidths=[items_table_total_width], hAlign='CENTER')
+        
+        # Add a line above the wrapper and padding to create space
+        footer_wrapper.setStyle(TableStyle([
+            ('LEFTPADDING', (0,0), (-1,-1), 0),
+            ('RIGHTPADDING', (0,0), (-1,-1), 0),
+            # Add a black line above the entire wrapper cell
+            ('LINEABOVE', (0,0), (-1,-1), 1, colors.black),
+            # Add some padding on top to push the footer table down from the line
+            ('TOPPADDING', (0,0), (-1,-1), 8),
+        ]))
+
+        elements.append(footer_wrapper)
+        # --- END OF MODIFICATION ---
 
         # 5. Build the PDF
         self._create_and_open_pdf(elements)

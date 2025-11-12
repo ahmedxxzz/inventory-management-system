@@ -49,7 +49,7 @@ class SalesReportController:
         return get_display(arabic_reshaper.reshape(str(text)))
 
     def generate_pdf(self):
-        """The main method to build and open the PDF report."""
+        """The main method to build and print the PDF report."""
         elements = []
         
         # 1. Add Logo
@@ -139,7 +139,6 @@ class SalesReportController:
         elements.append(items_table)
         elements.append(Spacer(1, 0.2*cm))
 
-        # --- START OF MODIFICATION ---
         # 4. Add Footer with account details
         status = self._reshape("آجل") if self.bill_data['is_paid'] == 0 else self._reshape("نقدي (مدفوعة)")
         currency = self._reshape("ج.م")
@@ -161,9 +160,7 @@ class SalesReportController:
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('BOTTOMPADDING', (0,0), (-1,-1), 5),
             ('TOPPADDING', (0,0), (-1,-1), 5),
-            # Apply inner grid to all, which draws the line between columns and rows
             ('INNERGRID', (0,0), (-1,-1), 0.25, colors.grey),
-            # Apply the outer BOX only to the first column (index 0)
             ('BOX', (0, 0), (0, -1), 1, colors.black),
             ('BACKGROUND', (0,-1), (-1,-1), colors.lightgrey),
         ]))
@@ -172,24 +169,20 @@ class SalesReportController:
         
         footer_wrapper = Table([[footer_table]], colWidths=[items_table_total_width], hAlign='CENTER')
         
-        # Add a line above the wrapper and padding to create space
         footer_wrapper.setStyle(TableStyle([
             ('LEFTPADDING', (0,0), (-1,-1), 0),
             ('RIGHTPADDING', (0,0), (-1,-1), 0),
-            # Add a black line above the entire wrapper cell
             ('LINEABOVE', (0,0), (-1,-1), 1, colors.black),
-            # Add some padding on top to push the footer table down from the line
             ('TOPPADDING', (0,0), (-1,-1), 8),
         ]))
 
         elements.append(footer_wrapper)
-        # --- END OF MODIFICATION ---
 
-        # 5. Build the PDF
-        self._create_and_open_pdf(elements)
+        # 5. Build and Print the PDF
+        self._create_and_print_pdf(elements)
 
-    def _create_and_open_pdf(self, elements):
-        """Builds, saves, and opens the PDF document."""
+    def _create_and_print_pdf(self, elements):
+        """Builds, saves, and prints the PDF document."""
         os.makedirs("Z_Files/reports/customer_sales", exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         safe_customer_name = "".join(c for c in self.bill_data['customer_name'] if c.isalnum())
@@ -199,20 +192,24 @@ class SalesReportController:
             doc = SimpleDocTemplate(file_path, pagesize=self.pagesize, topMargin=1*cm, bottomMargin=1*cm, leftMargin=1*cm, rightMargin=1*cm)
             doc.build(elements)
             print(f"PDF generated successfully at: {file_path}")
-            self._open_pdf(file_path)
+            self._print_pdf(file_path)
         except Exception as e:
             messagebox.showerror("خطأ في إنشاء PDF", f"فشل إنشاء ملف PDF: {e}")
             traceback.print_exc()
 
-    def _open_pdf(self, filename):
-        """Opens the specified file using the default system application."""
+    def _print_pdf(self, filename):
+        """Sends the specified file to the default system printer."""
         time.sleep(0.5)
         try:
             if sys.platform == "win32":
-                os.startfile(filename)
+                os.startfile(filename, "print")
             elif sys.platform == "darwin":
-                subprocess.run(['open', filename], check=True)
+                # For macOS
+                subprocess.run(['lpr', filename], check=True)
             else:
-                subprocess.run(['xdg-open', filename], check=True)
+                # For Linux
+                subprocess.run(['lpr', filename], check=True)
+        except FileNotFoundError:
+            messagebox.showerror("خطأ في الطباعة", "الأمر 'lpr' غير موجود. هل نظام الطباعة مثبت؟")
         except Exception as e:
-            messagebox.showerror("خطأ في فتح الملف", f"لا يمكن فتح ملف PDF:\n{e}")
+            messagebox.showerror("خطأ في الطباعة", f"لا يمكن طباعة ملف PDF:\n{e}")

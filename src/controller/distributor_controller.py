@@ -59,12 +59,12 @@ class DistributorController:
         distributor_name = self.view.distributor_name_var.get().strip()
         if not distributor_name:
             return self.view.message("showinfo", "خطأ", "يرجى إدخال اسم الموزع")
+        if not self._newly_selected_logo_path:
+            return self.view.message("showinfo", "خطأ", "يرجى اختيار صورة اللوجو - الصورة مطلوبة")
         if self.model.distributor_exists(distributor_name): 
             return self.view.message("showinfo", "خطأ", "اسم الموزع موجود بالفعل")
         
-        final_logo_path = None
-        if self._newly_selected_logo_path:
-            final_logo_path = self._copy_image_and_get_path(self._newly_selected_logo_path)
+        final_logo_path = self._copy_image_and_get_path(self._newly_selected_logo_path)
         
         is_true, error = self.model.add_distributor(distributor_name, final_logo_path)
         if is_true:

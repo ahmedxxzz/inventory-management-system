@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, StringVar
 
 class FactoryAccountDetailsView(ctk.CTkFrame):
     def __init__(self, root, factory_name):
@@ -25,11 +25,14 @@ class FactoryAccountDetailsView(ctk.CTkFrame):
 
         self.back_btn = ctk.CTkButton(upper_frame, text='رجوع',  font=("Arial", 16, "bold"), width=100, height=30)
         self.back_btn.place(relx=0.005, rely=0.02, anchor="nw")
+        
+        self.edit_name_btn = ctk.CTkButton(upper_frame, text='تعديل الاسم', font=("Arial", 16, "bold"), width=120, height=30, fg_color='#FFA500')
+        self.edit_name_btn.place(relx=0.995, rely=0.02, anchor="ne")
 
         name_frame = ctk.CTkFrame(upper_frame, bg_color='#2b2b2b', fg_color='#2b2b2b',width=560, height=400)
         name_frame.pack(side='top',pady=20,)
-        name_lbl = ctk.CTkLabel(name_frame, text=f'مصنع: {self.factory_name}', font=("Arial", 20, "bold"), text_color='white',width=200, height=40)
-        name_lbl.pack(side='top', padx=10, pady=10)
+        self.name_lbl = ctk.CTkLabel(name_frame, text=f'مصنع: {self.factory_name}', font=("Arial", 20, "bold"), text_color='white',width=200, height=40)
+        self.name_lbl.pack(side='top', padx=10, pady=10)
         #################################################################
         data_frame = ctk.CTkFrame(upper_frame, fg_color='#2b2b2b')
         data_frame.pack(side='top', padx=10,pady=10,fill='x')
@@ -187,3 +190,67 @@ class FactoryAccountDetailsView(ctk.CTkFrame):
         elif mstype == "showinfo":
             messagebox.showinfo(info_text, text)
 
+    def create_edit_name_popup(self, current_name):
+        """Creates a popup to edit the factory name.
+        
+        Args:
+            current_name: The current factory name to pre-fill
+            
+        Returns:
+            str or None: The new name if saved, None if cancelled
+        """
+        popup = ctk.CTkToplevel(self)
+        popup.title("تعديل اسم المصنع")
+        popup.grab_set()
+        popup.geometry(f'400x150+{self.winfo_rootx() + 200}+{self.winfo_rooty() + 100}')
+        
+        # Add RTL embedding character for proper Arabic text handling
+        rtl_name = '\u202B' + current_name  # Right-to-Left Embedding
+        self._new_name_var = StringVar(value=rtl_name)
+        self._popup_result = None
+        
+        ctk.CTkLabel(popup, text='الاسم الجديد:', font=("Arial", 16, "bold")).pack(pady=(20, 10))
+        name_entry = ctk.CTkEntry(popup, textvariable=self._new_name_var, font=("Arial", 16), width=300, justify='right')
+        name_entry.pack(pady=5)
+        
+        def set_cursor():
+            name_entry.focus_set()
+            name_entry.icursor('end')
+            
+        # Increase delay to ensure widget is ready
+        popup.after(100, set_cursor)
+
+        def select_all(event):
+            name_entry.select_range(0, 'end')
+            return 'break'
+
+        name_entry.bind('<Control-a>', select_all)
+        
+        btn_frame = ctk.CTkFrame(popup, fg_color='transparent')
+        btn_frame.pack(pady=15)
+        
+        def on_save():
+            # Strip RTL control characters before saving
+            raw_name = self._new_name_var.get().strip()
+            self._popup_result = raw_name.replace('\u202B', '').replace('\u202C', '').strip()
+            popup.destroy()
+        
+        def on_cancel():
+            self._popup_result = None
+            popup.destroy()
+        
+        save_btn = ctk.CTkButton(btn_frame, text='حفظ', font=("Arial", 14, "bold"), width=100, fg_color='green', command=on_save)
+        save_btn.pack(side='left', padx=10)
+        cancel_btn = ctk.CTkButton(btn_frame, text='إلغاء', font=("Arial", 14, "bold"), width=100, fg_color='red', command=on_cancel)
+        cancel_btn.pack(side='left', padx=10)
+        
+        popup.bind('<Return>', lambda e: on_save())
+        popup.bind('<Escape>', lambda e: on_cancel())
+        
+        self.wait_window(popup)
+        return self._popup_result
+
+    def update_name_label(self, new_name):
+        """Updates the displayed factory name."""
+        self.factory_name = new_name
+        self.name_lbl.configure(text=f'مصنع: {new_name}')

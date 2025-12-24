@@ -37,3 +37,25 @@ class CustomerAccountDetailsModel:
         all_transactions = purchases_transactions  + pays_transactions + returns_transactions
         return sorted(all_transactions, key=lambda t: t[1], reverse=True)
 
+    def update_customer_name(self, new_name):
+        """Updates the customer name in the database.
+        
+        Args:
+            new_name: The new customer name
+            
+        Returns:
+            tuple: (success: bool, error_message: str or None)
+        """
+        try:
+            # Check if name already exists for another customer
+            self.cursor.execute("SELECT customer_id FROM Customer WHERE name = ? AND customer_id != ?", (new_name, self.customer_id))
+            if self.cursor.fetchone():
+                return False, "اسم المكتب موجود بالفعل"
+            
+            self.cursor.execute("UPDATE Customer SET name = ? WHERE customer_id = ?", (new_name, self.customer_id))
+            self.conn.commit()
+            return True, None
+        except Exception as e:
+            return False, str(e)
+
+

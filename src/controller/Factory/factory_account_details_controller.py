@@ -19,7 +19,21 @@ class FactoryAccountDetailsController:
         self.view.populate_treeview(self.model.get_factor_transactions())
         self.view.back_btn.configure(command=self.back)
         self.view.bind_table(self.get_selected_transaction)
-        self.view.report_btn.configure(command=self.report)        
+        self.view.report_btn.configure(command=self.report)
+        self.view.edit_name_btn.configure(command=self.edit_factory_name)
+
+    def edit_factory_name(self):
+        """Handles editing the factory name via popup."""
+        current_name = self.model.get_factory_name()
+        new_name = self.view.create_edit_name_popup(current_name)
+        
+        if new_name and new_name != current_name:
+            success, error = self.model.update_factory_name(new_name)
+            if success:
+                self.view.update_name_label(new_name)
+                self.view.message("showinfo", "نجاح", "تم تعديل اسم المصنع بنجاح")
+            else:
+                self.view.message("showinfo", "خطأ", f"فشل تعديل الاسم: {error}")        
 
 
     def fill_data(self):

@@ -21,3 +21,25 @@ class FactoryAccountDetailsModel:
         returns_transactions = self.cursor.execute("SELECT return_id, date, 'مرتجع', total_amount FROM Factory_Returns WHERE factory_id = ?", (self.factory_id, )).fetchall()
         all_transactions = purchases_transactions + pays_transactions + returns_transactions
         return sorted(all_transactions, key=lambda t: t[1], reverse=True)
+
+    def update_factory_name(self, new_name):
+        """Updates the factory name in the database.
+        
+        Args:
+            new_name: The new factory name
+            
+        Returns:
+            tuple: (success: bool, error_message: str or None)
+        """
+        try:
+            # Check if name already exists for another factory
+            self.cursor.execute("SELECT factory_id FROM Factories WHERE name = ? AND factory_id != ?", (new_name, self.factory_id))
+            if self.cursor.fetchone():
+                return False, "اسم المصنع موجود بالفعل"
+            
+            self.cursor.execute("UPDATE Factories SET name = ? WHERE factory_id = ?", (new_name, self.factory_id))
+            self.db_conn.commit()
+            return True, None
+        except Exception as e:
+            return False, str(e)
+
